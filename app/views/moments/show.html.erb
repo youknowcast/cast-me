@@ -1,0 +1,14 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Link:</strong>
+  <%= @moment.link %>
+</p>
+
+<p>
+  <strong>File path:</strong>
+  <%= @moment.file_path %>
+</p>
+
+<%= link_to 'Edit', edit_moment_path(@moment) %> |
+<%= link_to 'Back', moments_path %>
