@@ -7,8 +7,7 @@ class MomentsController < ApplicationController
   end
 
   # GET /moments/1 or /moments/1.json
-  def show
-  end
+  def show; end
 
   # GET /moments/new
   def new
@@ -16,8 +15,7 @@ class MomentsController < ApplicationController
   end
 
   # GET /moments/1/edit
-  def edit
-  end
+  def edit; end
 
   # POST /moments or /moments.json
   def create
