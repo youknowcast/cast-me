@@ -2,12 +2,17 @@
 
 <p>
   <strong>Link:</strong>
-  <%= @moment.link %>
+  <%= link_to @moment.link, @moment.link %>
 </p>
 
 <p>
   <strong>File path:</strong>
   <%= @moment.file_path %>
+</p>
+
+<p>
+  <strong>Description:</strong>
+  <%= @moment.description %>
 </p>
 
 <%= link_to 'Edit', edit_moment_path(@moment) %> |

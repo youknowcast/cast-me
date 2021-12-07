@@ -13,7 +13,7 @@
 ActiveRecord::Schema.define(version: 2021_11_21_141159) do
 
   create_table "moments", charset: "utf8mb4", force: :cascade do |t|
-    t.string "link"
+    t.string "link", null: false
     t.string "file_path"
     t.string "description"
     t.datetime "created_at", precision: 6, null: false
