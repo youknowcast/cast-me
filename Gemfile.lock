@@ -83,6 +83,7 @@ GEM
     concurrent-ruby (1.1.10)
     crass (1.0.6)
     diff-lcs (1.4.4)
+    diffy (3.4.0)
     dotenv (2.7.6)
     dotenv-rails (2.7.6)
       dotenv (= 2.7.6)
@@ -164,6 +165,9 @@ GEM
       ffi (~> 1.0)
     regexp_parser (2.1.1)
     rexml (3.2.5)
+    ridgepole (1.0.4)
+      activerecord (>= 5.1, < 7.1)
+      diffy
     rspec-core (3.10.2)
       rspec-support (~> 3.10.0)
     rspec-expectations (3.10.2)
@@ -251,6 +255,7 @@ DEPENDENCIES
   puma (~> 5.0)
   rack-mini-profiler (~> 2.0)
   rails (~> 6.1.4, >= 6.1.4.1)
+  ridgepole
   rspec-rails
   sass-rails (>= 6)
   selenium-webdriver
