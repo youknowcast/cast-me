@@ -14,7 +14,7 @@ services:
       - "3000:3000"
     environment:
       CAST_ME_DATABASE_HOST: 'mysql'
-      CAST_ME_DATABASE_PORT: 23306
+      CAST_ME_DATABASE_PORT: 3306
       PORT: '3000'
     command: ["bin/rails", "s", "-b", "0.0.0.0"]
     user: root
