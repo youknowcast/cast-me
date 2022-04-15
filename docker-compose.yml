@@ -1,0 +1,43 @@
+---
+version: "3"
+services:
+  app: &app
+    build:
+      context: .
+    volumes:
+      - .:/app:cached
+      - bundle:/bundle2
+    links:
+      - mysql
+      - smtp
+    ports:
+      - "3000:3000"
+    environment:
+      CAST_ME_DATABASE_HOST: 'mysql'
+      CAST_ME_DATABASE_PORT: 23306
+      PORT: '3000'
+    command: ["bin/rails", "s", "-b", "0.0.0.0"]
+    user: root
+    stdin_open: true
+    tty: true
+    tmpfs:
+      - /app/tmp/pids
+    depends_on:
+      - mysql
+  mysql:
+    platform: linux/x86_64
+    image: ${DOCKER_MYSQL_IMAGE:-mysql:5.7.28}
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    volumes:
+      - mysql:/var/lib/mysql
+    ports:
+      - '23306:3306'
+  smtp:
+    image: schickling/mailcatcher
+    ports:
+      - "21080:1080"
+      - "21025:1025"
+volumes:
+  bundle:
+  mysql:
