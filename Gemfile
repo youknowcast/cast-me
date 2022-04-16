@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-git_source(:github) { |repo| "https://github.com/#{repo}.git" }
+git_source(:github) { |repo| 'https://github.com/#{repo}.git' }
 
 ruby '3.0.2'
 
@@ -28,7 +28,10 @@ gem 'ridgepole'
 gem 'turbo-rails'
 gem 'stimulus-rails'
 
-gem "tailwindcss-rails", "~> 0.5.4"
+gem 'kaminari'
+gem 'ransack'
+
+gem 'tailwindcss-rails', '~> 0.5.4'
 
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.4', require: false
