@@ -1,3 +1,4 @@
+#
 class MomentsController < ApplicationController
   before_action :set_moment, only: %i[ show edit update destroy ]
 
@@ -55,13 +56,13 @@ class MomentsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_moment
-      @moment = Moment.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_moment
+    @moment = Moment.find(params[:id])
+  end
 
-    # Only allow a list of trusted parameters through.
-    def moment_params
-      params.require(:moment).permit(:link, :file_path)
-    end
+  # Only allow a list of trusted parameters through.
+  def moment_params
+    params.require(:moment).permit(:link, :file_path)
+  end
 end

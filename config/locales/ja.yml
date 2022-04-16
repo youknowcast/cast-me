@@ -1,0 +1,7 @@
+ja:
+  activerecord:
+    models:
+      moment: あのとき
+    attributes:
+      moment:
+        link: リンク
