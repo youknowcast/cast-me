@@ -2,30 +2,43 @@
 
 <h1>Moments</h1>
 
-<table>
-  <thead>
-    <tr>
-      <th>Link</th>
-      <th>File path</th>
-      <th>Description</th>
-      <th colspan="3"></th>
-    </tr>
-  </thead>
+<div class="flex max-w-md">
+  <%= search_form_for @search do |f| %>
 
-  <tbody>
-    <% @moments.each do |moment| %>
+    <%= f.label :description, "なに" %>
+    <%= f.search_field :description_cont %>
+
+    <%= f.submit %>
+
+    <%# 検索結果と検索フォームをクリアする %>
+    <%= link_to "クリア", moments_path %>
+  <% end %>
+</div>
+
+<div class="container max-w-md">
+  <table class="table">
+    <thead>
       <tr>
-        <td><%= link_to moment.link, moment.link %></td>
-        <td><%= moment.file_path %></td>
-        <td><%= moment.description %></td>
-        <td><%= link_to 'Show', moment %></td>
-        <td><%= link_to 'Edit', edit_moment_path(moment) %></td>
-        <td><%= link_to 'Destroy', moment, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <th><%= sort_link(@search, :link) %></th>
+        <th><%= sort_link(@search, :file_path) %></th>
+        <th><%= sort_link(@search, :description) %></th>
+        <th colspan="3"></th>
       </tr>
-    <% end %>
-  </tbody>
-</table>
+    </thead>
 
-<br>
+    <tbody>
+      <% @moments.each do |moment| %>
+        <tr>
+          <td><%= link_to moment.link, moment.link %></td>
+          <td><%= moment.file_path %></td>
+          <td><%= moment.description %></td>
+          <td><%= link_to 'Show', moment %></td>
+          <td><%= link_to 'Edit', edit_moment_path(moment) %></td>
+          <td><%= link_to 'Destroy', moment, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
 
 <%= link_to 'New Moment', new_moment_path %>

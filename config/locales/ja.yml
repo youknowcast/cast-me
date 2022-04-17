@@ -5,3 +5,5 @@ ja:
     attributes:
       moment:
         link: リンク
+        file_path: ファイルパス
+        description: なにか
