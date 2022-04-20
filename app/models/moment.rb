@@ -10,4 +10,15 @@
 #  updated_at  :datetime         not null
 #
 class Moment < ApplicationRecord
+  validates :link, presence: true
+  validate :valid_url?
+
+  private
+
+  def valid_url?
+    url = URI.parse(link) rescue false
+    unless url.kind_of?(URI::HTTP) || url.kind_of?(URI::HTTPS)
+      errors.add(:link, 'が有効な URL ではありません')
+    end
+  end
 end
