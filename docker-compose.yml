@@ -13,9 +13,11 @@ services:
     ports:
       - "3000:3000"
     environment:
+      PORT: '3000'
       CAST_ME_DATABASE_HOST: 'mysql'
       CAST_ME_DATABASE_PORT: 3306
-      PORT: '3000'
+      REDIS_HOST: 'redis'
+      REDIS_PORT: '6379'
     command: ["bin/rails", "s", "-b", "0.0.0.0"]
     user: root
     stdin_open: true
@@ -38,6 +40,14 @@ services:
     ports:
       - "21080:1080"
       - "21025:1025"
+  redis:
+    container_name: castme-redis
+    image: redis:latest
+    ports:
+      - 16379:6379
+    volumes:
+      - ./redis:/data
+    command: redis-server
 volumes:
   bundle:
   mysql:
