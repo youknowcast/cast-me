@@ -1,0 +1,22 @@
+doctype html
+html
+  head
+    title CastMe
+    = csrf_meta_tags
+    = csp_meta_tag
+    = stylesheet_link_tag 'inter-font', media: 'all', 'data-turbo-track': 'reload'
+    = stylesheet_link_tag "tailwind", "data-turbo-track": "reload"
+    = stylesheet_link_tag 'application', media: 'all', 'data-turbo-track': 'reload'
+  body
+    = render 'shared/sidebar'
+    = render 'shared/topbar'
+
+    .main
+      = yield
+
+    - if @notice.present?
+      p.notice
+        = @notice
+    - if @alert.present?
+      p.alert
+        = @alert
