@@ -1,0 +1,11 @@
+.sidebar
+  nav
+    = link_to root_path, class: 'sidebar-link' do
+      i.material-icons ホーム
+      | Home
+    = link_to calendar_index_path, class: 'sidebar-link' do
+      i.material-icons イベント
+      | Calendar
+/    = link_to settings_path, class: 'sidebar-link' do
+/      i.material-icons 設定
+/      | Settings
