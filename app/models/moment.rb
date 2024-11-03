@@ -15,6 +15,10 @@ class Moment < ApplicationRecord
 
   private
 
+  def self.ransackable_attributes(auth_object = nil)
+    %w[created_at description file_path id link updated_at]
+  end
+
   def valid_url?
     url = URI.parse(link) rescue false
     unless url.kind_of?(URI::HTTP) || url.kind_of?(URI::HTTPS)

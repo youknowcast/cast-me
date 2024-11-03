@@ -1,4 +1,4 @@
-FROM rubylang/ruby:3.0.2-focal
+FROM rubylang/ruby:3.3.5-focal
 
 ENV LANG ja_JP.UTF-8
 
@@ -17,7 +17,7 @@ ENV PATH: /app/bin:$BUNDLE_BIN:$PATH
 
 # Run only `bundle install` first for caching
 RUN mkdir -p /app
-COPY Gemfile Gemfile.lock /app/
+COPY Gemfile Gemfile.lock .ruby-version /app/
 WORKDIR /app
 RUN bundle config set jobs 4 && bundle install
 
