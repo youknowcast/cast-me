@@ -3,7 +3,7 @@ FROM rubylang/ruby:3.3.5-focal
 ENV LANG ja_JP.UTF-8
 
 RUN apt-get update -qq && \
-  DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential git curl libmysqlclient-dev && \
+  DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential libffi-dev libyaml-dev git curl libmysqlclient-dev && \
   apt-get clean && \
   rm -rf /var/cache/apt/archives/* && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
