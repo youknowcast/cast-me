@@ -2,12 +2,12 @@
 #
 # Table name: articles
 #
-#  id                          :bigint           not null, primary key
+#  id                          :integer          not null, primary key
 #  date                        :date             not null
-#  description                 :text(65535)
+#  description                 :text
 #  display_order               :integer          default(0), not null
 #  sequence_number             :integer          not null
-#  title                       :string(255)      not null
+#  title                       :string           not null
 #  created_at                  :datetime         not null
 #  updated_at                  :datetime         not null
 #  article_template_version_id :bigint           not null

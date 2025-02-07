@@ -1,53 +1,20 @@
 ---
 services:
-  app: &app
+  app:
     build:
       context: .
+      dockerfile: Dockerfile
     volumes:
-      - .:/app:cached
-      - bundle:/bundle2
-    links:
-      - mysql
-      - smtp
+      - .:/app
+      - bundle:/usr/local/bundle
+      # SQLiteのデータベースファイルを永続化するためのボリューム
+      - sqlite_data:/app/db
     ports:
       - "3000:3000"
     environment:
-      PORT: '3000'
-      CAST_ME_DATABASE_HOST: 'mysql'
-      CAST_ME_DATABASE_PORT: 3306
-      REDIS_HOST: 'redis'
-      REDIS_PORT: '6379'
-    command: ["bin/rails", "s", "-b", "0.0.0.0"]
-    user: root
-    stdin_open: true
-    tty: true
-    tmpfs:
-      - /app/tmp/pids
-    platform: linux/arm64
-    depends_on:
-      - mysql
-  mysql:
-    platform: linux/x86_64
-    image: ${DOCKER_MYSQL_IMAGE:-mysql:5.7.28}
-    environment:
-      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
-    volumes:
-      - mysql:/var/lib/mysql
-    ports:
-      - '23306:3306'
-  smtp:
-    image: schickling/mailcatcher
-    ports:
-      - "21080:1080"
-      - "21025:1025"
-  redis:
-    container_name: castme-redis
-    image: redis:latest
-    ports:
-      - 16379:6379
-    volumes:
-      - ./redis:/data
-    command: redis-server
+      - RAILS_ENV=development
+    entrypoint: [ "/usr/bin/entrypoint.sh" ]
+    command: [ "bundle", "exec", "rails", "s", "-p", "3000", "-b", "0.0.0.0" ]
 volumes:
   bundle:
-  mysql:
+  sqlite_data: # SQLite用のボリュームを追加

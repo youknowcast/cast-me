@@ -1,4 +1,4 @@
-FROM rubylang/ruby:3.3.5-focal
+FROM rubylang/ruby:3.3.7-focal
 
 ENV LANG ja_JP.UTF-8
 
@@ -23,4 +23,6 @@ RUN bundle config set jobs 4 && bundle install
 
 COPY . /app
 
-CMD ["bin/rails", "s"]
+COPY entrypoint.sh /usr/bin/
+RUN chmod +x /usr/bin/entrypoint.sh
+ENTRYPOINT ["entrypoint.sh"]

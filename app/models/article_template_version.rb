@@ -2,7 +2,7 @@
 #
 # Table name: article_template_versions
 #
-#  id                  :bigint           not null, primary key
+#  id                  :integer          not null, primary key
 #  version             :integer          not null
 #  created_at          :datetime         not null
 #  updated_at          :datetime         not null

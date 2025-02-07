@@ -2,10 +2,10 @@
 #
 # Table name: moments
 #
-#  id          :bigint           not null, primary key
-#  description :string(255)
-#  file_path   :string(255)
-#  link        :string(255)      not null
+#  id          :integer          not null, primary key
+#  description :string
+#  file_path   :string
+#  link        :string           not null
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
 #
