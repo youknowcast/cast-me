@@ -39,3 +39,22 @@ yarn-debug.log*
 .env*
 /app/assets/builds/*
 !/app/assets/builds/.keep
+
+# SQLite database files
+/db/*.sqlite3
+/db/*.sqlite3-*
+
+# その他の一時ファイル
+/tmp/*
+!/tmp/.keep
+/storage/*
+!/storage/.keep
+
+# ログファイル
+/log/*
+!/log/.keep
+
+# 環境変数ファイル
+.env
+.env.*
+!.env.example

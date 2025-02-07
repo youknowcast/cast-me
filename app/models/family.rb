@@ -1,12 +1,12 @@
 # == Schema Information
 #
-# Table name: article_templates
+# Table name: families
 #
 #  id         :integer          not null, primary key
 #  name       :string           not null
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
-class ArticleTemplate < ApplicationRecord
+class Family < ApplicationRecord
 
 end
