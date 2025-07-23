@@ -8,5 +8,9 @@
 #  updated_at :datetime         not null
 #
 class Family < ApplicationRecord
+  has_many :users, dependent: :destroy
+  has_many :plans, dependent: :destroy
+  has_many :tasks, dependent: :destroy
 
+  validates :name, presence: true, length: { maximum: 100 }
 end

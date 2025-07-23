@@ -4,6 +4,22 @@ class CalendarController < ApplicationController
   def index
     @date = date
     @weeks = generate_calendar_weeks
+    @today_plans = current_user.family.plans.for_date(Date.today).ordered_by_time
+    @today_tasks = current_user.tasks.for_date(Date.today).ordered_by_priority
+  end
+
+  def daily_view
+    @date = begin
+      Date.parse(params[:date])
+    rescue Date::Error
+      Date.today
+    end
+    @plans = current_user.family.plans.for_date(@date).ordered_by_time
+    @tasks = current_user.tasks.for_date(@date).ordered_by_priority
+    
+    respond_to do |format|
+      format.turbo_stream { render turbo_stream: turbo_stream.replace("daily-content", partial: "daily_view") }
+    end
   end
 
   private

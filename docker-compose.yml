@@ -7,14 +7,11 @@ services:
     volumes:
       - .:/app
       - bundle:/usr/local/bundle
-      # SQLiteのデータベースファイルを永続化するためのボリューム
-      - sqlite_data:/app/db
     ports:
-      - "3000:3000"
+      - "1984:3000"
     environment:
       - RAILS_ENV=development
     entrypoint: [ "/usr/bin/entrypoint.sh" ]
     command: [ "bundle", "exec", "rails", "s", "-p", "3000", "-b", "0.0.0.0" ]
 volumes:
   bundle:
-  sqlite_data: # SQLite用のボリュームを追加

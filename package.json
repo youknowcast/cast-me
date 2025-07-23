@@ -10,11 +10,13 @@
     "turbolinks": "^5.2.0"
   },
   "scripts": {
-    "build": "esbuild app/javascript/*.* --bundle --sourcemap --outdir=app/assets/builds"
+    "build": "esbuild app/javascript/*.* --bundle --sourcemap --outdir=app/assets/builds --loader:.ts=ts"
   },
   "version": "0.1.0",
   "devDependencies": {
     "daisyui": "^4.12.14",
-    "postcss": "^8.4.47"
+    "postcss": "^8.4.47",
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
   }
 }
