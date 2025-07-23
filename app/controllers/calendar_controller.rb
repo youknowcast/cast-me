@@ -9,7 +9,11 @@ class CalendarController < ApplicationController
   end
 
   def daily_view
-    @date = Date.parse(params[:date])
+    @date = begin
+      Date.parse(params[:date])
+    rescue Date::Error
+      Date.today
+    end
     @plans = current_user.family.plans.for_date(@date).ordered_by_time
     @tasks = current_user.tasks.for_date(@date).ordered_by_priority
     
