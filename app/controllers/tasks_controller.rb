@@ -10,10 +10,36 @@ class TasksController < ApplicationController
   end
 
   def new
+    date = if params[:date].present?
+             Date.parse(params[:date])
+           else
+             Date.today
+           end
+    
     @task = current_user.tasks.build(
-      date: params[:date] ? Date.parse(params[:date]) : Date.today,
+      date: date,
       family: current_user.family
     )
+    
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.update("side-panel", partial: "form", locals: { task: @task })
+      end
+      format.html { render :new }
+    end
+  rescue Date::Error
+    # 無効な日付の場合は今日の日付を使用
+    @task = current_user.tasks.build(
+      date: Date.today,
+      family: current_user.family
+    )
+    
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.update("side-panel", partial: "form", locals: { task: @task })
+      end
+      format.html { render :new }
+    end
   end
 
   def create
@@ -26,20 +52,26 @@ class TasksController < ApplicationController
           render turbo_stream: [
             turbo_stream.replace("daily-content", partial: "calendar/daily_view", 
               locals: { date: @task.date, plans: current_user.family.plans.for_date(@task.date).ordered_by_time, tasks: current_user.tasks.for_date(@task.date).ordered_by_priority }),
-            turbo_stream.update("modal", "")
+            turbo_stream.update("side-panel", "")
           ]
         end
         format.html { redirect_to calendar_path, notice: "タスクを作成しました" }
       end
     else
       respond_to do |format|
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("modal", partial: "form") }
+        format.turbo_stream { render turbo_stream: turbo_stream.replace("side-panel", partial: "form") }
         format.html { render :new }
       end
     end
   end
 
   def edit
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.update("side-panel", partial: "form", locals: { task: @task })
+      end
+      format.html { render :edit }
+    end
   end
 
   def update
@@ -49,14 +81,14 @@ class TasksController < ApplicationController
           render turbo_stream: [
             turbo_stream.replace("daily-content", partial: "calendar/daily_view", 
               locals: { date: @task.date, plans: current_user.family.plans.for_date(@task.date).ordered_by_time, tasks: current_user.tasks.for_date(@task.date).ordered_by_priority }),
-            turbo_stream.update("modal", "")
+            turbo_stream.update("side-panel", "")
           ]
         end
         format.html { redirect_to calendar_path, notice: "タスクを更新しました" }
       end
     else
       respond_to do |format|
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("modal", partial: "form") }
+        format.turbo_stream { render turbo_stream: turbo_stream.replace("side-panel", partial: "form") }
         format.html { render :edit }
       end
     end

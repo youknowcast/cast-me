@@ -6,14 +6,18 @@
         span.ml-2.text-sm.bg-blue-100.text-blue-800.px-2.py-1.rounded-full 今日
     
     .flex.space-x-2
-      = link_to new_plan_path(date: date.strftime("%Y-%m-%d")), 
-                class: "btn btn-sm btn-primary", 
-                data: { turbo_frame: "modal" } do
+      button.btn.btn-sm.btn-primary[
+        data-controller="side-panel-opener"
+        data-action="click->side-panel-opener#openPlanForm"
+        data-date=date.strftime("%Y-%m-%d")
+      ]
         i.fas.fa-plus.mr-1
         | 予定追加
-      = link_to new_task_path(date: date.strftime("%Y-%m-%d")), 
-                class: "btn btn-sm btn-outline", 
-                data: { turbo_frame: "modal" } do
+      button.btn.btn-sm.btn-outline[
+        data-controller="side-panel-opener"
+        data-action="click->side-panel-opener#openTaskForm"
+        data-date=date.strftime("%Y-%m-%d")
+      ]
         i.fas.fa-plus.mr-1
         | タスク追加
 
@@ -42,9 +46,11 @@
                       |  - 
                       = plan.end_time.strftime("%H:%M")
               .flex.space-x-2
-                = link_to edit_plan_path(plan), 
-                          class: "btn btn-xs btn-outline", 
-                          data: { turbo_frame: "modal" } do
+                button.btn.btn-xs.btn-outline[
+                  data-controller="side-panel-opener"
+                  data-action="click->side-panel-opener#openPlanEdit"
+                  data-plan-id=plan.id
+                ]
                   i.fas.fa-edit
                 = link_to plan_path(plan), 
                           method: :delete, 
@@ -94,9 +100,11 @@
                     i.fas.fa-undo
                   - else
                     i.fas.fa-check
-                = link_to edit_task_path(task), 
-                          class: "btn btn-xs btn-outline", 
-                          data: { turbo_frame: "modal" } do
+                button.btn.btn-xs.btn-outline[
+                  data-controller="side-panel-opener"
+                  data-action="click->side-panel-opener#openTaskEdit"
+                  data-task-id=task.id
+                ]
                   i.fas.fa-edit
                 = link_to task_path(task), 
                           method: :delete, 
