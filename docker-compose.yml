@@ -10,7 +10,7 @@ services:
       # SQLiteのデータベースファイルを永続化するためのボリューム
       - sqlite_data:/app/db
     ports:
-      - "3000:3000"
+      - "1984:3000"
     environment:
       - RAILS_ENV=development
     entrypoint: [ "/usr/bin/entrypoint.sh" ]
