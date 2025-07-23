@@ -1,20 +1,50 @@
-h1.text-2xl.mb-4 カレンダー
+.container.mx-auto.px-4.py-8
+  .flex.justify-between.items-center.mb-6
+    h1.text-3xl.font-bold.text-gray-800 カレンダー
+    
+    .flex.items-center.space-x-4
+      = link_to calendar_path(date: @date.prev_month), class: "btn btn-outline btn-sm" do
+        i.fas.fa-chevron-left
+      span.text-lg.font-semibold= @date.strftime("%Y年%m月")
+      = link_to calendar_path(date: @date.next_month), class: "btn btn-outline btn-sm" do
+        i.fas.fa-chevron-right
 
-.grid.grid-cols-7.gap-4
-  - %w[日 月 火 水 木 金 土].each do |day|
-    div.font-bold.text-center= day
+  .grid.grid-cols-1.lg:grid-cols-3.gap-6
+    / カレンダー部分
+    .lg:col-span-2
+      .bg-white.rounded-lg.shadow-lg.p-6
+        .grid.grid-cols-7.gap-1.mb-4
+          - %w[日 月 火 水 木 金 土].each do |day|
+            div.font-bold.text-center.text-gray-600.p-2= day
 
-- @weeks.each do |week|
-  .flex
-    - week.each do |day|
-      .card.shadow-lg.w-full.bg-base-100
-        .card-body.w-32
-          h2.card-title.text-xl.text-center= day.day
+        - @weeks.each do |week|
+          .grid.grid-cols-7.gap-1
+            - week.each do |day|
+              - is_current_month = day.month == @date.month
+              - is_today = day == Date.today
+              - has_plans = current_user.family.plans.for_date(day).exists?
+              - has_tasks = current_user.tasks.for_date(day).exists?
+              
+              .relative.min-h-24.border.border-gray-200.p-2.cursor-pointer.hover:bg-gray-50.transition-colors[
+                class="#{is_current_month ? 'bg-white' : 'bg-gray-50'}"
+                class="#{is_today ? 'ring-2 ring-blue-500' : ''}"
+                data-controller="calendar-day"
+                data-action="click->calendar-day#selectDate"
+                data-date=day.strftime("%Y-%m-%d")
+              ]
+                .text-sm.font-medium.mb-1[
+                  class="#{is_current_month ? 'text-gray-900' : 'text-gray-400'}"
+                  class="#{is_today ? 'text-blue-600 font-bold' : ''}"
+                ]
+                  = day.day
+                
+                .space-y-1
+                  - if has_plans
+                    .w-2.h-2.bg-blue-500.rounded-full.mx-auto
+                  - if has_tasks
+                    .w-2.h-2.bg-orange-500.rounded-full.mx-auto
 
-          - if day.month == @date.month
-            p.text-center.text-gray-700
-          - else
-            p.text-center.text-gray-400
-
-          .card-actions.justify-center
-            button.btn.btn-sm.btn-primary イベント追加
+    / 当日情報部分
+    .lg:col-span-1
+      #daily-content
+        = render "daily_view", date: Date.today, plans: @today_plans, tasks: @today_tasks
