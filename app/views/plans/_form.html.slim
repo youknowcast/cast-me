@@ -1,13 +1,13 @@
 .side-panel-overlay[
   data-controller="side-panel"
   data-side-panel-target="overlay"
-  data-action="click->side-panel#close"
+  data-action="click->side-panel#closeBackground"
   style="display: block; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999;"
 ]
   .side-panel-backdrop.opacity-0[
     data-side-panel-target="backdrop"
   ]
-  
+
   .side-panel.translate-x-full[
     data-side-panel-target="panel"
   ]
@@ -20,7 +20,7 @@
           data-action="click->side-panel#close"
         ]
           i.fas.fa-times
-      
+
       / フォーム
       .side-panel-body
         = form_with model: plan, local: false, data: { turbo_frame: "side-panel" } do |f|
@@ -30,33 +30,33 @@
               = f.text_field :title, class: "input input-bordered w-full", placeholder: "予定のタイトル"
               - if plan.errors[:title].any?
                 .text-error.text-sm.mt-1= plan.errors[:title].join(", ")
-            
+
             .form-control
               = f.label :date, "日付", class: "label"
               = f.date_field :date, class: "input input-bordered w-full"
               - if plan.errors[:date].any?
                 .text-error.text-sm.mt-1= plan.errors[:date].join(", ")
-            
+
             .grid.grid-cols-1.sm:grid-cols-2.gap-4
               .form-control
                 = f.label :start_time, "開始時刻", class: "label"
                 = f.time_field :start_time, class: "input input-bordered w-full"
                 - if plan.errors[:start_time].any?
                   .text-error.text-sm.mt-1= plan.errors[:start_time].join(", ")
-              
+
               .form-control
                 = f.label :end_time, "終了時刻", class: "label"
                 = f.time_field :end_time, class: "input input-bordered w-full"
                 - if plan.errors[:end_time].any?
                   .text-error.text-sm.mt-1= plan.errors[:end_time].join(", ")
-            
+
             .form-control
               = f.label :description, "詳細", class: "label"
               = f.text_area :description, rows: 4, class: "textarea textarea-bordered w-full", placeholder: "予定の詳細を入力してください"
               - if plan.errors[:description].any?
                 .text-error.text-sm.mt-1= plan.errors[:description].join(", ")
-          
+
           / フッター
           .side-panel-footer
             = link_to "キャンセル", "#", class: "btn btn-ghost", data: { action: "click->side-panel#close" }
-            = f.submit plan.persisted? ? "更新" : "作成", class: "btn btn-primary" 
+            = f.submit plan.persisted? ? "更新" : "作成", class: "btn btn-primary"

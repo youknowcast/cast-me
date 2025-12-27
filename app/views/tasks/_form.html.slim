@@ -1,13 +1,13 @@
 .side-panel-overlay[
   data-controller="side-panel"
   data-side-panel-target="overlay"
-  data-action="click->side-panel#close"
+  data-action="click->side-panel#closeBackground"
   style="display: block; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999;"
 ]
   .side-panel-backdrop.opacity-0[
     data-side-panel-target="backdrop"
   ]
-  
+
   .side-panel.translate-x-full[
     data-side-panel-target="panel"
   ]
@@ -20,7 +20,7 @@
           data-action="click->side-panel#close"
         ]
           i.fas.fa-times
-      
+
       / フォーム
       .side-panel-body
         = form_with model: task, local: false, data: { turbo_frame: "side-panel" } do |f|
@@ -30,27 +30,27 @@
               = f.text_field :title, class: "input input-bordered w-full", placeholder: "タスクのタイトル"
               - if task.errors[:title].any?
                 .text-error.text-sm.mt-1= task.errors[:title].join(", ")
-            
+
             .form-control
               = f.label :date, "日付", class: "label"
               = f.date_field :date, class: "input input-bordered w-full"
               - if task.errors[:date].any?
                 .text-error.text-sm.mt-1= task.errors[:date].join(", ")
-            
+
             .form-control
               = f.label :description, "詳細", class: "label"
               = f.text_area :description, rows: 4, class: "textarea textarea-bordered w-full", placeholder: "タスクの詳細を入力してください"
               - if task.errors[:description].any?
                 .text-error.text-sm.mt-1= task.errors[:description].join(", ")
-            
+
             .form-control
               .label
                 span.label-text 完了状態
               .flex.items-center.space-x-2
                 = f.check_box :completed, class: "checkbox"
                 = f.label :completed, "完了済み", class: "label-text"
-          
+
           / フッター
           .side-panel-footer
             = link_to "キャンセル", "#", class: "btn btn-ghost", data: { action: "click->side-panel#close" }
-            = f.submit task.persisted? ? "更新" : "作成", class: "btn btn-primary" 
+            = f.submit task.persisted? ? "更新" : "作成", class: "btn btn-primary"
