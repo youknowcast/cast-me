@@ -6,16 +6,16 @@ class CalendarController < ApplicationController
     @date = date
     @weeks = generate_calendar_weeks
 
-    # For Detail View (Today)
-    set_family_calendar_data(Date.today)
+    # Fetch data for the selected/default date in the details view
+    set_family_calendar_data(@date)
   end
 
   def my
     @date = date
     @weeks = generate_calendar_weeks
 
-    # For Detail View (Today)
-    set_my_calendar_data(Date.today)
+    # Fetch data for the selected/default date in the details view
+    set_my_calendar_data(@date)
   end
 
   def daily_view
