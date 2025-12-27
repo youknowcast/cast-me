@@ -45,3 +45,9 @@ application.register("monthpicker-connector", MonthpickerConnectorController)
 
 import MonthpickerController from "./monthpicker_controller"
 application.register("monthpicker", MonthpickerController)
+
+import DeleteConfirmController from "./delete_confirm_controller"
+application.register("delete-confirm", DeleteConfirmController)
+
+import DeleteConfirmTriggerController from "./delete_confirm_trigger_controller"
+application.register("delete-confirm-trigger", DeleteConfirmTriggerController)

@@ -165,6 +165,35 @@ html data-theme="cupcake"
             button.btn.btn-primary.w-full.rounded-xl.h-12.text-base.font-bold type="button" data-action="monthpicker#confirm"
               | 確定
 
+    / 削除確認モーダル (グローバル)
+    #delete-confirm-modal-container data-controller="delete-confirm"
+      dialog#delete-confirm-modal.modal.modal-bottom data-delete-confirm-target="modal" style="z-index: 99999;"
+        .modal-box.p-0.bg-white.text-gray-900.flex.flex-col.overflow-hidden.rounded-t-3xl.shadow-2xl style="height: auto; max-height: 40vh;"
+          / Handle bar
+          .w-full.flex.justify-center.pt-3.pb-1.shrink-0.bg-white
+            .w-10.h-1.bg-gray-300.rounded-full
+
+          / Header
+          .px-4.py-3.flex.justify-between.items-center.bg-white.border-b.border-gray-100.shrink-0
+            .w-10
+            h3.text-base.font-bold.text-gray-900 確認
+            button.w-10.h-10.flex.items-center.justify-center.text-gray-400.rounded-full type="button" data-action="delete-confirm#close"
+              i.fas.fa-times.text-base
+
+          / Message
+          .flex.items-center.justify-center.py-8.px-6.bg-white
+            .text-center
+              i.fas.fa-trash-alt.text-4xl.text-red-400.mb-4
+              p.text-lg.font-medium.text-gray-800 data-delete-confirm-target="message"
+                | この項目を削除しますか？
+
+          / Footer with buttons
+          .p-4.bg-white.border-t.border-gray-100.shrink-0.flex.gap-3
+            button.btn.btn-ghost.flex-1.rounded-xl.h-12.text-base.font-bold type="button" data-action="delete-confirm#close"
+              | キャンセル
+            button.btn.btn-error.flex-1.rounded-xl.h-12.text-base.font-bold type="button" data-action="delete-confirm#confirm"
+              | 削除する
+
     - if @notice.present?
 
       p.notice

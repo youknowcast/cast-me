@@ -58,8 +58,10 @@
         data-plan-id=plan.id
       ]
         i.fas.fa-edit
-      = link_to plan_path(plan),
-                method: :delete,
-                class: "btn btn-xs btn-error",
-                data: { confirm: "削除しますか？" } do
+      button.btn.btn-xs.btn-error[
+        data-controller="delete-confirm-trigger"
+        data-delete-confirm-trigger-url-value=plan_path(plan)
+        data-delete-confirm-trigger-message-value="この予定を削除しますか？すべての家族メンバーの予定からも削除されます。"
+        data-action="click->delete-confirm-trigger#open"
+      ]
         i.fas.fa-trash

@@ -32,8 +32,10 @@
           data-scope=current_scope
         ]
           i.fas.fa-edit
-        = link_to task_path(task),
-                  method: :delete,
-                  class: "btn btn-xs btn-error",
-                  data: { confirm: "削除しますか？" } do
+        button.btn.btn-xs.btn-error[
+          data-controller="delete-confirm-trigger"
+          data-delete-confirm-trigger-url-value=task_path(task)
+          data-delete-confirm-trigger-message-value="このタスクを削除しますか？"
+          data-action="click->delete-confirm-trigger#open"
+        ]
           i.fas.fa-trash
