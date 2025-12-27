@@ -15,15 +15,17 @@
     - if has_alert
       i.fas.fa-exclamation-circle.text-red-500.text-xs[title="未完了タスクがあります"]
 
-  .space-y-1
-    - plans.each do |plan|
-      .flex.items-center.text-blue-700
-        i[class="#{plan_icon} mr-1 text-xs"]
-        span.text-xs.truncate.hidden.md:inline = plan.title
-        span.md:hidden.w-1.h-1.bg-blue-500.rounded-full.ml-1
+  .flex.flex-wrap.gap-1.mt-1
+    - if plans.any?
+      .badge.badge-sm.bg-blue-100.text-blue-700.border-none.flex.items-center.gap-1.h-5.px-1.5
+        i[class="#{plan_icon} text-[10px]"]
+        span.font-bold style="font-size: 10px;"
+          | 予定
+          = plans.count
 
-    - tasks.each do |task|
-      .flex.items-center[class="#{task.completed ? 'text-gray-400 line-through' : 'text-orange-700'}"]
-        i[class="#{task_icon} mr-1 text-xs"]
-        span.text-xs.truncate.hidden.md:inline = task.title
-        span.md:hidden.w-1.h-1.bg-orange-500.rounded-full.ml-1
+    - if tasks.any?
+      .badge.badge-sm.bg-orange-100.text-orange-700.border-none.flex.items-center.gap-1.h-5.px-1.5
+        i[class="#{task_icon} text-[10px]"]
+        span.font-bold style="font-size: 10px;"
+          | タスク
+          = tasks.count

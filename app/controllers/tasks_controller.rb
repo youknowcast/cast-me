@@ -17,35 +17,37 @@ class TasksController < ApplicationController
              Date.today
            end
 
-    @task = current_user.tasks.build(
+    @scope = params[:scope] || 'family'
+    @task = current_user.family.tasks.build(
       date: date,
-      family: current_user.family
+      user_id: current_user.id
     )
 
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.update("side-panel", partial: "form", locals: { task: @task })
+        render turbo_stream: turbo_stream.update("side-panel", partial: "form", locals: { task: @task, scope: @scope })
       end
       format.html { render :new }
     end
   rescue Date::Error
-    # 無効な日付の場合は今日の日付を使用
-    @task = current_user.tasks.build(
+    @scope = params[:scope] || 'family'
+    @task = current_user.family.tasks.build(
       date: Date.today,
-      family: current_user.family
+      user_id: current_user.id
     )
 
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.update("side-panel", partial: "form", locals: { task: @task })
+        render turbo_stream: turbo_stream.update("side-panel", partial: "form", locals: { task: @task, scope: @scope })
       end
       format.html { render :new }
     end
   end
 
   def create
-    @task = current_user.tasks.build(task_params)
-    @task.family = current_user.family
+    @task = current_user.family.tasks.build(task_params)
+    # Ensure creator is the current user (optional field in schema)
+    # @task.creator = current_user
 
     if @task.save
       set_calendar_data(@task.date)
@@ -59,17 +61,21 @@ class TasksController < ApplicationController
         format.html { redirect_to calendar_path, notice: "タスクを作成しました" }
       end
     else
+      @scope = params[:scope] || 'family'
       respond_to do |format|
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("side-panel", partial: "form") }
+        format.turbo_stream { render turbo_stream: turbo_stream.replace("side-panel", partial: "form", locals: { task: @task, scope: @scope }) }
         format.html { render :new }
       end
     end
   end
 
   def edit
+    # scope can be inferred from context if needed, but for edit we usually show user select if in family view
+    # For simplicity, we'll try to get it from params
+    @scope = params[:scope] || 'family'
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.update("side-panel", partial: "form", locals: { task: @task })
+        render turbo_stream: turbo_stream.update("side-panel", partial: "form", locals: { task: @task, scope: @scope })
       end
       format.html { render :edit }
     end
@@ -88,8 +94,9 @@ class TasksController < ApplicationController
         format.html { redirect_to calendar_path, notice: "タスクを更新しました" }
       end
     else
+      @scope = params[:scope] || 'family'
       respond_to do |format|
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("side-panel", partial: "form") }
+        format.turbo_stream { render turbo_stream: turbo_stream.replace("side-panel", partial: "form", locals: { task: @task, scope: @scope }) }
         format.html { render :edit }
       end
     end
@@ -122,10 +129,10 @@ class TasksController < ApplicationController
   private
 
   def set_task
-    @task = current_user.tasks.find(params[:id])
+    @task = current_user.family.tasks.find(params[:id])
   end
 
   def task_params
-    params.require(:task).permit(:title, :description, :date, :priority)
+    params.require(:task).permit(:title, :description, :date, :priority, :user_id)
   end
 end

@@ -31,4 +31,4 @@
     / 当日情報部分
     .lg:col-span-1
       = turbo_frame_tag "daily_details", data: { "calendar-interaction-target" => "detailsFrame" } do
-        = render "daily_view", date: @date || Date.today
+        = render "daily_view", date: @date || Date.today, scope: "my"

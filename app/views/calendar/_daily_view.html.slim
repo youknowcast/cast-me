@@ -1,4 +1,6 @@
-- if params[:scope] == 'my' || action_name == 'my'
-  = render "calendar/my_daily_view", date: date, family_plans: @family_plans, family_tasks: @family_tasks
+- current_scope = local_assigns[:scope] || params[:scope] || (action_name == 'my' ? 'my' : 'family')
+
+- if current_scope == 'my'
+  = render "calendar/my_daily_view", date: date, family_plans: @family_plans, family_tasks: @family_tasks, scope: current_scope
 - else
-  = render "calendar/family_daily_view", date: date, family_plans: @family_plans, family_tasks: @family_tasks, target_users: @target_users
+  = render "calendar/family_daily_view", date: date, family_plans: @family_plans, family_tasks: @family_tasks, target_users: @target_users, scope: current_scope

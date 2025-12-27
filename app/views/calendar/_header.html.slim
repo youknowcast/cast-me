@@ -1,3 +1,5 @@
+- current_scope = local_assigns[:scope] || params[:scope] || (action_name == 'my' ? 'my' : 'family')
+
 .flex.items-center.justify-between.mb-4
   h2.text-xl.font-bold.text-gray-800
     = date.strftime("%m月%d日")
@@ -16,6 +18,7 @@
       data-controller="side-panel-opener"
       data-action="click->side-panel-opener#openTaskForm"
       data-date=date.strftime("%Y-%m-%d")
+      data-scope=current_scope
     ]
       i.fas.fa-plus.mr-1
       | タスク追加

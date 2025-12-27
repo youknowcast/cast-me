@@ -24,7 +24,17 @@
       / フォーム
       .side-panel-body
         = form_with model: task do |f|
+          = hidden_field_tag :scope, scope
           .space-y-6
+            - if scope == 'my'
+              = f.hidden_field :user_id, value: current_user.id
+            - else
+              .form-control
+                = f.label :user_id, "担当ユーザー", class: "label"
+                = f.collection_select :user_id, current_user.family.users, :id, :login_id, {}, { class: "select select-bordered w-full" }
+                - if task.errors[:user_id].any?
+                  .text-error.text-sm.mt-1= task.errors[:user_id].join(", ")
+
             .form-control
               = f.label :title, "タイトル", class: "label"
               = f.text_field :title, class: "input input-bordered w-full", placeholder: "タスクのタイトル"

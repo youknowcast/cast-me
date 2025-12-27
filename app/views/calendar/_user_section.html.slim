@@ -31,6 +31,6 @@
     - if user_tasks.any?
       .space-y-3
         - user_tasks.each do |task|
-          = render "calendar/task_item", task: task
+          = render "calendar/task_item", task: task, scope: scope
     - else
       .text-gray-400.text-sm.ml-4 タスクはありません

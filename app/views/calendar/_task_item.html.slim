@@ -1,3 +1,5 @@
+- current_scope = local_assigns[:scope] || params[:scope] || (action_name == 'my' ? 'my' : 'family')
+
 = turbo_frame_tag dom_id(task) do
   .bg-orange-50.border-l-4.border-orange-400.p-3.rounded-r-lg[
     class="#{task.completed ? 'opacity-60' : ''}"
@@ -12,6 +14,7 @@
             data-controller="side-panel-opener"
             data-action="click->side-panel-opener#openTaskEdit"
             data-task-id=task.id
+            data-scope=current_scope
           ]= task.title
           span.text-xs.px-2.py-1.rounded-full[
             class=task.priority_class
@@ -24,6 +27,7 @@
           data-controller="side-panel-opener"
           data-action="click->side-panel-opener#openTaskEdit"
           data-task-id=task.id
+          data-scope=current_scope
         ]
           i.fas.fa-edit
         = link_to task_path(task),
