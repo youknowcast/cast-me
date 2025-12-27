@@ -1,7 +1,7 @@
 .btm-nav.btm-nav-sm.md:hidden.z-50
-  = link_to calendar_path(scope: 'my'), class: "#{params[:scope] == 'my' ? 'active' : ''}" do
+  = link_to my_calendar_path, class: "#{action_name == 'my' ? 'active' : ''}" do
     i.fas.fa-user.text-xl
     span.btm-nav-label My
-  = link_to calendar_path(scope: 'family'), class: "#{params[:scope] != 'my' ? 'active' : ''}" do
+  = link_to calendar_path, class: "#{action_name == 'index' ? 'active' : ''}" do
     i.fas.fa-users.text-xl
     span.btm-nav-label Family

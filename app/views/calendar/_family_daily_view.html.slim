@@ -1,0 +1,8 @@
+.bg-white.rounded-lg.shadow-lg.p-6
+  = render "calendar/header", date: date
+
+  - target_users.each do |target_user|
+    = render "calendar/user_section",
+             target_user: target_user,
+             family_plans: family_plans,
+             family_tasks: family_tasks

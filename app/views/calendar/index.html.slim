@@ -1,17 +1,17 @@
 .container.mx-auto.px-4.py-8[
   data-controller="calendar-interaction"
   data-calendar-interaction-date-value=@date.to_s
-  data-calendar-interaction-scope-value=params[:scope]
+  data-calendar-interaction-scope-value="family"
   data-calendar-interaction-filter-user-value=params[:filter_user_id]
 ]
   .flex.justify-between.items-center.mb-6
-    h1.text-3xl.font-bold.text-gray-800 カレンダー
+    h1.text-3xl.font-bold.text-gray-800 家族カレンダー
 
     .flex.items-center.space-x-4
-      = link_to calendar_path(date: @date.prev_month, scope: params[:scope]), class: "btn btn-outline btn-sm" do
+      = link_to calendar_path(date: @date.prev_month), class: "btn btn-outline btn-sm" do
         i.fas.fa-chevron-left
       span.text-lg.font-semibold= @date.strftime("%Y年%m月")
-      = link_to calendar_path(date: @date.next_month, scope: params[:scope]), class: "btn btn-outline btn-sm" do
+      = link_to calendar_path(date: @date.next_month), class: "btn btn-outline btn-sm" do
         i.fas.fa-chevron-right
 
   .grid.grid-cols-1.lg:grid-cols-3.gap-6
@@ -25,49 +25,20 @@
         - @weeks.each do |week|
           .grid.grid-cols-7.gap-1
             - week.each do |day|
-              - is_current_month = day.month == @date.month
-              - is_today = day == Date.today
-              - today_plans = current_user.family.plans.for_date(day)
-              - if params[:scope] == 'my'
-                - today_plans = today_plans.select { |p| p.user_id == current_user.id || p.participant_ids.include?(current_user.id) }
-              - today_tasks = current_user.tasks.for_date(day)
-              - has_alert = day_has_unfinished_tasks?(day, current_user)
-
-              = link_to calendar_daily_view_path(date: day, scope: params[:scope]), class: "block h-full min-h-24 border border-gray-200 p-2 hover:bg-gray-50 transition-colors relative #{is_current_month ? 'bg-white' : 'bg-gray-50'} #{is_today ? 'ring-2 ring-blue-500' : ''}", data: { action: "click->calendar-interaction#selectDate" } do
-                .flex.justify-between.items-start.mb-1
-                  span.text-sm.font-medium[
-                    class="#{is_current_month ? 'text-gray-900' : 'text-gray-400'}"
-                    class="#{is_today ? 'text-blue-600 font-bold' : ''}"
-                  ]
-                    = day.day
-
-                  - if has_alert
-                    i.fas.fa-exclamation-circle.text-red-500.text-xs[title="未完了タスクがあります"]
-
-                .space-y-1
-                  - today_plans.each do |plan|
-                    .flex.items-center.text-blue-700
-                      i[class="#{plan_icon} mr-1 text-xs"]
-                      span.text-xs.truncate.hidden.md:inline = plan.title
-                      span.md:hidden.w-1.h-1.bg-blue-500.rounded-full.ml-1
-
-                  - today_tasks.each do |task|
-                    .flex.items-center[class="#{task.completed ? 'text-gray-400 line-through' : 'text-orange-700'}"]
-                      i[class="#{task_icon} mr-1 text-xs"]
-                      span.text-xs.truncate.hidden.md:inline = task.title
-                      span.md:hidden.w-1.h-1.bg-orange-500.rounded-full.ml-1
+              - day_plans = current_user.family.plans.for_date(day)
+              - day_tasks = current_user.tasks.for_date(day)
+              = render "calendar_grid_cell", day: day, date: @date, plans: day_plans, tasks: day_tasks, scope: "family"
 
         / User Filter Select Box
-        - unless params[:scope] == 'my'
-          .mt-4
-            label.block.text-sm.font-medium.text-gray-700.mb-1 表示するユーザー
-            select#user-filter.select.select-bordered.w-full[
-              data-calendar-interaction-target="filterSelect"
-              data-action="change->calendar-interaction#changeFilter"
-            ]
-              option[value="all"] 全員
-              - current_user.family.users.each do |user|
-                option[value=user.id selected=(params[:filter_user_id] == user.id.to_s)]= user.login_id
+        .mt-4
+          label.block.text-sm.font-medium.text-gray-700.mb-1 表示するユーザー
+          select#user-filter.select.select-bordered.w-full[
+            data-calendar-interaction-target="filterSelect"
+            data-action="change->calendar-interaction#changeFilter"
+          ]
+            option[value="all"] 全員
+            - current_user.family.users.each do |user|
+              option[value=user.id selected=(params[:filter_user_id] == user.id.to_s)]= user.login_id
 
     / 当日情報部分
     .lg:col-span-1

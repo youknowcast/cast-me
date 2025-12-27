@@ -6,6 +6,7 @@ Rails.application.routes.draw do
 
   # カレンダー関連
   get 'calendar', to: 'calendar#index'
+  get 'calendar/my', to: 'calendar#my', as: :my_calendar
   get 'calendar/daily_view', to: 'calendar#daily_view'
 
   # 予定とタスクの管理

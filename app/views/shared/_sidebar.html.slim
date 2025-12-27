@@ -1,4 +1,7 @@
 ul.menu.bg-base-100.rounded-box
   li
-    = link_to calendar_path, class: "tooltip tooltip-right", data: { tip: "Calendar" } do
-      i.fas.fa-calendar-alt.text-xl
+    = link_to calendar_path, class: "tooltip tooltip-right #{action_name == 'index' ? 'active' : ''}", data: { tip: "Family Calendar" } do
+      i.fas.fa-users.text-xl
+  li
+    = link_to my_calendar_path, class: "tooltip tooltip-right #{action_name == 'my' ? 'active' : ''}", data: { tip: "My Calendar" } do
+      i.fas.fa-user.text-xl

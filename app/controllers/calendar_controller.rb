@@ -7,7 +7,15 @@ class CalendarController < ApplicationController
     @weeks = generate_calendar_weeks
 
     # For Detail View (Today)
-    set_calendar_data(Date.today)
+    set_family_calendar_data(Date.today)
+  end
+
+  def my
+    @date = date
+    @weeks = generate_calendar_weeks
+
+    # For Detail View (Today)
+    set_my_calendar_data(Date.today)
   end
 
   def daily_view
