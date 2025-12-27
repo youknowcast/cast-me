@@ -62,7 +62,7 @@ class PlansController < ApplicationController
       end
     else
       respond_to do |format|
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("side-panel", partial: "form") }
+        format.turbo_stream { render turbo_stream: turbo_stream.replace("side-panel", partial: "form", locals: { plan: @plan }) }
         format.html { render :new }
       end
     end
@@ -93,7 +93,7 @@ class PlansController < ApplicationController
       end
     else
       respond_to do |format|
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("side-panel", partial: "form") }
+        format.turbo_stream { render turbo_stream: turbo_stream.replace("side-panel", partial: "form", locals: { plan: @plan }) }
         format.html { render :edit }
       end
     end
