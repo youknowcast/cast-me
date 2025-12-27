@@ -17,15 +17,11 @@
 
   .flex.flex-wrap.gap-1.mt-1
     - if plans.any?
-      .badge.badge-sm.bg-blue-100.text-blue-700.border-none.flex.items-center.gap-1.h-5.px-1.5
-        i[class="#{plan_icon} text-[10px]"]
-        span.font-bold style="font-size: 10px;"
-          | 予定
-          = plans.count
+      .badge.badge-sm.bg-blue-100.text-blue-700.border-none.flex.items-center.gap-0.5.h-5.px-1
+        i.fas.fa-calendar-day.text-xs
+        span.font-bold.text-xs= plans.count
 
     - if tasks.any?
-      .badge.badge-sm.bg-orange-100.text-orange-700.border-none.flex.items-center.gap-1.h-5.px-1.5
-        i[class="#{task_icon} text-[10px]"]
-        span.font-bold style="font-size: 10px;"
-          | タスク
-          = tasks.count
+      .badge.badge-sm.bg-orange-100.text-orange-700.border-none.flex.items-center.gap-0.5.h-5.px-1
+        i.fas.fa-check-square.text-xs
+        span.font-bold.text-xs= tasks.count
