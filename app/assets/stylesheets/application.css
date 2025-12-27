@@ -18,3 +18,29 @@
     /* ヘッダの高さ */
     height: calc(100% - 4rem);
 }
+
+/* カジュアルでやさしい雰囲気のためのグローバルスタイル */
+:root {
+    --rounded-box: 1.5rem;
+    --rounded-btn: 1rem;
+    --rounded-badge: 2rem;
+}
+
+body {
+    @apply antialiased;
+}
+
+/* ボタンや入力をより丸く */
+.btn, .input, .select, .textarea, .card {
+    border-radius: var(--rounded-box);
+}
+
+.btn {
+    border-radius: var(--rounded-btn);
+    @apply uppercase-none tracking-wide;
+}
+
+/* アイコンとテキストの間隔を少し広げる */
+.fas, .far, .fab {
+    @apply mr-3;
+}
