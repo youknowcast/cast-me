@@ -1,19 +1,24 @@
 <div id="datepicker-modal-container" data-controller="datepicker">
   <dialog id="datepicker-modal" class="modal modal-bottom sm:modal-middle" data-datepicker-target="modal" style="z-index: 99999;">
-    <div class="modal-box p-0 bg-neutral-900 text-white h-[80vh] max-h-[80vh] flex flex-col overflow-hidden rounded-t-3xl border-t border-gray-800">
+    <div class="modal-box p-0 bg-neutral-900 text-white h-[70vh] max-h-[70vh] flex flex-col overflow-hidden rounded-t-[32px] border-t border-gray-800 shadow-2xl">
+      <!-- Handle for mobile feel -->
+      <div class="w-full flex justify-center pt-3 pb-1 shrink-0 bg-neutral-900">
+        <div class="w-12 h-1.5 bg-gray-700 rounded-full"></div>
+      </div>
+
       <!-- ヘッダー -->
-      <div class="p-4 flex justify-between items-center border-b border-gray-800 shrink-0">
-        <button class="btn btn-ghost btn-sm text-gray-400 font-normal" type="button" data-action="datepicker#close">
+      <div class="px-6 py-4 flex justify-between items-center border-b border-gray-800/50 shrink-0 bg-neutral-900">
+        <button class="text-gray-400 font-medium text-base hover:text-white transition-colors" type="button" data-action="datepicker#close">
           Cancel
         </button>
-        <h3 class="text-lg font-bold">Calendar</h3>
-        <button class="btn btn-ghost btn-sm text-white" type="button" data-action="datepicker#close">
-          <i class="fas fa-times"></i>
+        <h3 class="text-lg font-bold tracking-tight">Select Date</h3>
+        <button class="text-blue-500 font-bold text-base hover:text-blue-400 transition-colors" type="button" data-action="datepicker#confirm">
+          Done
         </button>
       </div>
 
       <!-- 曜日 -->
-      <div class="grid grid-cols-7 text-center py-3 text-[10px] uppercase tracking-widest font-black text-gray-500 border-b border-gray-800 shrink-0 bg-neutral-900">
+      <div class="grid grid-cols-7 text-center py-4 text-[10px] uppercase tracking-[0.2em] font-black text-gray-500 border-b border-gray-800/30 shrink-0 bg-neutral-900">
         <% %w[Sun Mon Tue Wed Thu Fri Sat].each do |day| %>
           <div><%= day %></div>
         <% end %>
@@ -22,14 +27,15 @@
       <!-- カレンダー本体 (無限スクロール領域) -->
       <div id="calendar-scroll-area" class="flex-1 overflow-y-auto smooth-scroll bg-neutral-900" data-datepicker-target="scrollArea" data-action="scroll->datepicker#onScroll">
         <!-- JavaScriptで動的に追加される -->
-        <div class="flex justify-center py-20" data-datepicker-target="loader">
-          <span class="loading loading-spinner loading-lg text-primary"></span>
+        <div class="flex flex-col items-center justify-center py-40 opacity-20" data-datepicker-target="loader">
+          <span class="loading loading-spinner loading-lg text-primary mb-4"></span>
+          <p class="text-sm font-medium">Loading Calendar...</p>
         </div>
       </div>
 
-      <!-- フッター -->
-      <div class="p-6 border-t border-gray-800 shrink-0 bg-neutral-900">
-        <button class="btn btn-primary w-full rounded-2xl h-14 text-lg font-bold shadow-lg shadow-primary/20" type="button" data-action="datepicker#confirm">
+      <!-- フッター (iOSスタイル) -->
+      <div class="p-6 border-t border-gray-800/50 shrink-0 bg-neutral-900/95 backdrop-blur-lg">
+        <button class="btn btn-primary w-full rounded-2xl h-14 text-lg font-bold shadow-xl shadow-primary/20 active:scale-[0.98] transition-all" type="button" data-action="datepicker#confirm">
           Confirm
         </button>
       </div>
