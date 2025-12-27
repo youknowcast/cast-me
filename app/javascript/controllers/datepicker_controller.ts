@@ -11,8 +11,10 @@ export default class extends Controller {
 	private renderedMonths: string[] = [] // YYYY-MM
 	private currentTrigger: any = null
 	private isInitialRender = true
+	private isLoadingPast = false
 
 	connect() {
+		console.log('[Datepicker] Controller connected')
 		window.addEventListener('datepicker:open', this.open.bind(this) as any)
 	}
 
@@ -21,11 +23,13 @@ export default class extends Controller {
 	}
 
 	open(event: CustomEvent) {
+		console.log('[Datepicker] Open called with event:', event.detail)
 		const { date, trigger } = event.detail
 		this.selectedDate = date ? new Date(date) : new Date()
 		this.currentTrigger = trigger
 
 		this.modalTarget.showModal()
+		console.log('[Datepicker] Modal shown, isInitialRender:', this.isInitialRender)
 
 		if (this.isInitialRender) {
 			this.initialRender()
@@ -53,42 +57,48 @@ export default class extends Controller {
 	}
 
 	initialRender() {
+		console.log('[Datepicker] initialRender called, scrollAreaTarget:', this.scrollAreaTarget)
 		this.scrollAreaTarget.innerHTML = ""
 		this.renderedMonths = []
 
-		const now = new Date()
-		const start = new Date(now.getFullYear(), now.getMonth() - 3, 1)
+		const target = this.selectedDate || new Date()
+		const start = new Date(target.getFullYear(), target.getMonth() - 3, 1)
 
 		for (let i = 0; i < 7; i++) {
 			const monthDate = new Date(start.getFullYear(), start.getMonth() + i, 1)
 			this.renderMonth(monthDate)
 		}
+		console.log('[Datepicker] Rendered months:', this.renderedMonths)
 
 		this.scrollToSelected()
 	}
 
 	scrollToSelected() {
-		setTimeout(() => {
+		requestAnimationFrame(() => {
 			const date = this.selectedDate || new Date()
 			const monthId = `month-${date.getFullYear()}-${date.getMonth() + 1}`
 			const element = document.getElementById(monthId)
 			if (element) {
 				element.scrollIntoView({ block: 'start', behavior: 'instant' as any })
 			}
-		}, 50)
+		})
 	}
 
 	onScroll() {
 		const area = this.scrollAreaTarget
-		if (area.scrollTop + area.clientHeight >= area.scrollHeight - 400) {
+		// Load more future months when near bottom
+		if (area.scrollTop + area.clientHeight >= area.scrollHeight - 300) {
 			this.loadMore('future')
 		}
-		if (area.scrollTop <= 400) {
+		// Load more past months when near top
+		if (area.scrollTop <= 300 && !this.isLoadingPast) {
 			this.loadMore('past')
 		}
 	}
 
 	loadMore(direction: 'future' | 'past') {
+		if (this.renderedMonths.length === 0) return
+
 		const lastRendered = direction === 'future'
 			? this.renderedMonths[this.renderedMonths.length - 1]
 			: this.renderedMonths[0]
@@ -109,6 +119,7 @@ export default class extends Controller {
 		if (this.renderedMonths.includes(monthKey)) return
 
 		if (prepend) {
+			this.isLoadingPast = true
 			this.renderedMonths.unshift(monthKey)
 		} else {
 			this.renderedMonths.push(monthKey)
@@ -116,63 +127,76 @@ export default class extends Controller {
 
 		const monthEl = document.createElement('div')
 		monthEl.id = `month-${monthKey}`
-		monthEl.className = "mb-10 relative px-4"
+		monthEl.className = "mb-6 relative px-4"
 
+		// Month/Year header
 		const title = document.createElement('h4')
-		title.className = "text-center text-[15px] font-bold mb-4 sticky top-0 bg-white/95 backdrop-blur-md py-4 z-20 text-gray-900 border-b border-gray-50"
-		title.textContent = `${year}/${month + 1}`
+		title.className = "text-center text-base font-bold mb-3 sticky top-0 bg-white/95 backdrop-blur-sm py-3 z-10 text-gray-800"
+		title.textContent = `${year}年${month + 1}月`
 		monthEl.appendChild(title)
 
-		// 透かし文字 (White theme: very light gray)
-		const bgText = document.createElement('div')
-		bgText.className = "absolute inset-0 flex items-center justify-center text-[180px] font-black text-gray-100/50 pointer-events-none z-0 select-none pb-12"
-		bgText.textContent = `${month + 1}`
-		monthEl.appendChild(bgText)
-
+		// Calendar grid
 		const grid = document.createElement('div')
-		grid.className = "grid grid-cols-7 gap-y-3 relative z-10"
+		grid.className = "grid grid-cols-7 gap-y-2"
 
 		const firstDay = new Date(year, month, 1).getDay()
 		const daysInMonth = new Date(year, month + 1, 0).getDate()
 
+		// Empty cells for days before first of month
 		for (let i = 0; i < firstDay; i++) {
 			grid.appendChild(document.createElement('div'))
 		}
 
+		const today = new Date()
 		for (let d = 1; d <= daysInMonth; d++) {
-			const dayEl = document.createElement('div')
-			dayEl.className = "h-11 w-11 mx-auto flex items-center justify-center cursor-pointer rounded-full transition-all duration-200 active:scale-90 text-[16px] font-medium"
+			const dayEl = document.createElement('button')
+			dayEl.type = 'button'
+			dayEl.className = "h-10 w-10 mx-auto flex items-center justify-center cursor-pointer rounded-full transition-all duration-150 text-sm font-medium touch-manipulation"
 			dayEl.textContent = d.toString()
 
 			const currentDate = new Date(year, month, d)
+			const dayOfWeek = currentDate.getDay()
 
-			const isToday = this.isSameDate(currentDate, new Date())
+			// Sunday: red, Saturday: blue
+			if (dayOfWeek === 0) {
+				dayEl.classList.add('text-red-500')
+			} else if (dayOfWeek === 6) {
+				dayEl.classList.add('text-blue-500')
+			} else {
+				dayEl.classList.add('text-gray-700')
+			}
+
+			const isToday = this.isSameDate(currentDate, today)
 			if (isToday && !this.isSameDate(currentDate, this.selectedDate)) {
-				dayEl.classList.add('text-blue-500', 'font-bold')
+				dayEl.classList.add('ring-2', 'ring-blue-400', 'ring-inset')
 			}
 
 			if (this.isSameDate(currentDate, this.selectedDate)) {
-				dayEl.classList.add('bg-blue-500', 'text-white', 'font-bold', 'shadow-lg', 'shadow-blue-500/30')
+				dayEl.classList.remove('text-gray-700', 'text-red-500', 'text-blue-500')
+				dayEl.classList.add('bg-blue-500', 'text-white', 'font-bold', 'shadow-md')
 			} else {
-				if (!isToday) dayEl.classList.add('text-gray-800')
-				dayEl.classList.add('hover:bg-gray-100')
+				dayEl.classList.add('active:bg-gray-100')
 			}
 
-			dayEl.onclick = (e) => {
+			dayEl.addEventListener('click', (e) => {
 				e.preventDefault()
 				this.selectDate(currentDate)
-			}
+			})
 			grid.appendChild(dayEl)
 		}
 
 		monthEl.appendChild(grid)
 
 		if (prepend) {
-			const currentScrollHeight = this.scrollAreaTarget.scrollHeight
-			const currentScrollTop = this.scrollAreaTarget.scrollTop
+			const prevScrollHeight = this.scrollAreaTarget.scrollHeight
+			const prevScrollTop = this.scrollAreaTarget.scrollTop
 			this.scrollAreaTarget.prepend(monthEl)
-			const newScrollHeight = this.scrollAreaTarget.scrollHeight
-			this.scrollAreaTarget.scrollTop = currentScrollTop + (newScrollHeight - currentScrollHeight)
+			// Maintain scroll position after prepending
+			requestAnimationFrame(() => {
+				const newScrollHeight = this.scrollAreaTarget.scrollHeight
+				this.scrollAreaTarget.scrollTop = prevScrollTop + (newScrollHeight - prevScrollHeight)
+				this.isLoadingPast = false
+			})
 		} else {
 			this.scrollAreaTarget.appendChild(monthEl)
 		}
@@ -184,9 +208,21 @@ export default class extends Controller {
 	}
 
 	updateHighlight() {
+		// Remove old selection
 		this.scrollAreaTarget.querySelectorAll('.bg-blue-500').forEach(el => {
-			el.classList.remove('bg-blue-500', 'text-white', 'font-bold', 'shadow-lg', 'shadow-blue-500/30')
-			el.classList.add('text-gray-800', 'hover:bg-gray-100')
+			el.classList.remove('bg-blue-500', 'text-white', 'font-bold', 'shadow-md')
+			// Restore original color
+			const dateStr = el.getAttribute('data-date')
+			if (dateStr) {
+				const d = new Date(dateStr)
+				const dow = d.getDay()
+				if (dow === 0) el.classList.add('text-red-500')
+				else if (dow === 6) el.classList.add('text-blue-500')
+				else el.classList.add('text-gray-700')
+			} else {
+				el.classList.add('text-gray-700')
+			}
+			el.classList.add('active:bg-gray-100')
 		})
 
 		if (!this.selectedDate) return
@@ -197,11 +233,11 @@ export default class extends Controller {
 		const monthId = `month-${year}-${month}`
 		const monthEl = document.getElementById(monthId)
 		if (monthEl) {
-			const dayElements = Array.from(monthEl.querySelectorAll('.grid > div')).filter(el => el.textContent !== "")
-			const targetEl = dayElements[day - 1] as HTMLElement
+			const buttons = Array.from(monthEl.querySelectorAll('button'))
+			const targetEl = buttons.find(btn => btn.textContent === day.toString())
 			if (targetEl) {
-				targetEl.classList.remove('text-gray-800', 'text-blue-500', 'hover:bg-gray-100')
-				targetEl.classList.add('bg-blue-500', 'text-white', 'font-bold', 'shadow-lg', 'shadow-blue-500/30')
+				targetEl.classList.remove('text-gray-700', 'text-red-500', 'text-blue-500', 'active:bg-gray-100')
+				targetEl.classList.add('bg-blue-500', 'text-white', 'font-bold', 'shadow-md')
 			}
 		}
 	}

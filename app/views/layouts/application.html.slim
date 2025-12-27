@@ -24,45 +24,40 @@ html
     #side-panel
 
     / デートピッカーモーダル (グローバル)
-    #datepicker-modal-container[data-controller="datepicker"]
-      dialog#datepicker-modal.modal.modal-bottom[
-        data-datepicker-target="modal"
-        class="sm:modal-middle"
-        style="z-index: 99999;"
-      ]
-        .modal-box.p-0.bg-white.text-gray-900.h-[70vh].max-h-[70vh].flex.flex-col.overflow-hidden.rounded-t-[32px].border-t.border-gray-200.shadow-[0_-8px_30px_rgb(0,0,0,0.12)]
-          / Header handle
+    #datepicker-modal-container data-controller="datepicker"
+      dialog#datepicker-modal.modal.modal-bottom data-datepicker-target="modal" style="z-index: 99999;"
+        .modal-box.p-0.bg-white.text-gray-900.flex.flex-col.overflow-hidden.rounded-t-3xl.shadow-2xl style="height: 60vh; max-height: 60vh;"
+          / Handle bar
           .w-full.flex.justify-center.pt-3.pb-1.shrink-0.bg-white
-            .w-12.h-1.bg-gray-100.rounded-full
+            .w-10.h-1.bg-gray-300.rounded-full
 
-          .px-6.py-4.flex.justify-between.items-center.bg-white.border-b.border-gray-50.shrink-0
+          / Header with close button
+          .px-4.py-3.flex.justify-between.items-center.bg-white.border-b.border-gray-100.shrink-0
             .w-10
-            h3.text-[17px].font-bold.tracking-tight.text-black Calendar
-            button.w-10.h-10.flex.items-center.justify-center.text-gray-300.hover:text-gray-500.transition-colors[
-              type="button"
-              data-action="datepicker#close"
-            ]
-              i.fas.fa-times.text-lg
+            h3.text-base.font-bold.text-gray-900 日付を選択
+            button.w-10.h-10.flex.items-center.justify-center.text-gray-400.rounded-full type="button" data-action="datepicker#close"
+              i.fas.fa-times.text-base
 
-          .grid.grid-cols-7.text-center.py-4.bg-white.text-[10px].uppercase.tracking-[0.1em].font-black.text-gray-400.border-b.border-gray-50.shrink-0
-            - %w[Sun Mon Tue Wed Thu Fri Sat].each do |day|
-              div = day
+          / Fixed weekday header (Japanese)
+          .grid.grid-cols-7.text-center.py-2.bg-gray-50.text-xs.font-bold.border-b.border-gray-100.shrink-0
+            .text-red-400 日
+            .text-gray-500 月
+            .text-gray-500 火
+            .text-gray-500 水
+            .text-gray-500 木
+            .text-gray-500 金
+            .text-blue-400 土
 
-          #calendar-scroll-area.flex-1.overflow-y-auto.smooth-scroll.bg-white[
-            data-datepicker-target="scrollArea"
-            data-action="scroll->datepicker#onScroll"
-            style="min-height: 0;"
-          ]
-            .flex.flex-col.items-center.justify-center.py-40.opacity-30[data-datepicker-target="loader"]
-              span.loading.loading-spinner.loading-lg.text-blue-500.mb-4
-              p.text-sm.font-semibold.text-gray-500 Updating Calendar...
+          / Scrollable calendar area
+          #calendar-scroll-area.flex-1.overflow-y-auto.overscroll-contain.bg-white data-datepicker-target="scrollArea" data-action="scroll->datepicker#onScroll" style="min-height: 0; -webkit-overflow-scrolling: touch;"
+            .flex.flex-col.items-center.justify-center.py-20.opacity-30 data-datepicker-target="loader"
+              span.loading.loading-spinner.loading-md.text-blue-500.mb-2
+              p.text-xs.text-gray-500 読み込み中...
 
-          .p-6.bg-white.border-t.border-gray-100.shrink-0
-            button.btn.btn-primary.w-full.rounded-[20px].h-14.text-lg.font-bold.bg-blue-500.border-none.text-white[
-              type="button"
-              data-action="datepicker#confirm"
-            ]
-              | Confirm
+          / Footer with confirm button
+          .p-4.bg-white.border-t.border-gray-100.shrink-0
+            button.btn.btn-primary.w-full.rounded-xl.h-12.text-base.font-bold type="button" data-action="datepicker#confirm"
+              | 確定
 
     - if @notice.present?
       p.notice
