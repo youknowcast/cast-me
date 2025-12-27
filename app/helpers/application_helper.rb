@@ -27,6 +27,30 @@ module ApplicationHelper
     end
   end
 
+  def mobile_time_field(form, method, options = {})
+    raw_value = form.object.send(method)
+    # Handle Time, DateTime, or String values
+    if raw_value.respond_to?(:strftime)
+      value = raw_value.strftime("%H:%M")
+    elsif raw_value.is_a?(String) && raw_value.present?
+      value = raw_value
+    else
+      value = ""
+    end
+    id = "mobile_time_#{method}_#{form.object.object_id}"
+
+    content_tag(:div, data: { controller: "timepicker-connector" }) do
+      concat form.hidden_field(method, id: id, data: { timepicker_connector_target: "input" }, value: value)
+      concat(
+        content_tag(:button, type: "button", class: "btn btn-outline w-full justify-between font-normal", data: { action: "timepicker-connector#open" }) do
+          display_value = value.present? ? value : "--:--"
+          concat content_tag(:span, display_value, data: { timepicker_connector_target: "triggerText" })
+          concat content_tag(:i, "", class: "fas fa-clock text-gray-400")
+        end
+      )
+    end
+  end
+
   def mobile_collection_select(form, method, collection, value_method, text_method, options = {}, html_options = {})
     value = form.object.send(method)
     selected_item = collection.find { |i| i.send(value_method).to_s == value.to_s }

@@ -73,13 +73,13 @@
             .grid.grid-cols-1.sm:grid-cols-2.gap-4
               .form-control
                 = f.label :start_time, "開始時刻", class: "label"
-                = f.time_field :start_time, class: "input input-bordered w-full"
+                = mobile_time_field f, :start_time
                 - if plan.errors[:start_time].any?
                   .text-error.text-sm.mt-1= plan.errors[:start_time].join(", ")
 
               .form-control
                 = f.label :end_time, "終了時刻", class: "label"
-                = f.time_field :end_time, class: "input input-bordered w-full"
+                = mobile_time_field f, :end_time
                 - if plan.errors[:end_time].any?
                   .text-error.text-sm.mt-1= plan.errors[:end_time].join(", ")
 

@@ -33,3 +33,9 @@ application.register("side-panel", SidePanelController)
 
 import SidePanelOpenerController from "./side_panel_opener_controller"
 application.register("side-panel-opener", SidePanelOpenerController)
+
+import TimepickerConnectorController from "./timepicker_connector_controller"
+application.register("timepicker-connector", TimepickerConnectorController)
+
+import TimepickerController from "./timepicker_controller"
+application.register("timepicker", TimepickerController)
