@@ -1,7 +1,7 @@
 .container.mx-auto.px-4.py-8
   .flex.justify-between.items-center.mb-6
     h1.text-3xl.font-bold.text-gray-800 カレンダー
-    
+
     .flex.items-center.space-x-4
       = link_to calendar_path(date: @date.prev_month), class: "btn btn-outline btn-sm" do
         i.fas.fa-chevron-left
@@ -22,29 +22,33 @@
             - week.each do |day|
               - is_current_month = day.month == @date.month
               - is_today = day == Date.today
-              - has_plans = current_user.family.plans.for_date(day).exists?
-              - has_tasks = current_user.tasks.for_date(day).exists?
-              
-              .relative.min-h-24.border.border-gray-200.p-2.cursor-pointer.hover:bg-gray-50.transition-colors[
-                class="#{is_current_month ? 'bg-white' : 'bg-gray-50'}"
-                class="#{is_today ? 'ring-2 ring-blue-500' : ''}"
-                data-controller="calendar-day"
-                data-action="click->calendar-day#selectDate"
-                data-date=day.strftime("%Y-%m-%d")
-              ]
-                .text-sm.font-medium.mb-1[
-                  class="#{is_current_month ? 'text-gray-900' : 'text-gray-400'}"
-                  class="#{is_today ? 'text-blue-600 font-bold' : ''}"
-                ]
-                  = day.day
-                
+              - today_plans = current_user.family.plans.for_date(day)
+              - today_tasks = current_user.tasks.for_date(day)
+              - has_alert = day_has_unfinished_tasks?(day, current_user)
+
+              = link_to calendar_daily_view_path(date: day), class: "block h-full min-h-24 border border-gray-200 p-2 hover:bg-gray-50 transition-colors relative #{is_current_month ? 'bg-white' : 'bg-gray-50'} #{is_today ? 'ring-2 ring-blue-500' : ''}", data: { turbo_frame: "daily_details" } do
+                .flex.justify-between.items-start.mb-1
+                  span.text-sm.font-medium[
+                    class="#{is_current_month ? 'text-gray-900' : 'text-gray-400'}"
+                    class="#{is_today ? 'text-blue-600 font-bold' : ''}"
+                  ]
+                    = day.day
+
+                  - if has_alert
+                    i.fas.fa-exclamation-circle.text-red-500.text-xs[title="未完了タスクがあります"]
+
                 .space-y-1
-                  - if has_plans
-                    .w-2.h-2.bg-blue-500.rounded-full.mx-auto
-                  - if has_tasks
-                    .w-2.h-2.bg-orange-500.rounded-full.mx-auto
+                  - today_plans.each do |plan|
+                    .text-xs.truncate.text-blue-700.bg-blue-50.rounded.px-1.py-0.5
+                      i[class="#{plan_icon} mr-1"]
+                      = plan.title
+
+                  - today_tasks.each do |task|
+                    .text-xs.truncate.rounded.px-1.py-0.5[class="#{task.completed ? 'text-gray-400 bg-gray-100 line-through' : 'text-orange-700 bg-orange-50'}"]
+                      i[class="#{task_icon} mr-1"]
+                      = task.title
 
     / 当日情報部分
     .lg:col-span-1
-      #daily-content
-        = render "daily_view", date: Date.today, plans: @today_plans, tasks: @today_tasks
+      = turbo_frame_tag "daily_details" do
+        = render "daily_view", date: @date || Date.today, plans: @today_plans, tasks: @today_tasks

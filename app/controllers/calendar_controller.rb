@@ -12,10 +12,6 @@ class CalendarController < ApplicationController
     @date = Date.parse(params[:date])
     @plans = current_user.family.plans.for_date(@date).ordered_by_time
     @tasks = current_user.tasks.for_date(@date).ordered_by_priority
-    
-    respond_to do |format|
-      format.turbo_stream { render turbo_stream: turbo_stream.replace("daily-content", partial: "daily_view") }
-    end
   end
 
   private

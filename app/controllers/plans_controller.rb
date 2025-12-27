@@ -15,12 +15,12 @@ class PlansController < ApplicationController
            else
              Date.today
            end
-    
+
     @plan = current_user.family.plans.build(
       date: date,
       user: current_user
     )
-    
+
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: turbo_stream.update("side-panel", partial: "form", locals: { plan: @plan })
@@ -33,7 +33,7 @@ class PlansController < ApplicationController
       date: Date.today,
       user: current_user
     )
-    
+
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: turbo_stream.update("side-panel", partial: "form", locals: { plan: @plan })
@@ -50,7 +50,7 @@ class PlansController < ApplicationController
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
-            turbo_stream.replace("daily-content", partial: "calendar/daily_view", 
+            turbo_stream.update("daily_details", partial: "calendar/daily_view",
               locals: { date: @plan.date, plans: current_user.family.plans.for_date(@plan.date).ordered_by_time, tasks: current_user.tasks.for_date(@plan.date).ordered_by_priority }),
             turbo_stream.update("side-panel", "")
           ]
@@ -79,7 +79,7 @@ class PlansController < ApplicationController
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
-            turbo_stream.replace("daily-content", partial: "calendar/daily_view", 
+            turbo_stream.update("daily_details", partial: "calendar/daily_view",
               locals: { date: @plan.date, plans: current_user.family.plans.for_date(@plan.date).ordered_by_time, tasks: current_user.tasks.for_date(@plan.date).ordered_by_priority }),
             turbo_stream.update("side-panel", "")
           ]
@@ -97,10 +97,10 @@ class PlansController < ApplicationController
   def destroy
     date = @plan.date
     @plan.destroy
-    
+
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.replace("daily-content", partial: "calendar/daily_view", 
+        render turbo_stream: turbo_stream.update("daily_details", partial: "calendar/daily_view",
           locals: { date: date, plans: current_user.family.plans.for_date(date).ordered_by_time, tasks: current_user.tasks.for_date(date).ordered_by_priority })
       end
       format.html { redirect_to calendar_path, notice: "予定を削除しました" }
@@ -116,4 +116,4 @@ class PlansController < ApplicationController
   def plan_params
     params.require(:plan).permit(:title, :description, :date, :start_time, :end_time)
   end
-end 
+end

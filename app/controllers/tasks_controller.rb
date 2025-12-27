@@ -15,12 +15,12 @@ class TasksController < ApplicationController
            else
              Date.today
            end
-    
+
     @task = current_user.tasks.build(
       date: date,
       family: current_user.family
     )
-    
+
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: turbo_stream.update("side-panel", partial: "form", locals: { task: @task })
@@ -33,7 +33,7 @@ class TasksController < ApplicationController
       date: Date.today,
       family: current_user.family
     )
-    
+
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: turbo_stream.update("side-panel", partial: "form", locals: { task: @task })
@@ -50,7 +50,7 @@ class TasksController < ApplicationController
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
-            turbo_stream.replace("daily-content", partial: "calendar/daily_view", 
+            turbo_stream.update("daily_details", partial: "calendar/daily_view",
               locals: { date: @task.date, plans: current_user.family.plans.for_date(@task.date).ordered_by_time, tasks: current_user.tasks.for_date(@task.date).ordered_by_priority }),
             turbo_stream.update("side-panel", "")
           ]
@@ -79,7 +79,7 @@ class TasksController < ApplicationController
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
-            turbo_stream.replace("daily-content", partial: "calendar/daily_view", 
+            turbo_stream.update("daily_details", partial: "calendar/daily_view",
               locals: { date: @task.date, plans: current_user.family.plans.for_date(@task.date).ordered_by_time, tasks: current_user.tasks.for_date(@task.date).ordered_by_priority }),
             turbo_stream.update("side-panel", "")
           ]
@@ -97,10 +97,10 @@ class TasksController < ApplicationController
   def destroy
     date = @task.date
     @task.destroy
-    
+
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.replace("daily-content", partial: "calendar/daily_view", 
+        render turbo_stream: turbo_stream.update("daily_details", partial: "calendar/daily_view",
           locals: { date: date, plans: current_user.family.plans.for_date(date).ordered_by_time, tasks: current_user.tasks.for_date(date).ordered_by_priority })
       end
       format.html { redirect_to calendar_path, notice: "タスクを削除しました" }
@@ -109,10 +109,10 @@ class TasksController < ApplicationController
 
   def toggle
     @task.update(completed: !@task.completed)
-    
+
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.replace("daily-content", partial: "calendar/daily_view", 
+        render turbo_stream: turbo_stream.update("daily_details", partial: "calendar/daily_view",
           locals: { date: @task.date, plans: current_user.family.plans.for_date(@task.date).ordered_by_time, tasks: current_user.tasks.for_date(@task.date).ordered_by_priority })
       end
       format.html { redirect_to calendar_path }
@@ -128,4 +128,4 @@ class TasksController < ApplicationController
   def task_params
     params.require(:task).permit(:title, :description, :date, :priority)
   end
-end 
+end
