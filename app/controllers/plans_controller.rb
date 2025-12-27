@@ -1,4 +1,5 @@
 class PlansController < ApplicationController
+  include CalendarData
   before_action :authenticate_user!
   before_action :set_plan, only: [:show, :edit, :update, :destroy]
 
@@ -49,11 +50,11 @@ class PlansController < ApplicationController
 
     if @plan.save
       handle_participants
+      set_calendar_data(@plan.date)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
-            turbo_stream.update("daily_details", partial: "calendar/daily_view",
-              locals: { date: @plan.date, plans: current_user.family.plans.for_date(@plan.date).ordered_by_time, tasks: current_user.tasks.for_date(@plan.date).ordered_by_priority }),
+            turbo_stream.update("daily_details", partial: "calendar/daily_view", locals: { date: @date }),
             turbo_stream.update("side-panel", "")
           ]
         end
@@ -80,11 +81,11 @@ class PlansController < ApplicationController
     @plan.last_edited_by = current_user
     if @plan.update(plan_params)
       handle_participants
+      set_calendar_data(@plan.date)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
-            turbo_stream.update("daily_details", partial: "calendar/daily_view",
-              locals: { date: @plan.date, plans: current_user.family.plans.for_date(@plan.date).ordered_by_time, tasks: current_user.tasks.for_date(@plan.date).ordered_by_priority }),
+            turbo_stream.update("daily_details", partial: "calendar/daily_view", locals: { date: @date }),
             turbo_stream.update("side-panel", "")
           ]
         end
@@ -101,11 +102,11 @@ class PlansController < ApplicationController
   def destroy
     date = @plan.date
     @plan.destroy
+    set_calendar_data(date)
 
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.update("daily_details", partial: "calendar/daily_view",
-          locals: { date: date, plans: current_user.family.plans.for_date(date).ordered_by_time, tasks: current_user.tasks.for_date(date).ordered_by_priority })
+        render turbo_stream: turbo_stream.update("daily_details", partial: "calendar/daily_view", locals: { date: @date })
       end
       format.html { redirect_to calendar_path, notice: "予定を削除しました" }
     end

@@ -2,16 +2,17 @@
 #
 # Table name: plans
 #
-#  id          :integer          not null, primary key
-#  date        :date             not null
-#  description :text
-#  end_time    :time
-#  start_time  :time
-#  title       :string(255)      not null
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
-#  family_id   :bigint           not null
-#  user_id     :bigint
+#  id                :integer          not null, primary key
+#  date              :date             not null
+#  description       :text
+#  end_time          :time
+#  start_time        :time
+#  title             :string(255)      not null
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#  family_id         :bigint           not null
+#  last_edited_by_id :bigint
+#  user_id           :bigint
 #
 # Indexes
 #

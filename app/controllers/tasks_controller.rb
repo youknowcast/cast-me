@@ -1,4 +1,5 @@
 class TasksController < ApplicationController
+  include CalendarData
   before_action :authenticate_user!
   before_action :set_task, only: [:show, :edit, :update, :destroy, :toggle]
 
@@ -47,11 +48,11 @@ class TasksController < ApplicationController
     @task.family = current_user.family
 
     if @task.save
+      set_calendar_data(@task.date)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
-            turbo_stream.update("daily_details", partial: "calendar/daily_view",
-              locals: { date: @task.date, plans: current_user.family.plans.for_date(@task.date).ordered_by_time, tasks: current_user.tasks.for_date(@task.date).ordered_by_priority }),
+            turbo_stream.update("daily_details", partial: "calendar/daily_view", locals: { date: @date }),
             turbo_stream.update("side-panel", "")
           ]
         end
@@ -76,11 +77,11 @@ class TasksController < ApplicationController
 
   def update
     if @task.update(task_params)
+      set_calendar_data(@task.date)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
-            turbo_stream.update("daily_details", partial: "calendar/daily_view",
-              locals: { date: @task.date, plans: current_user.family.plans.for_date(@task.date).ordered_by_time, tasks: current_user.tasks.for_date(@task.date).ordered_by_priority }),
+            turbo_stream.update("daily_details", partial: "calendar/daily_view", locals: { date: @date }),
             turbo_stream.update("side-panel", "")
           ]
         end
@@ -97,11 +98,11 @@ class TasksController < ApplicationController
   def destroy
     date = @task.date
     @task.destroy
+    set_calendar_data(date)
 
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.update("daily_details", partial: "calendar/daily_view",
-          locals: { date: date, plans: current_user.family.plans.for_date(date).ordered_by_time, tasks: current_user.tasks.for_date(date).ordered_by_priority })
+        render turbo_stream: turbo_stream.update("daily_details", partial: "calendar/daily_view", locals: { date: @date })
       end
       format.html { redirect_to calendar_path, notice: "タスクを削除しました" }
     end
@@ -109,11 +110,11 @@ class TasksController < ApplicationController
 
   def toggle
     @task.update(completed: !@task.completed)
+    set_calendar_data(@task.date)
 
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.update("daily_details", partial: "calendar/daily_view",
-          locals: { date: @task.date, plans: current_user.family.plans.for_date(@task.date).ordered_by_time, tasks: current_user.tasks.for_date(@task.date).ordered_by_priority })
+        render turbo_stream: turbo_stream.update("daily_details", partial: "calendar/daily_view", locals: { date: @date })
       end
       format.html { redirect_to calendar_path }
     end

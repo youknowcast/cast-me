@@ -13,6 +13,9 @@ application.register("modal", ModalController)
 import ScrollController from "./scroll_controller"
 application.register("scroll", ScrollController)
 
+import CalendarInteractionController from "./calendar_interaction_controller"
+application.register("calendar-interaction", CalendarInteractionController)
+
 import SidePanelController from "./side_panel_controller"
 application.register("side-panel", SidePanelController)
 

@@ -21,118 +21,122 @@
         i.fas.fa-plus.mr-1
         | タスク追加
 
-  / 予定セクション
-  .mb-6
-    .flex.items-center.mb-3
-      h3.text-lg.font-semibold.text-gray-700
-        i.fas.fa-calendar.mr-2
-        | 予定
-      span.ml-2.text-sm.bg-blue-100.text-blue-800.px-2.py-1.rounded-full= plans.count
+  - @target_users.each do |target_user|
+    .mb-8.border-b.pb-4.last:border-b-0
+      h3.text-lg.font-bold.text-gray-800.mb-3
+        i.fas.fa-user.mr-2
+        = target_user.login_id
 
-    - if plans.any?
-      .space-y-3
-        - plans.each do |plan|
-          .bg-blue-50.border-l-4.border-blue-400.p-3.rounded-r-lg
-            .flex.items-start.justify-between
-              .flex-1
-                button.text-left.font-medium.text-gray-800.hover:underline[
-                  data-controller="side-panel-opener"
-                  data-action="click->side-panel-opener#openPlanEdit"
-                  data-plan-id=plan.id
-                ]= plan.title
-                - if plan.description.present?
-                  p.text-sm.text-gray-600.mt-1= plan.description
-                - if plan.start_time.present?
-                  p.text-xs.text-gray-500.mt-1
-                    i.far.fa-clock.mr-1
-                    = plan.start_time.strftime("%H:%M")
-                    - if plan.end_time.present?
-                      |  -
-                      = plan.end_time.strftime("%H:%M")
+      / 予定セクション
+      .mb-4
+        - user_plans = @family_plans.select { |p| p.user_id == target_user.id || p.participant_ids.include?(target_user.id) }
+        .flex.items-center.mb-2
+          h4.text-md.font-semibold.text-gray-600
+            i.fas.fa-calendar.mr-2
+            | 予定
+          span.ml-2.text-xs.bg-blue-100.text-blue-800.px-2.py-0.5.rounded-full= user_plans.count
 
-                - if plan.participants.any?
-                  .mt-2.flex.flex-wrap.gap-1
-                    - plan.participants.each do |participant|
-                      - status = plan.plan_participants.find_by(user: participant).status
-                      span.text-xs.px-2.py-0.5.rounded-full[class="#{status == 'joined' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}"]
-                        = participant.login_id
-                        - if status == 'declined'
-                          | (辞退)
-                        - elsif status == 'pending'
-                          | (?)
+        - if user_plans.any?
+          .space-y-3
+            - user_plans.each do |plan|
+              .bg-blue-50.border-l-4.border-blue-400.p-3.rounded-r-lg
+                .flex.items-start.justify-between
+                  .flex-1
+                    button.text-left.font-medium.text-gray-800.hover:underline[
+                      data-controller="side-panel-opener"
+                      data-action="click->side-panel-opener#openPlanEdit"
+                      data-plan-id=plan.id
+                    ]= plan.title
+                    - if plan.description.present?
+                      p.text-sm.text-gray-600.mt-1= plan.description
+                    - if plan.start_time.present?
+                      p.text-xs.text-gray-500.mt-1
+                        i.far.fa-clock.mr-1
+                        = plan.start_time.strftime("%H:%M")
+                        - if plan.end_time.present?
+                          |  -
+                          = plan.end_time.strftime("%H:%M")
 
-                - if current_user.in?(plan.participants)
-                   - participant_record = plan.plan_participants.find_by(user: current_user)
-                   .mt-2.flex.space-x-2
-                     - unless participant_record.joined?
-                       = link_to "参加", plan_participant_path(participant_record, status: 'joined'), method: :patch, class: "btn btn-xs btn-success btn-outline"
-                     - unless participant_record.declined?
-                       = link_to "不参加", plan_participant_path(participant_record, status: 'declined'), method: :patch, class: "btn btn-xs btn-error btn-outline"
+                    - if plan.participants.any?
+                      .mt-2.flex.flex-wrap.gap-1
+                        - plan.participants.each do |participant|
+                          - status = plan.plan_participants.find_by(user: participant).status
+                          span.text-xs.px-2.py-0.5.rounded-full[class="#{status == 'joined' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}"]
+                            = participant.login_id
+                            - if status == 'declined'
+                              | (辞退)
+                            - elsif status == 'pending'
+                              | (?)
 
-                - if plan.last_edited_by.present?
-                  p.text-xs.text-gray-400.mt-1.text-right
-                    | 最終更新: #{plan.last_edited_by.login_id}
-              .flex.space-x-2
-                button.btn.btn-xs.btn-outline[
-                  data-controller="side-panel-opener"
-                  data-action="click->side-panel-opener#openPlanEdit"
-                  data-plan-id=plan.id
-                ]
-                  i.fas.fa-edit
-                = link_to plan_path(plan),
-                          method: :delete,
-                          class: "btn btn-xs btn-error",
-                          data: { confirm: "削除しますか？" } do
-                  i.fas.fa-trash
-    - else
-      .text-gray-500.text-center.py-4
-        i.far.fa-calendar.text-2xl.mb-2
-        p 予定はありません
+                    - if current_user.in?(plan.participants)
+                       - participant_record = plan.plan_participants.find_by(user: current_user)
+                       .mt-2.flex.space-x-2
+                         - unless participant_record.joined?
+                           = link_to "参加", plan_participant_path(participant_record, status: 'joined'), method: :patch, class: "btn btn-xs btn-success btn-outline"
+                         - unless participant_record.declined?
+                           = link_to "不参加", plan_participant_path(participant_record, status: 'declined'), method: :patch, class: "btn btn-xs btn-error btn-outline"
 
-  / タスクセクション
-  .mb-6
-    .flex.items-center.mb-3
-      h3.text-lg.font-semibold.text-gray-700
-        i.fas.fa-tasks.mr-2
-        | タスク
-      span.ml-2.text-sm.bg-orange-100.text-orange-800.px-2.py-1.rounded-full= tasks.count
+                    - if plan.last_edited_by.present?
+                      p.text-xs.text-gray-400.mt-1.text-right
+                        | 最終更新: #{plan.last_edited_by.login_id}
+                  .flex.space-x-2
+                    button.btn.btn-xs.btn-outline[
+                      data-controller="side-panel-opener"
+                      data-action="click->side-panel-opener#openPlanEdit"
+                      data-plan-id=plan.id
+                    ]
+                      i.fas.fa-edit
+                    = link_to plan_path(plan),
+                              method: :delete,
+                              class: "btn btn-xs btn-error",
+                              data: { confirm: "削除しますか？" } do
+                      i.fas.fa-trash
+        - else
+          .text-gray-400.text-sm.ml-4 予定はありません
 
-    - if tasks.any?
-      .space-y-3
-        - tasks.each do |task|
-          .bg-orange-50.border-l-4.border-orange-400.p-3.rounded-r-lg[
-            class="#{task.completed ? 'opacity-60' : ''}"
-          ]
-            .flex.items-start.justify-between
-              .flex-1
-                .flex.items-center.space-x-2
-                  = form_with model: task, url: toggle_task_path(task), method: :patch, data: { turbo: true } do |f|
-                    = f.check_box :completed, class: "checkbox checkbox-sm checkbox-primary", onchange: "this.form.requestSubmit()"
-                  button.text-left.font-medium.text-gray-800.hover:underline[
-                    class="#{task.completed ? 'line-through' : ''}"
-                    data-controller="side-panel-opener"
-                    data-action="click->side-panel-opener#openTaskEdit"
-                    data-task-id=task.id
-                  ]= task.title
-                  span.text-xs.px-2.py-1.rounded-full[
-                    class=task.priority_class
-                  ]= task.priority_text
-                - if task.description.present?
-                  p.text-sm.text-gray-600.mt-1= task.description
-              .flex.space-x-2
+      / タスクセクション
+      .mb-4
+        - user_tasks = @family_tasks.select { |t| t.user_id == target_user.id }
+        .flex.items-center.mb-2
+          h4.text-md.font-semibold.text-gray-600
+            i.fas.fa-tasks.mr-2
+            | タスク
+          span.ml-2.text-xs.bg-orange-100.text-orange-800.px-2.py-0.5.rounded-full= user_tasks.count
 
-                button.btn.btn-xs.btn-outline[
-                  data-controller="side-panel-opener"
-                  data-action="click->side-panel-opener#openTaskEdit"
-                  data-task-id=task.id
-                ]
-                  i.fas.fa-edit
-                = link_to task_path(task),
-                          method: :delete,
-                          class: "btn btn-xs btn-error",
-                          data: { confirm: "削除しますか？" } do
-                  i.fas.fa-trash
-    - else
-      .text-gray-500.text-center.py-4
-        i.fas.fa-tasks.text-2xl.mb-2
-        p タスクはありません
+        - if user_tasks.any?
+          .space-y-3
+            - user_tasks.each do |task|
+              .bg-orange-50.border-l-4.border-orange-400.p-3.rounded-r-lg[
+                class="#{task.completed ? 'opacity-60' : ''}"
+              ]
+                .flex.items-start.justify-between
+                  .flex-1
+                    .flex.items-center.space-x-2
+                      = form_with model: task, url: toggle_task_path(task), method: :patch, data: { turbo: true } do |f|
+                        = f.check_box :completed, class: "checkbox checkbox-sm checkbox-primary", onchange: "this.form.requestSubmit()"
+                      button.text-left.font-medium.text-gray-800.hover:underline[
+                        class="#{task.completed ? 'line-through' : ''}"
+                        data-controller="side-panel-opener"
+                        data-action="click->side-panel-opener#openTaskEdit"
+                        data-task-id=task.id
+                      ]= task.title
+                      span.text-xs.px-2.py-1.rounded-full[
+                        class=task.priority_class
+                      ]= task.priority_text
+                    - if task.description.present?
+                      p.text-sm.text-gray-600.mt-1= task.description
+                  .flex.space-x-2
+
+                    button.btn.btn-xs.btn-outline[
+                      data-controller="side-panel-opener"
+                      data-action="click->side-panel-opener#openTaskEdit"
+                      data-task-id=task.id
+                    ]
+                      i.fas.fa-edit
+                    = link_to task_path(task),
+                              method: :delete,
+                              class: "btn btn-xs btn-error",
+                              data: { confirm: "削除しますか？" } do
+                      i.fas.fa-trash
+        - else
+          .text-gray-400.text-sm.ml-4 タスクはありません
