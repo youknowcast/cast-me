@@ -110,11 +110,10 @@ class TasksController < ApplicationController
 
   def toggle
     @task.update(completed: !@task.completed)
-    set_calendar_data(@task.date)
 
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.update("daily_details", partial: "calendar/daily_view", locals: { date: @date })
+        render turbo_stream: turbo_stream.replace(helpers.dom_id(@task), partial: "calendar/task_item", locals: { task: @task })
       end
       format.html { redirect_to calendar_path }
     end

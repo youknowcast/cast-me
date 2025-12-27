@@ -1,0 +1,33 @@
+= turbo_frame_tag dom_id(task) do
+  .bg-orange-50.border-l-4.border-orange-400.p-3.rounded-r-lg[
+    class="#{task.completed ? 'opacity-60' : ''}"
+  ]
+    .flex.items-start.justify-between
+      .flex-1
+        .flex.items-center.space-x-2
+          = form_with model: task, url: toggle_task_path(task), method: :patch, data: { turbo: true } do |f|
+            = f.check_box :completed, class: "checkbox checkbox-sm checkbox-primary", onchange: "this.form.requestSubmit()"
+          button.text-left.font-medium.text-gray-800.hover:underline[
+            class="#{task.completed ? 'line-through' : ''}"
+            data-controller="side-panel-opener"
+            data-action="click->side-panel-opener#openTaskEdit"
+            data-task-id=task.id
+          ]= task.title
+          span.text-xs.px-2.py-1.rounded-full[
+            class=task.priority_class
+          ]= task.priority_text
+        - if task.description.present?
+          p.text-sm.text-gray-600.mt-1= task.description
+      .flex.space-x-2
+
+        button.btn.btn-xs.btn-outline[
+          data-controller="side-panel-opener"
+          data-action="click->side-panel-opener#openTaskEdit"
+          data-task-id=task.id
+        ]
+          i.fas.fa-edit
+        = link_to task_path(task),
+                  method: :delete,
+                  class: "btn btn-xs btn-error",
+                  data: { confirm: "削除しますか？" } do
+          i.fas.fa-trash

@@ -1,0 +1,21 @@
+.flex.items-center.justify-between.mb-4
+  h2.text-xl.font-bold.text-gray-800
+    = date.strftime("%m月%d日")
+    - if date == Date.today
+      span.ml-2.text-sm.bg-blue-100.text-blue-800.px-2.py-1.rounded-full 今日
+
+  .flex.space-x-2
+    button.btn.btn-sm.btn-primary[
+      data-controller="side-panel-opener"
+      data-action="click->side-panel-opener#openPlanForm"
+      data-date=date.strftime("%Y-%m-%d")
+    ]
+      i.fas.fa-plus.mr-1
+      | 予定追加
+    button.btn.btn-sm.btn-outline[
+      data-controller="side-panel-opener"
+      data-action="click->side-panel-opener#openTaskForm"
+      data-date=date.strftime("%Y-%m-%d")
+    ]
+      i.fas.fa-plus.mr-1
+      | タスク追加
