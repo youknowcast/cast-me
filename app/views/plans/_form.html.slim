@@ -56,6 +56,15 @@
               - if plan.errors[:description].any?
                 .text-error.text-sm.mt-1= plan.errors[:description].join(", ")
 
+            .form-control
+              .label
+                span.label-text 参加者
+              .flex.flex-wrap.gap-4
+                = f.collection_check_boxes :participant_ids, current_user.family.users, :id, :login_id do |b|
+                  .flex.items-center.space-x-2
+                    = b.check_box(class: "checkbox checkbox-sm checkbox-primary")
+                    = b.label(class: "label-text")
+
           / フッター
           .side-panel-footer
             = link_to "キャンセル", "#", class: "btn btn-ghost", data: { action: "click->side-panel#close" }

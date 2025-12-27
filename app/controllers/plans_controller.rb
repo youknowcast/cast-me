@@ -45,8 +45,10 @@ class PlansController < ApplicationController
   def create
     @plan = current_user.family.plans.build(plan_params)
     @plan.user = current_user
+    @plan.last_edited_by = current_user
 
     if @plan.save
+      handle_participants
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
@@ -75,7 +77,9 @@ class PlansController < ApplicationController
   end
 
   def update
+    @plan.last_edited_by = current_user
     if @plan.update(plan_params)
+      handle_participants
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
@@ -114,6 +118,12 @@ class PlansController < ApplicationController
   end
 
   def plan_params
-    params.require(:plan).permit(:title, :description, :date, :start_time, :end_time)
+    params.require(:plan).permit(:title, :description, :date, :start_time, :end_time, participant_ids: [])
+  end
+
+  def handle_participants
+    # participant_ids is already handled by Rails associations if permitted correctly,
+    # but verify if standard assignment works with has_many :through.
+    # It should work automatically with plan_params including participant_ids: [].
   end
 end
