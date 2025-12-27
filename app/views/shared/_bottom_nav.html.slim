@@ -1,0 +1,4 @@
+.btm-nav.btm-nav-sm.md:hidden.z-50
+  = link_to calendar_path, class: "#{current_page?(calendar_path) ? 'active' : ''}" do
+    i.fas.fa-calendar-alt.text-xl
+    span.btm-nav-label Calendar

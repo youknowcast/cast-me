@@ -11,12 +11,14 @@ html
     = javascript_include_tag "application", "data-turbo-track": "reload"
   body.h-screen
     = render 'shared/topbar'
-    .flex.content-height
-      .sidebar.grow-1.md:shrink-0
+    .flex.flex-col.md:flex-row.content-height.pb-16.md:pb-0
+      .sidebar.hidden.md:block.md:shrink-0
         = render 'shared/sidebar'
 
-      .main.flex-1.grow
+      .main.flex-1.grow.overflow-y-auto
         = yield
+
+    = render 'shared/bottom_nav'
 
     / サイドパネルコンテナ
     #side-panel

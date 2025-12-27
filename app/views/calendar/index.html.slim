@@ -26,7 +26,7 @@
               - today_tasks = current_user.tasks.for_date(day)
               - has_alert = day_has_unfinished_tasks?(day, current_user)
 
-              = link_to calendar_daily_view_path(date: day), class: "block h-full min-h-24 border border-gray-200 p-2 hover:bg-gray-50 transition-colors relative #{is_current_month ? 'bg-white' : 'bg-gray-50'} #{is_today ? 'ring-2 ring-blue-500' : ''}", data: { turbo_frame: "daily_details" } do
+              = link_to calendar_daily_view_path(date: day), class: "block h-full min-h-24 border border-gray-200 p-2 hover:bg-gray-50 transition-colors relative #{is_current_month ? 'bg-white' : 'bg-gray-50'} #{is_today ? 'ring-2 ring-blue-500' : ''}", data: { turbo_frame: "daily_details", controller: "scroll", action: "click->scroll#scrollToDetails" } do
                 .flex.justify-between.items-start.mb-1
                   span.text-sm.font-medium[
                     class="#{is_current_month ? 'text-gray-900' : 'text-gray-400'}"
@@ -39,14 +39,16 @@
 
                 .space-y-1
                   - today_plans.each do |plan|
-                    .text-xs.truncate.text-blue-700.bg-blue-50.rounded.px-1.py-0.5
-                      i[class="#{plan_icon} mr-1"]
-                      = plan.title
+                    .flex.items-center.text-blue-700
+                      i[class="#{plan_icon} mr-1 text-xs"]
+                      span.text-xs.truncate.hidden.md:inline = plan.title
+                      span.md:hidden.w-1.h-1.bg-blue-500.rounded-full.ml-1
 
                   - today_tasks.each do |task|
-                    .text-xs.truncate.rounded.px-1.py-0.5[class="#{task.completed ? 'text-gray-400 bg-gray-100 line-through' : 'text-orange-700 bg-orange-50'}"]
-                      i[class="#{task_icon} mr-1"]
-                      = task.title
+                    .flex.items-center[class="#{task.completed ? 'text-gray-400 line-through' : 'text-orange-700'}"]
+                      i[class="#{task_icon} mr-1 text-xs"]
+                      span.text-xs.truncate.hidden.md:inline = task.title
+                      span.md:hidden.w-1.h-1.bg-orange-500.rounded-full.ml-1
 
     / 当日情報部分
     .lg:col-span-1

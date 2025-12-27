@@ -6,3 +6,15 @@ import { application } from "./application"
 
 import HelloController from "./hello_controller"
 application.register("hello", HelloController)
+
+import ModalController from "./modal_controller"
+application.register("modal", ModalController)
+
+import ScrollController from "./scroll_controller"
+application.register("scroll", ScrollController)
+
+import SidePanelController from "./side_panel_controller"
+application.register("side-panel", SidePanelController)
+
+import SidePanelOpenerController from "./side_panel_opener_controller"
+application.register("side-panel-opener", SidePanelOpenerController)
