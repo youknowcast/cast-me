@@ -1,4 +1,6 @@
-- current_scope = local_assigns[:scope] || params[:scope] || (action_name == 'my' ? 'my' : 'family')
+- current_scope = local_assigns[:scope] || params[:scope]
+- if current_scope.blank? || current_scope == 'undefined' || current_scope == 'null'
+  - current_scope = (controller_name == 'calendar' && action_name == 'my' ? 'my' : 'family')
 
 = turbo_frame_tag dom_id(task) do
   .bg-orange-50.border-l-4.border-orange-400.p-3.rounded-r-lg[

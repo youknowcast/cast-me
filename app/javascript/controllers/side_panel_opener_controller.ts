@@ -22,7 +22,7 @@ export default class extends Controller {
 
   openTaskForm(): void {
     const date = (this.element as HTMLElement).dataset.date
-    const scope = (this.element as HTMLElement).dataset.scope
+    const scope = this.getScope()
     this.openSidePanel(`/tasks/new?date=${date}&scope=${scope}`)
   }
 
@@ -33,7 +33,16 @@ export default class extends Controller {
 
   openTaskEdit(): void {
     const taskId = (this.element as HTMLElement).dataset.taskId
-    this.openSidePanel(`/tasks/${taskId}/edit`)
+    const scope = this.getScope()
+    this.openSidePanel(`/tasks/${taskId}/edit?scope=${scope}`)
+  }
+
+  private getScope(): string {
+    const scope = (this.element as HTMLElement).dataset.scope
+    if (!scope || scope === 'undefined' || scope === 'null') {
+      return 'family'
+    }
+    return scope
   }
 
   private openSidePanel(url: string): void {

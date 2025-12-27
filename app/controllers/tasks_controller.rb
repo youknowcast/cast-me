@@ -17,7 +17,7 @@ class TasksController < ApplicationController
              Date.today
            end
 
-    @scope = params[:scope] || 'family'
+    set_scope
     @task = current_user.family.tasks.build(
       date: date,
       user_id: current_user.id
@@ -30,7 +30,7 @@ class TasksController < ApplicationController
       format.html { render :new }
     end
   rescue Date::Error
-    @scope = params[:scope] || 'family'
+    set_scope
     @task = current_user.family.tasks.build(
       date: Date.today,
       user_id: current_user.id
@@ -46,8 +46,6 @@ class TasksController < ApplicationController
 
   def create
     @task = current_user.family.tasks.build(task_params)
-    # Ensure creator is the current user (optional field in schema)
-    # @task.creator = current_user
 
     if @task.save
       set_calendar_data(@task.date)
@@ -61,7 +59,7 @@ class TasksController < ApplicationController
         format.html { redirect_to calendar_path, notice: "タスクを作成しました" }
       end
     else
-      @scope = params[:scope] || 'family'
+      set_scope
       respond_to do |format|
         format.turbo_stream { render turbo_stream: turbo_stream.replace("side-panel", partial: "form", locals: { task: @task, scope: @scope }) }
         format.html { render :new }
@@ -70,9 +68,7 @@ class TasksController < ApplicationController
   end
 
   def edit
-    # scope can be inferred from context if needed, but for edit we usually show user select if in family view
-    # For simplicity, we'll try to get it from params
-    @scope = params[:scope] || 'family'
+    set_scope
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: turbo_stream.update("side-panel", partial: "form", locals: { task: @task, scope: @scope })
@@ -94,7 +90,7 @@ class TasksController < ApplicationController
         format.html { redirect_to calendar_path, notice: "タスクを更新しました" }
       end
     else
-      @scope = params[:scope] || 'family'
+      set_scope
       respond_to do |format|
         format.turbo_stream { render turbo_stream: turbo_stream.replace("side-panel", partial: "form", locals: { task: @task, scope: @scope }) }
         format.html { render :edit }
@@ -130,6 +126,18 @@ class TasksController < ApplicationController
 
   def set_task
     @task = current_user.family.tasks.find(params[:id])
+  end
+
+  def set_scope
+    scope_param = params[:scope].to_s.downcase.strip
+    if scope_param == 'my'
+      @scope = 'my'
+    elsif scope_param == 'family'
+      @scope = 'family'
+    else
+      # Fallback logic
+      @scope = (action_name == 'my' || params[:controller] == 'calendar' && action_name == 'my' ? 'my' : 'family')
+    end
   end
 
   def task_params
