@@ -32,13 +32,9 @@
         / User Filter Select Box
         .mt-4
           label.block.text-sm.font-medium.text-gray-700.mb-1 表示するユーザー
-          select#user-filter.select.select-bordered.w-full[
-            data-calendar-interaction-target="filterSelect"
-            data-action="change->calendar-interaction#changeFilter"
-          ]
-            option[value="all"] 全員
-            - current_user.family.users.each do |user|
-              option[value=user.id selected=(params[:filter_user_id] == user.id.to_s)]= user.login_id
+          = mobile_selector :filter_user_id, params[:filter_user_id], current_user.family.users, :id, :login_id,
+                            { include_blank: true, blank_text: "全員", blank_value: "all", label: "表示するユーザーを選択" },
+                            { data: { "calendar-interaction-target" => "filterSelect", action: "change->calendar-interaction#changeFilter" } }
 
     / 当日情報部分
     .lg:col-span-1

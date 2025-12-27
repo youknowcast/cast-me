@@ -66,7 +66,7 @@
 
             .form-control
               = f.label :date, "日付", class: "label"
-              = f.date_field :date, class: "input input-bordered w-full"
+              = mobile_date_field f, :date
               - if plan.errors[:date].any?
                 .text-error.text-sm.mt-1= plan.errors[:date].join(", ")
 

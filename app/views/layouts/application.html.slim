@@ -23,6 +23,9 @@ html
     / サイドパネルコンテナ
     #side-panel
 
+    / デートピッカーモーダル (グローバル)
+    = render 'shared/datepicker_modal'
+
     - if @notice.present?
       p.notice
         = @notice

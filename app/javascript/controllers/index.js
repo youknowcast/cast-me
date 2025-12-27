@@ -4,17 +4,29 @@
 
 import { application } from "./application"
 
+import CalendarInteractionController from "./calendar_interaction_controller"
+application.register("calendar-interaction", CalendarInteractionController)
+
+import DatepickerConnectorController from "./datepicker_connector_controller"
+application.register("datepicker-connector", DatepickerConnectorController)
+
+import DatepickerController from "./datepicker_controller"
+application.register("datepicker", DatepickerController)
+
 import HelloController from "./hello_controller"
 application.register("hello", HelloController)
+
+import MobileDatepickerController from "./mobile_datepicker_controller"
+application.register("mobile-datepicker", MobileDatepickerController)
+
+import MobileSelectorController from "./mobile_selector_controller"
+application.register("mobile-selector", MobileSelectorController)
 
 import ModalController from "./modal_controller"
 application.register("modal", ModalController)
 
 import ScrollController from "./scroll_controller"
 application.register("scroll", ScrollController)
-
-import CalendarInteractionController from "./calendar_interaction_controller"
-application.register("calendar-interaction", CalendarInteractionController)
 
 import SidePanelController from "./side_panel_controller"
 application.register("side-panel", SidePanelController)
