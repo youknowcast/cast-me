@@ -23,7 +23,7 @@
 
       / フォーム
       .side-panel-body
-        = form_with model: task, local: false, data: { turbo_frame: "side-panel" } do |f|
+        = form_with model: task do |f|
           .space-y-6
             .form-control
               = f.label :title, "タイトル", class: "label"
