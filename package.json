@@ -10,7 +10,7 @@
     "turbolinks": "^5.2.0"
   },
   "scripts": {
-    "build": "esbuild app/javascript/*.* --bundle --sourcemap --outdir=app/assets/builds --loader:.ts=ts"
+    "build": "esbuild app/javascript/application.js --bundle --sourcemap --outdir=app/assets/builds --loader:.ts=ts"
   },
   "version": "0.1.0",
   "devDependencies": {

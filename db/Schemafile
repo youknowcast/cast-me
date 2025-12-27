@@ -88,9 +88,19 @@ create_table "plans", force: :cascade do |t|
   t.time "start_time"
   t.time "end_time"
   t.timestamps
+  t.bigint "last_edited_by_id"
 
   t.index ["family_id", "date"]
   t.index ["date", "start_time"]
+end
+
+create_table "plan_participants", force: :cascade do |t|
+  t.bigint "plan_id", null: false
+  t.bigint "user_id", null: false
+  t.integer "status", null: false, default: 0 # 0: pending, 1: joined, 2: declined
+  t.timestamps
+
+  t.index ["plan_id", "user_id"], unique: true
 end
 
 create_table "tasks", force: :cascade do |t|

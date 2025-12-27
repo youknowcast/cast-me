@@ -1,16 +1,15 @@
 .container.mx-auto.px-4.py-8[
   data-controller="calendar-interaction"
   data-calendar-interaction-date-value=@date.to_s
-  data-calendar-interaction-scope-value="family"
-  data-calendar-interaction-filter-user-value=params[:filter_user_id]
+  data-calendar-interaction-scope-value="my"
 ]
   .flex.justify-between.items-center.mb-6
-    h1.text-3xl.font-bold.text-gray-800 家族カレンダー
+    h1.text-3xl.font-bold.text-gray-800 マイ・カレンダー
 
     button.btn.btn-ghost.text-lg.font-semibold[
       data-controller="monthpicker-connector"
       data-monthpicker-connector-date-value=@date.to_s
-      data-monthpicker-connector-base-url-value=calendar_path
+      data-monthpicker-connector-base-url-value=my_calendar_path
       data-action="click->monthpicker-connector#open"
     ]
       span data-monthpicker-connector-target="triggerText"
@@ -30,18 +29,11 @@
         - @weeks.each do |week|
           .grid.grid-cols-7.gap-1
             - week.each do |day|
-              - day_plans = current_user.family.plans.for_date(day)
+              - day_plans = current_user.family.plans.for_date(day).left_joins(:plan_participants).where("plans.user_id = ? OR plan_participants.user_id = ?", current_user.id, current_user.id).distinct
               - day_tasks = current_user.tasks.for_date(day)
-              = render "calendar_grid_cell", day: day, date: @date, plans: day_plans, tasks: day_tasks, scope: "family"
-
-        / User Filter Select Box
-        .mt-4
-          label.block.text-sm.font-medium.text-gray-700.mb-1 表示するユーザー
-          = mobile_selector :filter_user_id, params[:filter_user_id], current_user.family.users, :id, :login_id,
-                            { include_blank: true, blank_text: "全員", blank_value: "all", label: "表示するユーザーを選択" },
-                            { data: { "calendar-interaction-target" => "filterSelect", action: "change->calendar-interaction#changeFilter" } }
+              = render "calendar_grid_cell", day: day, date: @date, plans: day_plans, tasks: day_tasks, scope: "my"
 
     / 当日情報部分
     .lg:col-span-1
       = turbo_frame_tag "daily_details", data: { "calendar-interaction-target" => "detailsFrame" } do
-        = render "daily_view", date: @date || Date.today, scope: "family"
+        = render "daily_view", date: @date || Date.today, scope: "my"

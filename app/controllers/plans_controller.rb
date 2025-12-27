@@ -1,4 +1,5 @@
 class PlansController < ApplicationController
+  include CalendarData
   before_action :authenticate_user!
   before_action :set_plan, only: [:show, :edit, :update, :destroy]
 
@@ -15,12 +16,12 @@ class PlansController < ApplicationController
            else
              Date.today
            end
-    
+
     @plan = current_user.family.plans.build(
       date: date,
       user: current_user
     )
-    
+
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: turbo_stream.update("side-panel", partial: "form", locals: { plan: @plan })
@@ -33,7 +34,7 @@ class PlansController < ApplicationController
       date: Date.today,
       user: current_user
     )
-    
+
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: turbo_stream.update("side-panel", partial: "form", locals: { plan: @plan })
@@ -45,13 +46,15 @@ class PlansController < ApplicationController
   def create
     @plan = current_user.family.plans.build(plan_params)
     @plan.user = current_user
+    @plan.last_edited_by = current_user
 
     if @plan.save
+      handle_participants
+      set_calendar_data(@plan.date)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
-            turbo_stream.replace("daily-content", partial: "calendar/daily_view", 
-              locals: { date: @plan.date, plans: current_user.family.plans.for_date(@plan.date).ordered_by_time, tasks: current_user.tasks.for_date(@plan.date).ordered_by_priority }),
+            turbo_stream.update("daily_details", partial: "calendar/daily_view", locals: { date: @date }),
             turbo_stream.update("side-panel", "")
           ]
         end
@@ -59,7 +62,7 @@ class PlansController < ApplicationController
       end
     else
       respond_to do |format|
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("side-panel", partial: "form") }
+        format.turbo_stream { render turbo_stream: turbo_stream.replace("side-panel", partial: "form", locals: { plan: @plan }) }
         format.html { render :new }
       end
     end
@@ -75,12 +78,14 @@ class PlansController < ApplicationController
   end
 
   def update
+    @plan.last_edited_by = current_user
     if @plan.update(plan_params)
+      handle_participants
+      set_calendar_data(@plan.date)
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
-            turbo_stream.replace("daily-content", partial: "calendar/daily_view", 
-              locals: { date: @plan.date, plans: current_user.family.plans.for_date(@plan.date).ordered_by_time, tasks: current_user.tasks.for_date(@plan.date).ordered_by_priority }),
+            turbo_stream.update("daily_details", partial: "calendar/daily_view", locals: { date: @date }),
             turbo_stream.update("side-panel", "")
           ]
         end
@@ -88,7 +93,7 @@ class PlansController < ApplicationController
       end
     else
       respond_to do |format|
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("side-panel", partial: "form") }
+        format.turbo_stream { render turbo_stream: turbo_stream.replace("side-panel", partial: "form", locals: { plan: @plan }) }
         format.html { render :edit }
       end
     end
@@ -97,11 +102,11 @@ class PlansController < ApplicationController
   def destroy
     date = @plan.date
     @plan.destroy
-    
+    set_calendar_data(date)
+
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.replace("daily-content", partial: "calendar/daily_view", 
-          locals: { date: date, plans: current_user.family.plans.for_date(date).ordered_by_time, tasks: current_user.tasks.for_date(date).ordered_by_priority })
+        render turbo_stream: turbo_stream.update("daily_details", partial: "calendar/daily_view", locals: { date: @date })
       end
       format.html { redirect_to calendar_path, notice: "予定を削除しました" }
     end
@@ -114,6 +119,12 @@ class PlansController < ApplicationController
   end
 
   def plan_params
-    params.require(:plan).permit(:title, :description, :date, :start_time, :end_time)
+    params.require(:plan).permit(:title, :description, :date, :start_time, :end_time, participant_ids: [])
   end
-end 
+
+  def handle_participants
+    # participant_ids is already handled by Rails associations if permitted correctly,
+    # but verify if standard assignment works with has_many :through.
+    # It should work automatically with plan_params including participant_ids: [].
+  end
+end

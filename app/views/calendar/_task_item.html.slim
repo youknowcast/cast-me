@@ -1,0 +1,41 @@
+- current_scope = local_assigns[:scope] || params[:scope]
+- if current_scope.blank? || current_scope == 'undefined' || current_scope == 'null'
+  - current_scope = (controller_name == 'calendar' && action_name == 'my' ? 'my' : 'family')
+
+= turbo_frame_tag dom_id(task) do
+  .bg-orange-50.border-l-4.border-orange-400.p-3.rounded-r-lg[
+    class="#{task.completed ? 'opacity-60' : ''}"
+  ]
+    .flex.items-start.justify-between
+      .flex-1
+        .flex.items-center.space-x-2
+          = form_with model: task, url: toggle_task_path(task), method: :patch, data: { turbo: true } do |f|
+            = f.check_box :completed, class: "checkbox checkbox-sm checkbox-primary", onchange: "this.form.requestSubmit()"
+          button.text-left.font-medium.text-gray-800.hover:underline[
+            class="#{task.completed ? 'line-through' : ''}"
+            data-controller="side-panel-opener"
+            data-action="click->side-panel-opener#openTaskEdit"
+            data-task-id=task.id
+            data-scope=current_scope
+          ]= task.title
+          span.text-xs.px-2.py-1.rounded-full[
+            class=task.priority_class
+          ]= task.priority_text
+        - if task.description.present?
+          p.text-sm.text-gray-600.mt-1= task.description
+      .flex.space-x-2
+
+        button.btn.btn-xs.btn-outline[
+          data-controller="side-panel-opener"
+          data-action="click->side-panel-opener#openTaskEdit"
+          data-task-id=task.id
+          data-scope=current_scope
+        ]
+          i.fas.fa-edit
+        button.btn.btn-xs.btn-error[
+          data-controller="delete-confirm-trigger"
+          data-delete-confirm-trigger-url-value=task_path(task)
+          data-delete-confirm-trigger-message-value="このタスクを削除しますか？"
+          data-action="click->delete-confirm-trigger#open"
+        ]
+          i.fas.fa-trash

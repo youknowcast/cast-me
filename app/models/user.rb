@@ -23,6 +23,7 @@ class User < ApplicationRecord
   has_many :articles, dependent: :destroy
   has_many :plans, dependent: :destroy
   has_many :tasks, dependent: :destroy
+  has_many :plan_participants, dependent: :destroy
 
   validates :login_id, presence: true, uniqueness: true
 end

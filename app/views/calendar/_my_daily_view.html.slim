@@ -1,0 +1,33 @@
+.bg-white.rounded-lg.shadow-lg.p-6
+  = render "calendar/header", date: date, scope: scope
+
+  .mb-8.pb-4
+    / 予定セクション
+    .mb-4
+      .flex.items-center.mb-2
+        h4.text-md.font-semibold.text-gray-600
+          i.fas.fa-calendar.mr-2
+          | 予定
+        span.ml-2.text-xs.bg-blue-100.text-blue-800.px-2.py-0.5.rounded-full= family_plans.count
+
+      - if family_plans.any?
+        .space-y-3
+          - family_plans.each do |plan|
+            = render "calendar/plan_item", plan: plan, target_user: current_user, scope: scope
+      - else
+        .text-gray-400.text-sm.ml-4 予定はありません
+
+    / タスクセクション
+    .mb-4
+      .flex.items-center.mb-2
+        h4.text-md.font-semibold.text-gray-600
+          i.fas.fa-tasks.mr-2
+          | タスク
+        span.ml-2.text-xs.bg-orange-100.text-orange-800.px-2.py-0.5.rounded-full= family_tasks.count
+
+      - if family_tasks.any?
+        .space-y-3
+          - family_tasks.each do |task|
+            = render "calendar/task_item", task: task
+      - else
+        .text-gray-400.text-sm.ml-4 タスクはありません

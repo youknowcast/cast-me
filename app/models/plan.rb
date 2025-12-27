@@ -2,16 +2,17 @@
 #
 # Table name: plans
 #
-#  id          :integer          not null, primary key
-#  date        :date             not null
-#  description :text
-#  end_time    :time
-#  start_time  :time
-#  title       :string(255)      not null
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
-#  family_id   :bigint           not null
-#  user_id     :bigint
+#  id                :integer          not null, primary key
+#  date              :date             not null
+#  description       :text
+#  end_time          :time
+#  start_time        :time
+#  title             :string(255)      not null
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#  family_id         :bigint           not null
+#  last_edited_by_id :bigint
+#  user_id           :bigint
 #
 # Indexes
 #
@@ -21,6 +22,10 @@
 class Plan < ApplicationRecord
   belongs_to :family
   belongs_to :user, optional: true # 作成者を記録（オプション）
+  belongs_to :last_edited_by, class_name: 'User', optional: true
+
+  has_many :plan_participants, dependent: :destroy
+  has_many :participants, through: :plan_participants, source: :user
 
   validates :family_id, presence: true
   validates :date, presence: true
@@ -39,4 +44,4 @@ class Plan < ApplicationRecord
       errors.add(:end_time, "は開始時刻より後に設定してください")
     end
   end
-end 
+end

@@ -22,7 +22,8 @@ export default class extends Controller {
 
   openTaskForm(): void {
     const date = (this.element as HTMLElement).dataset.date
-    this.openSidePanel(`/tasks/new?date=${date}`)
+    const scope = this.getScope()
+    this.openSidePanel(`/tasks/new?date=${date}&scope=${scope}`)
   }
 
   openPlanEdit(): void {
@@ -32,7 +33,16 @@ export default class extends Controller {
 
   openTaskEdit(): void {
     const taskId = (this.element as HTMLElement).dataset.taskId
-    this.openSidePanel(`/tasks/${taskId}/edit`)
+    const scope = this.getScope()
+    this.openSidePanel(`/tasks/${taskId}/edit?scope=${scope}`)
+  }
+
+  private getScope(): string {
+    const scope = (this.element as HTMLElement).dataset.scope
+    if (!scope || scope === 'undefined' || scope === 'null') {
+      return 'family'
+    }
+    return scope
   }
 
   private openSidePanel(url: string): void {
@@ -43,15 +53,15 @@ export default class extends Controller {
         "X-Requested-With": "XMLHttpRequest"
       }
     })
-    .then((response: Response) => response.text())
-    .then((html: string) => {
-      // Turbo Streamのレスポンスを処理
-      if (typeof window.Turbo !== 'undefined') {
-        window.Turbo.renderStreamMessage(html)
-      }
-    })
-    .catch((error: Error) => {
-      console.error("Error opening side panel:", error)
-    })
+      .then((response: Response) => response.text())
+      .then((html: string) => {
+        // Turbo Streamのレスポンスを処理
+        if (typeof window.Turbo !== 'undefined') {
+          window.Turbo.renderStreamMessage(html)
+        }
+      })
+      .catch((error: Error) => {
+        console.error("Error opening side panel:", error)
+      })
   }
-} 
+}

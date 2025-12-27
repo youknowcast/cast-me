@@ -1,0 +1,36 @@
+.mb-8.border-b.pb-4.last:border-b-0
+  h3.text-lg.font-bold.text-gray-800.mb-3
+    i.fas.fa-user.mr-2
+    = target_user.login_id
+
+  / 予定セクション
+  .mb-4
+    - user_plans = family_plans.select { |p| p.user_id == target_user.id || p.participant_ids.include?(target_user.id) }
+    .flex.items-center.mb-2
+      h4.text-md.font-semibold.text-gray-600
+        i.fas.fa-calendar.mr-2
+        | 予定
+      span.ml-2.text-xs.bg-blue-100.text-blue-800.px-2.py-0.5.rounded-full= user_plans.count
+
+    - if user_plans.any?
+      .space-y-3
+        - user_plans.each do |plan|
+          = render "calendar/plan_item", plan: plan, target_user: target_user, scope: scope
+    - else
+      .text-gray-400.text-sm.ml-4 予定はありません
+
+  / タスクセクション
+  .mb-4
+    - user_tasks = family_tasks.select { |t| t.user_id == target_user.id }
+    .flex.items-center.mb-2
+      h4.text-md.font-semibold.text-gray-600
+        i.fas.fa-tasks.mr-2
+        | タスク
+      span.ml-2.text-xs.bg-orange-100.text-orange-800.px-2.py-0.5.rounded-full= user_tasks.count
+
+    - if user_tasks.any?
+      .space-y-3
+        - user_tasks.each do |task|
+          = render "calendar/task_item", task: task, scope: scope
+    - else
+      .text-gray-400.text-sm.ml-4 タスクはありません

@@ -4,5 +4,50 @@
 
 import { application } from "./application"
 
+import CalendarInteractionController from "./calendar_interaction_controller"
+application.register("calendar-interaction", CalendarInteractionController)
+
+import DatepickerConnectorController from "./datepicker_connector_controller"
+application.register("datepicker-connector", DatepickerConnectorController)
+
+import DatepickerController from "./datepicker_controller"
+application.register("datepicker", DatepickerController)
+
 import HelloController from "./hello_controller"
 application.register("hello", HelloController)
+
+import MobileDatepickerController from "./mobile_datepicker_controller"
+application.register("mobile-datepicker", MobileDatepickerController)
+
+import MobileSelectorController from "./mobile_selector_controller"
+application.register("mobile-selector", MobileSelectorController)
+
+import ModalController from "./modal_controller"
+application.register("modal", ModalController)
+
+import ScrollController from "./scroll_controller"
+application.register("scroll", ScrollController)
+
+import SidePanelController from "./side_panel_controller"
+application.register("side-panel", SidePanelController)
+
+import SidePanelOpenerController from "./side_panel_opener_controller"
+application.register("side-panel-opener", SidePanelOpenerController)
+
+import TimepickerConnectorController from "./timepicker_connector_controller"
+application.register("timepicker-connector", TimepickerConnectorController)
+
+import TimepickerController from "./timepicker_controller"
+application.register("timepicker", TimepickerController)
+
+import MonthpickerConnectorController from "./monthpicker_connector_controller"
+application.register("monthpicker-connector", MonthpickerConnectorController)
+
+import MonthpickerController from "./monthpicker_controller"
+application.register("monthpicker", MonthpickerController)
+
+import DeleteConfirmController from "./delete_confirm_controller"
+application.register("delete-confirm", DeleteConfirmController)
+
+import DeleteConfirmTriggerController from "./delete_confirm_trigger_controller"
+application.register("delete-confirm-trigger", DeleteConfirmTriggerController)

@@ -1,25 +1,26 @@
 class CalendarController < ApplicationController
+  include CalendarData
   before_action :authenticate_user!
 
   def index
     @date = date
     @weeks = generate_calendar_weeks
-    @today_plans = current_user.family.plans.for_date(Date.today).ordered_by_time
-    @today_tasks = current_user.tasks.for_date(Date.today).ordered_by_priority
+
+    # Fetch data for the selected/default date in the details view
+    set_family_calendar_data(@date)
+  end
+
+  def my
+    @date = date
+    @weeks = generate_calendar_weeks
+
+    # Fetch data for the selected/default date in the details view
+    set_my_calendar_data(@date)
   end
 
   def daily_view
-    @date = begin
-      Date.parse(params[:date])
-    rescue Date::Error
-      Date.today
-    end
-    @plans = current_user.family.plans.for_date(@date).ordered_by_time
-    @tasks = current_user.tasks.for_date(@date).ordered_by_priority
-    
-    respond_to do |format|
-      format.turbo_stream { render turbo_stream: turbo_stream.replace("daily-content", partial: "daily_view") }
-    end
+    @date = Date.parse(params[:date])
+    set_calendar_data(@date)
   end
 
   private
