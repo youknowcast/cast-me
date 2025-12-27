@@ -29,7 +29,8 @@
 -   **Calendar Interactivity**:
     -   Uses **Turbo Frames** (`daily_details`) for sectional updates.
     -   **Unified Interaction**: `calendar_interaction_controller.ts` manages both date selection and user filtering, ensuring state (date, user, scope) is preserved.
-    -   **Grouping**: Daily views group items by User.
+-   **File-based Separation**: "My" and "Family" views are separated into `my.html.slim` and `index.html.slim` with dedicated routes (`/calendar/my` and `/calendar`).
+-   **Grouping**: Family daily view groups items by User.
 -   **Data Consistency**: Uses `CalendarData` concern in controllers to standardize schedule fetching across different actions (Create/Update/Filter).
 -   **Side Panel**: A dedicated side panel container (`#side-panel`) exists in the layout for dynamic content loading (e.g., forms).
 
