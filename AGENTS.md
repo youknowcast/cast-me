@@ -34,6 +34,10 @@
 -   **Data Consistency**: Uses `CalendarData` concern in controllers to standardize schedule fetching across different actions (Create/Update/Filter).
 -   **Side Panel**: A dedicated side panel container (`#side-panel`) exists in the layout for dynamic content loading (e.g., forms).
 
+## Key Principles
+-   **Mutual Family Management**: In the "Family" view, family members can manage each other's participation status (Joined, Declined, Pending) and tasks. This fosters collaborative family scheduling.
+-   **Context-Aware UI**: The application must always know if it's in a "My" (personal) or "Family" (shared) context, strictly filtering data and adjusting UI controls (like user selectors) accordingly.
+
 ## Development Guidelines
 1.  **Views**: Always use **Slim** syntax. Do not create `.erb` files.
 2.  **Styling**: Use **Tailwind CSS** + **DaisyUI**.

@@ -15,7 +15,7 @@
     - if user_plans.any?
       .space-y-3
         - user_plans.each do |plan|
-          = render "calendar/plan_item", plan: plan
+          = render "calendar/plan_item", plan: plan, target_user: target_user, scope: scope
     - else
       .text-gray-400.text-sm.ml-4 予定はありません
 

@@ -1,3 +1,11 @@
+- current_scope = local_assigns[:scope] || params[:scope]
+- if current_scope.blank? || current_scope == 'undefined' || current_scope == 'null'
+  - current_scope = (controller_name == 'calendar' && action_name == 'my' ? 'my' : 'family')
+
+- # target_user が渡されない場合のフォールバック（通常は渡されるはず）
+- target_user ||= current_user
+- participant_record = plan.plan_participants.find_by(user: target_user)
+
 .bg-blue-50.border-l-4.border-blue-400.p-3.rounded-r-lg
   .flex.items-start.justify-between
     .flex-1
@@ -5,6 +13,7 @@
         data-controller="side-panel-opener"
         data-action="click->side-panel-opener#openPlanEdit"
         data-plan-id=plan.id
+        data-scope=current_scope
       ]= plan.title
       - if plan.description.present?
         p.text-sm.text-gray-600.mt-1= plan.description
@@ -27,13 +36,17 @@
               - elsif status == 'pending'
                 | (?)
 
-      - if current_user.in?(plan.participants)
-         - participant_record = plan.plan_participants.find_by(user: current_user)
-         .mt-2.flex.space-x-2
-           - unless participant_record.joined?
-             = link_to "参加", plan_participant_path(participant_record, status: 'joined'), method: :patch, class: "btn btn-xs btn-success btn-outline"
-           - unless participant_record.declined?
-             = link_to "不参加", plan_participant_path(participant_record, status: 'declined'), method: :patch, class: "btn btn-xs btn-error btn-outline"
+      - if participant_record
+         .mt-2.flex.space-x-1
+           = link_to "参加", plan_participant_path(participant_record, status: 'joined', scope: current_scope),
+                     data: { turbo_method: :patch },
+                     class: "btn btn-xs #{participant_record.joined? ? 'btn-success btn-active' : 'btn-success btn-outline'}"
+           = link_to "不参加", plan_participant_path(participant_record, status: 'declined', scope: current_scope),
+                     data: { turbo_method: :patch },
+                     class: "btn btn-xs #{participant_record.declined? ? 'btn-error btn-active' : 'btn-error btn-outline'}"
+           = link_to "保留", plan_participant_path(participant_record, status: 'pending', scope: current_scope),
+                     data: { turbo_method: :patch },
+                     class: "btn btn-xs #{participant_record.pending? ? 'btn-ghost bg-gray-200 btn-active' : 'btn-ghost bg-gray-100 btn-outline text-gray-400 border-gray-200'}"
 
       - if plan.last_edited_by.present?
         p.text-xs.text-gray-400.mt-1.text-right
