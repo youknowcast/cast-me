@@ -6,12 +6,17 @@
   .flex.justify-between.items-center.mb-6
     h1.text-3xl.font-bold.text-gray-800 マイ・カレンダー
 
-    .flex.items-center.space-x-4
-      = link_to my_calendar_path(date: @date.prev_month), class: "btn btn-outline btn-sm" do
-        i.fas.fa-chevron-left
-      span.text-lg.font-semibold= @date.strftime("%Y年%m月")
-      = link_to my_calendar_path(date: @date.next_month), class: "btn btn-outline btn-sm" do
-        i.fas.fa-chevron-right
+    button.btn.btn-ghost.text-lg.font-semibold[
+      data-controller="monthpicker-connector"
+      data-monthpicker-connector-date-value=@date.to_s
+      data-monthpicker-connector-base-url-value=my_calendar_path
+      data-action="click->monthpicker-connector#open"
+    ]
+      span data-monthpicker-connector-target="triggerText"
+        = @date.strftime("%Y年%m月")
+      i.fas.fa-caret-down.ml-2.text-sm
+
+
 
   .grid.grid-cols-1.lg:grid-cols-3.gap-6
     / カレンダー部分

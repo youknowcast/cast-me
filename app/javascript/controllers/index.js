@@ -39,3 +39,9 @@ application.register("timepicker-connector", TimepickerConnectorController)
 
 import TimepickerController from "./timepicker_controller"
 application.register("timepicker", TimepickerController)
+
+import MonthpickerConnectorController from "./monthpicker_connector_controller"
+application.register("monthpicker-connector", MonthpickerConnectorController)
+
+import MonthpickerController from "./monthpicker_controller"
+application.register("monthpicker", MonthpickerController)
