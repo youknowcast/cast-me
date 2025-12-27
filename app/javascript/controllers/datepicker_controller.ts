@@ -16,10 +16,20 @@ export default class extends Controller {
 	connect() {
 		console.log('[Datepicker] Controller connected')
 		window.addEventListener('datepicker:open', this.open.bind(this) as any)
+		// Handle backdrop click (clicking outside modal-box) to confirm
+		this.modalTarget.addEventListener('click', this.handleBackdropClick.bind(this))
 	}
 
 	disconnect() {
 		window.removeEventListener('datepicker:open', this.open.bind(this) as any)
+		this.modalTarget.removeEventListener('click', this.handleBackdropClick.bind(this))
+	}
+
+	handleBackdropClick(event: MouseEvent) {
+		// If click target is the dialog itself (backdrop), not the modal-box content, confirm and close
+		if (event.target === this.modalTarget) {
+			this.confirm()
+		}
 	}
 
 	open(event: CustomEvent) {
