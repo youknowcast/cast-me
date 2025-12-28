@@ -23,8 +23,8 @@ proxy:
   host: <%= ENV['DEPLOY_DOMAIN'] %>
   healthcheck:
     path: /up
-    interval: 3
-    timeout: 3
+    interval: 5
+    timeout: 120
 
 # AWS ECR registry
 registry:
