@@ -5,9 +5,9 @@ set -e
 rm -f /app/tmp/pids/server.pid
 
 # データベースファイルが存在しない場合のみ初期化を実行
-if [ ! -f /app/db/development.sqlite3 ]; then
+if [ ! -f /app/data/development.sqlite3 ]; then
   echo "Database file not found. Initializing database..."
-  
+
   # データベースの作成
   bundle exec rails db:create 2>/dev/null || true
 
@@ -25,4 +25,4 @@ else
 fi
 
 # Then exec the container's main process (what's set as CMD in the Dockerfile)
-exec "$@" 
+exec "$@"

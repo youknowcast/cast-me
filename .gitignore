@@ -43,6 +43,8 @@ yarn-debug.log*
 # SQLite database files
 /db/*.sqlite3
 /db/*.sqlite3-*
+/data/*.sqlite3
+/data/*.sqlite3-*
 
 # その他の一時ファイル
 /tmp/*
