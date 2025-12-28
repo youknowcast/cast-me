@@ -1,0 +1,6 @@
+#!/bin/bash
+# Wrapper script for kamal app exec to run commands as rails user
+# Usage: kamal app exec "bin/rails-exec rails console"
+#        kamal app exec "bin/rails-exec bundle exec rails ridgepole:apply"
+
+exec gosu rails "$@"

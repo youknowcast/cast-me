@@ -52,7 +52,8 @@ RUN apt-get update -qq && \
     libsqlite3-0 \
     libyaml-0-2 \
     libffi8 \
-    curl && \
+    curl \
+    gosu && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy built artifacts
@@ -63,8 +64,6 @@ COPY --from=build /rails /rails
 RUN useradd rails --create-home --shell /bin/bash && \
     mkdir -p db data storage log tmp/pids tmp/cache tmp/sockets && \
     chown -R rails:rails db data storage log tmp
-
-USER rails:rails
 
 EXPOSE 3000
 

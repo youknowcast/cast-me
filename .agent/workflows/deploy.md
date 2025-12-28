@@ -94,14 +94,21 @@ kamal app exec "bin/backup/s3_backup.sh"
 kamal app details
 ```
 
-### SSH でサーバーに接続
+### SSH でサーバーに接続（rails ユーザー）
 
 ```bash
-kamal app exec --interactive bash
+kamal app exec --interactive "bin/rails-exec bash"
 ```
 
 ### Rails コンソール
 
 ```bash
-kamal app exec "rails console"
+kamal app exec "bin/rails-exec bundle exec rails console"
 ```
+
+### Ridgepole 適用
+
+```bash
+kamal app exec "bin/rails-exec bundle exec rails ridgepole:apply"
+```
+
