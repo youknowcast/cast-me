@@ -17,14 +17,16 @@ servers:
         - castme_db:/rails/db
         - castme_storage:/rails/storage
 
-# Kamal 2 proxy configuration (replaces Traefik)
+# Kamal 2 proxy configuration
 proxy:
   ssl: true
   host: <%= ENV['DEPLOY_DOMAIN'] %>
+  deploy_timeout: 120
   healthcheck:
     path: /up
-    interval: 5
-    timeout: 120
+    interval: 10
+    timeout: 5
+    max_attempts: 30
 
 # AWS ECR registry
 registry:
