@@ -3,8 +3,8 @@
 
 service: castme
 
-# Docker image name - will be pushed to AWS ECR
-image: <%= ENV['AWS_ACCOUNT_ID'] %>.dkr.ecr.us-west-2.amazonaws.com/castme
+# Docker image name - registry server is prepended automatically
+image: castme
 
 # Servers configuration
 servers:
