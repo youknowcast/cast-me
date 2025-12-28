@@ -29,7 +29,7 @@
         - @weeks.each do |week|
           .grid.grid-cols-7.gap-1
             - week.each do |day|
-              - day_plans = current_user.family.plans.for_date(day).left_joins(:plan_participants).where("plans.user_id = ? OR plan_participants.user_id = ?", current_user.id, current_user.id).distinct
+              - day_plans = current_user.family.plans.for_date(day).left_joins(:plan_participants).where("plan_participants.user_id = ?", current_user.id).distinct
               - day_tasks = current_user.tasks.for_date(day)
               = render "calendar_grid_cell", day: day, date: @date, plans: day_plans, tasks: day_tasks, scope: "my"
 

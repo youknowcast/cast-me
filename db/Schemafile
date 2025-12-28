@@ -81,7 +81,7 @@ end
 
 create_table "plans", force: :cascade do |t|
   t.bigint "family_id", null: false
-  t.bigint "user_id"
+  t.bigint "created_by_id"
   t.date "date", null: false
   t.string "title", null: false, limit: 255
   t.text "description"

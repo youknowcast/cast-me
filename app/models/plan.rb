@@ -10,9 +10,9 @@
 #  title             :string(255)      not null
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
+#  created_by_id     :bigint
 #  family_id         :bigint           not null
 #  last_edited_by_id :bigint
-#  user_id           :bigint
 #
 # Indexes
 #
@@ -21,7 +21,7 @@
 #
 class Plan < ApplicationRecord
   belongs_to :family
-  belongs_to :user, optional: true # 作成者を記録（オプション）
+  belongs_to :created_by, class_name: 'User', optional: true
   belongs_to :last_edited_by, class_name: 'User', optional: true
 
   has_many :plan_participants, dependent: :destroy

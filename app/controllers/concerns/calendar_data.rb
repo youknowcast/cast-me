@@ -17,8 +17,8 @@ module CalendarData
     @target_users = [current_user]
     @family_plans = current_user.family.plans.for_date(date)
                                 .left_joins(:plan_participants)
-                                .where("plans.user_id = ? OR plan_participants.user_id = ?", current_user.id, current_user.id)
-                                .includes(:user, :participants, :plan_participants)
+                                .where("plan_participants.user_id = ?", current_user.id)
+                                .includes(:created_by, :participants, :plan_participants)
                                 .distinct
                                 .ordered_by_time
     @family_tasks = current_user.tasks.for_date(date).ordered_by_priority
@@ -27,7 +27,7 @@ module CalendarData
   def set_family_calendar_data(date)
     @date ||= date
     set_target_users
-    @family_plans = current_user.family.plans.for_date(date).includes(:user, :participants, :plan_participants).ordered_by_time
+    @family_plans = current_user.family.plans.for_date(date).includes(:created_by, :participants, :plan_participants).ordered_by_time
     @family_tasks = current_user.family.tasks.for_date(date).includes(:user).ordered_by_priority
   end
 

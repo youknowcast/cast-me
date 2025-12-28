@@ -17,7 +17,8 @@ export default class extends Controller {
 
   openPlanForm(): void {
     const date = (this.element as HTMLElement).dataset.date
-    this.openSidePanel(`/plans/new?date=${date}`)
+    const scope = this.getScope()
+    this.openSidePanel(`/plans/new?date=${date}&scope=${scope}`)
   }
 
   openTaskForm(): void {

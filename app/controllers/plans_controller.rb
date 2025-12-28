@@ -19,8 +19,12 @@ class PlansController < ApplicationController
 
     @plan = current_user.family.plans.build(
       date: date,
-      user: current_user
+      created_by: current_user
     )
+    # Myスコープの場合、自分自身をデフォルト参加者として設定
+    if params[:scope] == 'my'
+      @plan.participant_ids = [current_user.id]
+    end
 
     respond_to do |format|
       format.turbo_stream do
@@ -32,8 +36,11 @@ class PlansController < ApplicationController
     # 無効な日付の場合は今日の日付を使用
     @plan = current_user.family.plans.build(
       date: Date.today,
-      user: current_user
+      created_by: current_user
     )
+    if params[:scope] == 'my'
+      @plan.participant_ids = [current_user.id]
+    end
 
     respond_to do |format|
       format.turbo_stream do
@@ -45,7 +52,7 @@ class PlansController < ApplicationController
 
   def create
     @plan = current_user.family.plans.build(plan_params)
-    @plan.user = current_user
+    @plan.created_by = current_user
     @plan.last_edited_by = current_user
 
     if @plan.save
