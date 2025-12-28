@@ -1,3 +1,5 @@
+@import "./side_panel.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
