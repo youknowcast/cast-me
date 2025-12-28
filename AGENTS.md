@@ -53,3 +53,48 @@
 -   `db/Schemafile`: Database schema managed via **Ridgepole**.
 -   `config/routes.rb`: definition of available endpoints.
 
+## Infrastructure
+
+### Deployment Stack
+-   **Deployment Tool**: [Kamal 2](https://kamal-deploy.org/) - zero-downtime Docker deployments
+-   **Cloud Provider**: AWS LightSail (recommended: 1GB RAM minimum)
+-   **Container Registry**: AWS ECR
+-   **Database**: SQLite (file-based, stored in Docker volume)
+
+### Key Files
+-   `config/deploy.yml`: Kamal deployment configuration
+-   `.kamal/secrets`: Environment variables (gitignored, see `.kamal/secrets.example`)
+-   `Dockerfile`: Production multi-stage build
+-   `bin/docker-entrypoint`: Runs ridgepole schema migration on container start
+
+### Environment Variables (Required)
+Configure these in `.kamal/secrets` or your CI/CD environment:
+
+| Variable | Description |
+|----------|-------------|
+| `DEPLOY_HOST` | Server IP or hostname |
+| `DEPLOY_DOMAIN` | Domain for SSL (e.g., `app.example.com`) |
+| `AWS_ACCOUNT_ID` | AWS account ID for ECR |
+| `RAILS_MASTER_KEY` | Rails credentials key |
+| `SECRET_KEY_BASE` | Rails secret key |
+| `KAMAL_REGISTRY_PASSWORD` | ECR auth token (via `aws ecr get-login-password`) |
+
+### Data Persistence
+-   **Docker Volume**: `castme_db` persists SQLite database across deployments
+-   **Backup**: Optional S3 backup can be configured for disaster recovery
+-   **Schema Migration**: Automatically applied via `bin/docker-entrypoint` on each deploy
+
+### Deployment Commands
+```bash
+# Initial setup
+kamal setup
+
+# Deploy updates
+kamal deploy
+
+# View logs
+kamal app logs
+
+# Run console
+kamal app exec -i 'bin/rails console'
+```
