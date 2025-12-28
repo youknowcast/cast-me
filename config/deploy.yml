@@ -21,12 +21,11 @@ servers:
 proxy:
   ssl: true
   host: <%= ENV['DEPLOY_DOMAIN'] %>
-  deploy_timeout: 120
   healthcheck:
     path: /up
     interval: 10
     timeout: 5
-    max_attempts: 30
+    max_attempts: 60
 
 # AWS ECR registry
 registry:
