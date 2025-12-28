@@ -33,6 +33,7 @@ gem 'kaminari'
 gem 'ransack'
 
 gem 'tailwindcss-rails', '~> 2.7.9'
+gem 'slim-rails'
 
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.4', require: false
@@ -61,7 +62,6 @@ group :development, :test do
 
   gem 'dotenv-rails'
   gem 'factory_bot_rails'
-  gem 'slim-rails'
 end
 
 group :development do

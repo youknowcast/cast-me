@@ -59,3 +59,8 @@ env:
 
 # Asset bridging for zero-downtime deployments
 asset_path: /rails/public/assets
+
+# Deploy hooks - run ridgepole after deployment
+hooks:
+  post-app-boot:
+    - bundle exec ridgepole -c config/database.yml -E production -f db/Schemafile -a
