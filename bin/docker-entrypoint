@@ -1,11 +1,10 @@
 #!/bin/bash
 set -e
 
-# Fix ownership of mounted volumes only if needed (runs as root)
-if [ ! -w /rails/data ]; then
-  echo "Fixing volume permissions..."
-  chown -R rails:rails /rails/data /rails/storage /rails/log /rails/tmp 2>/dev/null || true
-fi
+# Fix ownership of mounted volumes (runs as root)
+# Always run this to ensure volumes have correct permissions
+echo "Ensuring volume permissions..."
+chown -R rails:rails /rails/data /rails/storage /rails/log /rails/tmp 2>/dev/null || true
 
 # Apply database schema with ridgepole (as rails user)
 echo "Applying database schema with ridgepole..."
