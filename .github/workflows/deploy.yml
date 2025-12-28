@@ -89,6 +89,14 @@ jobs:
           echo "${{ secrets.KNOWN_HOSTS }}" > ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
+      - name: Debug - Verify host keys
+        run: |
+          echo "=== Fingerprint from known_hosts ==="
+          ssh-keygen -lf ~/.ssh/known_hosts || echo "Failed to parse known_hosts"
+          echo ""
+          echo "=== Live server fingerprint ==="
+          ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} 2>/dev/null | ssh-keygen -lf - || echo "Failed to get live fingerprint"
+
       - name: Deploy with Kamal
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
