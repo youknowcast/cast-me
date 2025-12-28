@@ -92,7 +92,7 @@
   .side-panel {
     padding-left: 0;
   }
-  
+
   .side-panel-content {
     max-width: 100vw;
   }
@@ -101,4 +101,29 @@
 /* サイドパネルが表示されている間、背景のスクロールを無効化 */
 body.side-panel-open {
   overflow: hidden;
-} 
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  -webkit-overflow-scrolling: none;
+}
+
+/* iOS Safari での追加対策 */
+html.side-panel-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+/* パネルのコンテンツ内はスクロール可能にする */
+.side-panel-body {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* オーバーレイの背景を確実に不透過にする */
+.side-panel-overlay {
+  isolation: isolate;
+  background-color: transparent;
+}

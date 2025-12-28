@@ -13,6 +13,8 @@ export default class extends Controller {
   declare readonly panelTarget: HTMLElement
   declare readonly backdropTarget: HTMLElement
 
+  private scrollPosition: number = 0
+
   connect(): void {
     console.log("Side panel controller connected")
     console.log("Element:", this.element)
@@ -61,8 +63,12 @@ export default class extends Controller {
     console.log("Before show - Panel classes:", panel.className)
     console.log("Before show - Backdrop classes:", backdrop.className)
 
-    // bodyにクラスを追加してスクロールを無効化
+    // bodyとhtmlにクラスを追加してスクロールを無効化
+    // スクロール位置を保存
+    this.scrollPosition = window.scrollY
+    document.documentElement.classList.add("side-panel-open")
     document.body.classList.add("side-panel-open")
+    document.body.style.top = `-${this.scrollPosition}px`
 
     // パネルを表示状態に設定
     panel.classList.remove("translate-x-full")
@@ -80,8 +86,11 @@ export default class extends Controller {
     const panel = this.panelTarget
     const backdrop = this.backdropTarget
 
-    // bodyからクラスを削除
+    // bodyとhtmlからクラスを削除し、スクロール位置を復元
+    document.documentElement.classList.remove("side-panel-open")
     document.body.classList.remove("side-panel-open")
+    document.body.style.top = ""
+    window.scrollTo(0, this.scrollPosition)
 
     panel.classList.remove("translate-x-0")
     panel.classList.add("translate-x-full")
