@@ -58,3 +58,6 @@ yarn-debug.log*
 .env
 .env.*
 !.env.example
+
+# Kamal secrets
+.kamal/secrets

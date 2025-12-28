@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  # Health check endpoint for Kamal
+  get "up" => "rails/health#show", as: :rails_health_check
+
   devise_for :users
   devise_scope :user do
     root to: "devise/sessions#new"

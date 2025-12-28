@@ -1,0 +1,40 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Logs and temp files
+log/*
+tmp/*
+!/log/.keep
+!/tmp/.keep
+
+# Storage (uploaded files)
+storage/*
+!/storage/.keep
+
+# Node modules (rebuilt in container)
+node_modules
+
+# Kamal config (contains secrets)
+.kamal
+
+# Development files
+.browserslistrc
+.rspec
+spec/
+coverage/
+
+# Documentation
+*.md
+!README.md
+
+# Other
+.DS_Store
+Thumbs.db

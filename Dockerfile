@@ -1,28 +1,71 @@
-FROM rubylang/ruby:3.3.7-focal
+# syntax=docker/dockerfile:1
+ARG RUBY_VERSION=3.3.7
+FROM ruby:$RUBY_VERSION-slim AS base
 
-ENV LANG ja_JP.UTF-8
+WORKDIR /rails
+
+ENV RAILS_ENV="production" \
+    BUNDLE_DEPLOYMENT="1" \
+    BUNDLE_PATH="/usr/local/bundle" \
+    BUNDLE_WITHOUT="development:test" \
+    LANG="ja_JP.UTF-8"
+
+# Build stage
+FROM base AS build
 
 RUN apt-get update -qq && \
-  DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential libffi-dev libyaml-dev git curl libmysqlclient-dev && \
-  apt-get clean && \
-  rm -rf /var/cache/apt/archives/* && \
-  rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-  truncate -s 0 /var/log/*log
+    apt-get install --no-install-recommends -y \
+    build-essential \
+    git \
+    curl \
+    libsqlite3-dev \
+    pkg-config \
+    nodejs \
+    npm && \
+    npm install -g yarn && \
+    rm -rf /var/lib/apt/lists/*
 
-ENV GEM_HOME /bundle
-ENV BUNDLE_PATH ${GEM_HOME}
-ENV BUNDLE_APP_CONFIG ${BUNDLE_PATH}
-ENV BUNDLE_BIN ${BUNDLE_PATH}/bin
-ENV PATH: /app/bin:$BUNDLE_BIN:$PATH
+# Install gems
+COPY Gemfile Gemfile.lock .ruby-version ./
+RUN bundle install && \
+    rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git
 
-# Run only `bundle install` first for caching
-RUN mkdir -p /app
-COPY Gemfile Gemfile.lock .ruby-version /app/
-WORKDIR /app
-RUN bundle config set jobs 4 && bundle install
+# Install JS dependencies
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
 
-COPY . /app
+# Copy application code
+COPY . .
 
-COPY entrypoint.sh /usr/bin/
-RUN chmod +x /usr/bin/entrypoint.sh
-ENTRYPOINT ["entrypoint.sh"]
+# Precompile assets
+RUN SECRET_KEY_BASE_DUMMY=1 bundle exec rails assets:precompile && \
+    rm -rf node_modules tmp/cache
+
+# Production stage
+FROM base
+
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y \
+    libsqlite3-0 \
+    curl \
+    awscli && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy built artifacts
+COPY --from=build /usr/local/bundle /usr/local/bundle
+COPY --from=build /rails /rails
+
+# Create non-root user
+RUN useradd rails --create-home --shell /bin/bash && \
+    mkdir -p db storage log tmp/pids tmp/cache tmp/sockets && \
+    chown -R rails:rails db storage log tmp
+
+USER rails:rails
+
+EXPOSE 3000
+
+# Health check endpoint
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:3000/up || exit 1
+
+CMD ["./bin/rails", "server", "-b", "0.0.0.0"]

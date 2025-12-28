@@ -1,17 +1,23 @@
 ---
+# Docker Compose for local development
+# Usage: docker-compose up
+
 services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.development
     volumes:
       - .:/app
-      - bundle:/usr/local/bundle
+      - bundle:/bundle
     ports:
       - "1984:3000"
     environment:
       - RAILS_ENV=development
-    entrypoint: [ "/usr/bin/entrypoint.sh" ]
-    command: [ "bundle", "exec", "rails", "s", "-p", "3000", "-b", "0.0.0.0" ]
+    entrypoint: ["/usr/bin/entrypoint.sh"]
+    command: ["bundle", "exec", "rails", "s", "-p", "3000", "-b", "0.0.0.0"]
+    stdin_open: true
+    tty: true
+
 volumes:
   bundle:

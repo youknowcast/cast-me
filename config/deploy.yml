@@ -1,0 +1,57 @@
+# Kamal deployment configuration for CastMe
+# Documentation: https://kamal-deploy.org/docs/configuration/overview/
+
+service: castme
+
+# Docker image name - will be pushed to AWS ECR
+image: <%= ENV['AWS_ACCOUNT_ID'] %>.dkr.ecr.ap-northeast-1.amazonaws.com/castme
+
+# Servers configuration
+servers:
+  web:
+    hosts:
+      - <%= ENV['DEPLOY_HOST'] %>
+    options:
+      # SQLite database volume
+      volume:
+        - castme_db:/rails/db
+        - castme_storage:/rails/storage
+
+# AWS ECR registry
+registry:
+  server: <%= ENV['AWS_ACCOUNT_ID'] %>.dkr.ecr.ap-northeast-1.amazonaws.com
+  username: AWS
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+# SSH configuration
+ssh:
+  user: ubuntu
+
+# Builder configuration
+builder:
+  arch: amd64
+  # Use remote builder if building on Apple Silicon
+  # remote:
+  #   arch: amd64
+  #   host: ssh://ubuntu@<build-server-ip>
+
+# Environment variables
+env:
+  clear:
+    RAILS_ENV: production
+    RAILS_LOG_TO_STDOUT: "1"
+    RAILS_SERVE_STATIC_FILES: "true"
+  secret:
+    - RAILS_MASTER_KEY
+    - SECRET_KEY_BASE
+
+# Health check endpoint
+healthcheck:
+  path: /up
+  port: 3000
+  interval: 3
+  max_attempts: 10
+
+# Asset bridging for zero-downtime deployments
+asset_path: /rails/public/assets
