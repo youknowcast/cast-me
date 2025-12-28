@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1
+# Cache bust: 20241228-v2
 ARG RUBY_VERSION=3.3.7
-FROM ruby:$RUBY_VERSION-slim AS base
+FROM ruby:$RUBY_VERSION AS base
 
 WORKDIR /rails
 
@@ -18,8 +19,10 @@ RUN apt-get update -qq && \
     build-essential \
     git \
     curl \
-    libsqlite3-dev \
     pkg-config \
+    libffi-dev \
+    libyaml-dev \
+    libsqlite3-dev \
     nodejs \
     npm && \
     npm install -g yarn && \
@@ -47,8 +50,9 @@ FROM base
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y \
     libsqlite3-0 \
-    curl \
-    awscli && \
+    libyaml-0-2 \
+    libffi8 \
+    curl && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy built artifacts

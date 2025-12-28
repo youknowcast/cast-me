@@ -39,14 +39,15 @@ gem 'bootsnap', '>= 1.4.4', require: false
 
 gem 'redis-rails'
 
-gem 'base64'
-gem 'bigdecimal'
-gem 'fiddle'
-gem 'logger'
-gem 'mutex_m'
-gem 'observer'
-gem 'ostruct'
-gem 'rdoc'
+# Ruby 3.3 では以下は標準ライブラリに含まれているため明示的な指定は不要
+# gem 'base64'
+# gem 'bigdecimal'
+# gem 'fiddle'
+# gem 'logger'
+# gem 'mutex_m'
+# gem 'observer'
+# gem 'ostruct'
+# gem 'rdoc'
 
 # PostgreSQLのgemをコメントアウトまたは削除
 # gem "pg"
