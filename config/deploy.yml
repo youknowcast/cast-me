@@ -25,7 +25,6 @@ proxy:
     path: /up
     interval: 10
     timeout: 5
-    max_attempts: 60
 
 # AWS ECR registry
 registry:
