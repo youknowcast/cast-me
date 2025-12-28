@@ -74,6 +74,9 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Create secrets file
+        run: echo "KAMAL_REGISTRY_PASSWORD=${{ secrets.KAMAL_REGISTRY_PASSWORD }}" > .kamal/secrets-common
+
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
@@ -86,7 +89,6 @@ jobs:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_DOMAIN: ${{ secrets.DEPLOY_DOMAIN }}
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-          KAMAL_REGISTRY_PASSWORD: ${{ steps.login-ecr.outputs.docker_password_us_west_2_amazonaws_com }}
           RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
           SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE }}
         run: kamal deploy
