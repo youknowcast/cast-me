@@ -16,6 +16,7 @@ export default class extends Controller {
 
 	connect() {
 		// Initialize state from potential params or defaults
+		this.updateSelectedDateStyle()
 	}
 
 	// Action for Date Links (Grid)
@@ -28,7 +29,21 @@ export default class extends Controller {
 		if (date) {
 			this.dateValue = date
 			this.updateFrame()
+			this.updateSelectedDateStyle()
 			this.scrollToDetails()
+		}
+	}
+
+	updateSelectedDateStyle() {
+		// Remove ring from all date cells
+		this.element.querySelectorAll('[data-calendar-date]').forEach((cell) => {
+			cell.classList.remove('ring-2', 'ring-blue-500')
+		})
+
+		// Add ring to selected date cell
+		const selectedCell = this.element.querySelector(`[data-calendar-date="${this.dateValue}"]`)
+		if (selectedCell) {
+			selectedCell.classList.add('ring-2', 'ring-blue-500')
 		}
 	}
 
