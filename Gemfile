@@ -8,8 +8,8 @@ gem 'rails', '~> 7.0'
 
 # Use Puma as the app server
 gem 'puma', '~> 6'
-# sass-rails is only needed for development (Tailwind handles production CSS)
-# gem 'sass-rails', '>= 6'
+# Asset pipeline - Propshaft is simpler and supports modern CSS
+gem 'propshaft'
 # Transpile app-like JavaScript. Read more: https://github.com/rails/webpacker
 # gem 'webpacker', '~> 5.0'
 # Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
