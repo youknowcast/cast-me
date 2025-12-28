@@ -21,6 +21,7 @@ servers:
 proxy:
   ssl: true
   host: <%= ENV['DEPLOY_DOMAIN'] %>
+  app_port: 3000
   healthcheck:
     path: /up
     interval: 10
