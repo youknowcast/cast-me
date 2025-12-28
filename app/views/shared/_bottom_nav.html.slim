@@ -1,7 +1,8 @@
-.btm-nav.md:hidden.z-50
-  = link_to my_calendar_path, class: "#{action_name == 'my' ? 'active' : ''}" do
-    i.fas.fa-user.text-3xl
-    span.btm-nav-label My
-  = link_to calendar_path, class: "#{action_name == 'index' ? 'active' : ''}" do
-    i.fas.fa-users.text-3xl
-    span.btm-nav-label Family
+- if user_signed_in?
+  .btm-nav.md:hidden.z-50
+    = link_to my_calendar_path, class: "#{action_name == 'my' ? 'active' : ''}" do
+      i.fas.fa-user.text-3xl
+      span.btm-nav-label My
+    = link_to calendar_path, class: "#{action_name == 'index' ? 'active' : ''}" do
+      i.fas.fa-users.text-3xl
+      span.btm-nav-label Family
