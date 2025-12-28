@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-	static targets = ["detailsFrame", "filterSelect"]
+	static targets = ["detailsFrame", "filterSelect", "day"]
 	static values = {
 		date: String,
 		scope: String,
@@ -10,12 +10,12 @@ export default class extends Controller {
 
 	declare readonly detailsFrameTarget: any // TurboFrame
 	declare readonly filterSelectTarget: HTMLSelectElement
+	declare readonly dayTargets: HTMLElement[]
 	declare dateValue: string
 	declare scopeValue: string
 	declare filterUserValue: string
 
 	connect() {
-		// Initialize state from potential params or defaults
 		this.updateSelectedDateStyle()
 	}
 
@@ -36,14 +36,18 @@ export default class extends Controller {
 
 	updateSelectedDateStyle() {
 		// Remove ring from all date cells
-		this.element.querySelectorAll('[data-calendar-date]').forEach((cell) => {
-			cell.classList.remove('ring-2', 'ring-blue-500')
+		this.dayTargets.forEach((cell: HTMLElement) => {
+			cell.classList.remove('ring-2', 'ring-blue-500', 'ring-inset', 'z-10')
 		})
 
 		// Add ring to selected date cell
-		const selectedCell = this.element.querySelector(`[data-calendar-date="${this.dateValue}"]`)
+		const selectedCell = this.dayTargets.find((cell: HTMLElement) => {
+			const cellDate = cell.dataset.calendarDate
+			return cellDate === this.dateValue
+		})
+
 		if (selectedCell) {
-			selectedCell.classList.add('ring-2', 'ring-blue-500')
+			selectedCell.classList.add('ring-2', 'ring-blue-500', 'ring-inset', 'z-10')
 		}
 	}
 
