@@ -3,6 +3,5 @@
 require 'onesignal'
 
 OneSignal.configure do |config|
-  config.rest_api_key = ENV['ONESIGNAL_API_KEY']
+  config.app_key = ENV['ONESIGNAL_API_KEY']
 end
-

@@ -80,6 +80,8 @@ jobs:
           echo "KAMAL_REGISTRY_PASSWORD=${{ secrets.KAMAL_REGISTRY_PASSWORD }}" > .kamal/secrets-common
           echo "RAILS_MASTER_KEY=${{ secrets.RAILS_MASTER_KEY }}" >> .kamal/secrets-common
           echo "SECRET_KEY_BASE=${{ secrets.SECRET_KEY_BASE }}" >> .kamal/secrets-common
+          echo "ONESIGNAL_APP_ID=${{ secrets.ONESIGNAL_APP_ID }}" >> .kamal/secrets-common
+          echo "ONESIGNAL_API_KEY=${{ secrets.ONESIGNAL_API_KEY }}" >> .kamal/secrets-common
 
       - name: Set up SSH key
         run: |

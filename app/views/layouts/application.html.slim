@@ -21,10 +21,12 @@ html data-theme="cupcake"
             appId: "#{ENV['ONESIGNAL_APP_ID']}",
             allowLocalhostAsSecureOrigin: #{Rails.env.development?}
           });
-          #{if user_signed_in?
-            "await OneSignal.login('#{current_user.id}');"
-          end}
         });
+      - if user_signed_in?
+        javascript:
+          OneSignalDeferred.push(async function(OneSignal) {
+            await OneSignal.login("#{current_user.id}");
+          });
   body.h-screen
     .flex.flex-col.md:flex-row.h-full.pb-16.md:pb-0
       .sidebar.hidden.md:block.md:shrink-0
