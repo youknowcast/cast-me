@@ -56,6 +56,8 @@ env:
   secret:
     - RAILS_MASTER_KEY
     - SECRET_KEY_BASE
+    - ONESIGNAL_APP_ID
+    - ONESIGNAL_API_KEY
 
 # Asset bridging for zero-downtime deployments
 asset_path: /rails/public/assets

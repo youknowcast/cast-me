@@ -57,6 +57,8 @@ class PlansController < ApplicationController
 
     if @plan.save
       handle_participants
+      # 新規作成時は全ての参加者が「追加された」とみなす
+      notify_new_participants(added_ids: @plan.participant_ids)
       set_calendar_data(@plan.date)
       respond_to do |format|
         format.turbo_stream do
@@ -85,9 +87,14 @@ class PlansController < ApplicationController
   end
 
   def update
+    # 更新前の参加者IDを記録
+    previous_participant_ids = @plan.participant_ids.dup
     @plan.last_edited_by = current_user
     if @plan.update(plan_params)
       handle_participants
+      # 新規追加された参加者にのみ通知
+      added_ids = @plan.participant_ids - previous_participant_ids
+      notify_new_participants(added_ids: added_ids)
       set_calendar_data(@plan.date)
       respond_to do |format|
         format.turbo_stream do
@@ -133,5 +140,16 @@ class PlansController < ApplicationController
     # participant_ids is already handled by Rails associations if permitted correctly,
     # but verify if standard assignment works with has_many :through.
     # It should work automatically with plan_params including participant_ids: [].
+  end
+
+  # 新規追加された参加者に通知を送信
+  def notify_new_participants(added_ids:)
+    return if added_ids.empty?
+
+    PlanNotificationService.notify_new_participants(
+      plan: @plan,
+      added_user_ids: added_ids,
+      excluded_user_id: current_user.id # 自分自身には通知しない
+    )
   end
 end
