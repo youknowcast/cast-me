@@ -25,7 +25,13 @@ html data-theme="cupcake"
       - if user_signed_in?
         javascript:
           OneSignalDeferred.push(async function(OneSignal) {
-            await OneSignal.login("#{current_user.id}");
+            try {
+              console.log('OneSignal: attempting login with external_id:', '#{current_user.id}');
+              await OneSignal.login('#{current_user.id}');
+              console.log('OneSignal: login successful');
+            } catch (error) {
+              console.error('OneSignal login error:', error);
+            }
           });
   body.h-screen
     .flex.flex-col.md:flex-row.h-full.pb-16.md:pb-0
