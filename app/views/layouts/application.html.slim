@@ -23,12 +23,10 @@ html data-theme="cupcake"
           });
         });
       - if user_signed_in?
-        / TODO: login() が 400 エラーを返すため一時的に無効化
-        / OneSignal Dashboard で Identity Verification の設定を確認後、有効化する
-        / javascript:
-        /   OneSignalDeferred.push(async function(OneSignal) {
-        /     await OneSignal.login("#{current_user.id}");
-        /   });
+        javascript:
+          OneSignalDeferred.push(async function(OneSignal) {
+            await OneSignal.login("#{current_user.id}");
+          });
   body.h-screen
     .flex.flex-col.md:flex-row.h-full.pb-16.md:pb-0
       .sidebar.hidden.md:block.md:shrink-0
