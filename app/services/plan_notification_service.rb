@@ -30,7 +30,7 @@ class PlanNotificationService
 
       notification = OneSignal::Notification.new(
         app_id: ENV['ONESIGNAL_APP_ID'],
-        include_aliases: { 'external_id' => user_ids },
+        include_aliases: { 'external_id' => user_ids.map { |id| User.onesignal_external_id(id) } },
         target_channel: 'push',
         headings: { 'en' => title, 'ja' => title },
         contents: { 'en' => message, 'ja' => message }

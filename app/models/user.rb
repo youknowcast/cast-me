@@ -26,4 +26,19 @@ class User < ApplicationRecord
   has_many :plan_participants, dependent: :destroy
 
   validates :login_id, presence: true, uniqueness: true
+
+  class << self
+    def onesignal_external_id(id)
+      # TODO: User の存在検証
+      "user_#{id}"
+    end
+  end
+
+
+  # OneSignal 用の external_id を生成
+  # 数字のみの ID は OneSignal によってブロックされるため、プレフィックスを付ける
+  # @see https://documentation.onesignal.com/docs/en/users#restricted-ids
+  def onesignal_external_id
+    "user_#{id}"
+  end
 end

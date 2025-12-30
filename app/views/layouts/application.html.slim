@@ -26,8 +26,9 @@ html data-theme="cupcake"
         javascript:
           OneSignalDeferred.push(async function(OneSignal) {
             try {
-              console.log('OneSignal: attempting login with external_id:', '#{current_user.id}');
-              await OneSignal.login('#{current_user.id}');
+              var externalId = '#{current_user.onesignal_external_id}';
+              console.log('OneSignal: attempting login with external_id:', externalId);
+              await OneSignal.login(externalId);
               console.log('OneSignal: login successful');
             } catch (error) {
               console.error('OneSignal login error:', error);
