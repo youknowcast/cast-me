@@ -34,6 +34,14 @@ jobs:
           yarn install --frozen-lockfile
           bundle exec rails assets:precompile
 
+      - name: Apply database schema
+        env:
+          RAILS_ENV: test
+        run: |
+          mkdir -p data
+          bundle exec rails db:create
+          bundle exec ridgepole -c config/database.yml -E test --apply -f db/Schemafile
+
       - name: Run RSpec
         env:
           RAILS_ENV: test
