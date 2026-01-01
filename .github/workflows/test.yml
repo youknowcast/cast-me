@@ -36,7 +36,10 @@ jobs:
       - name: Apply database schema
         env:
           RAILS_ENV: test
-        run: bundle exec ridgepole -c config/database.yml -E test --apply -f db/Schemafile
+        run: |
+          mkdir -p data
+          bundle exec rails db:create
+          bundle exec ridgepole -c config/database.yml -E test --apply -f db/Schemafile
 
       - name: Run RSpec
         env:
