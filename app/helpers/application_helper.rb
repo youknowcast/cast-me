@@ -173,4 +173,91 @@ module ApplicationHelper
       )
     end
   end
+
+  # 定型タスク選択 UI (上位3件 + その他ボタン)
+  def regular_task_selector(user, all_regular_tasks)
+    top_tasks = RegularTask.top_used_for_user(user, limit: 3)
+    id = "regular_task_modal_#{SecureRandom.hex(4)}"
+
+    content_tag(:div, class: "space-y-2") do
+      # 上位3件のクイック選択ボタン
+      if top_tasks.any?
+        concat(
+          content_tag(:div, class: "flex flex-wrap gap-2") do
+            top_tasks.each do |rt|
+              concat(
+                content_tag(:button, rt.title,
+                  type: "button",
+                  class: "btn btn-sm btn-outline btn-primary",
+                  data: {
+                    action: "regular-task#quickSelect",
+                    regular_task_title: rt.title
+                  }
+                )
+              )
+            end
+            # その他ボタン (4件以上ある場合)
+            if all_regular_tasks.size > 3
+              concat(
+                content_tag(:button, "その他...",
+                  type: "button",
+                  class: "btn btn-sm btn-ghost",
+                  data: { action: "regular-task#openSelect" }
+                )
+              )
+            end
+          end
+        )
+      elsif all_regular_tasks.any?
+        # 上位がない場合でも定型タスクがあれば選択可能
+        concat(
+          content_tag(:button, "定型タスクを選択...",
+            type: "button",
+            class: "btn btn-sm btn-ghost",
+            data: { action: "regular-task#openSelect" }
+          )
+        )
+      end
+
+      # 全定型タスクの選択モーダル
+      if all_regular_tasks.any?
+        concat(
+          content_tag(:dialog, id: id, class: "modal modal-bottom sm:modal-middle", data: { regular_task_target: "selectModal" }) do
+            content_tag(:div, class: "modal-box p-0 max-h-[70vh] flex flex-col") do
+              concat(
+                content_tag(:div, class: "p-4 border-b sticky top-0 bg-base-100 z-10") do
+                  content_tag(:h3, "定型タスクを選択", class: "text-lg font-bold text-center")
+                end
+              )
+              concat(
+                content_tag(:div, class: "overflow-y-auto", data: { regular_task_target: "selectList" }) do
+                  content_tag(:ul, class: "menu w-full p-0") do
+                    all_regular_tasks.each do |rt|
+                      concat(
+                        content_tag(:li) do
+                          content_tag(:button, type: "button",
+                                      class: "py-4 px-6 active:bg-primary active:text-primary-content flex justify-between items-center",
+                                      data: {
+                                        action: "regular-task#selectFromList",
+                                        regular_task_title: rt.title
+                                      }) do
+                            content_tag(:span, rt.title)
+                          end
+                        end
+                      )
+                    end
+                  end
+                end
+              )
+              concat(
+                content_tag(:div, class: "p-4 border-t mt-auto") do
+                  content_tag(:button, "キャンセル", type: "button", class: "btn btn-ghost w-full", data: { action: "regular-task#closeSelect" })
+                end
+              )
+            end
+          end
+        )
+      end
+    end
+  end
 end

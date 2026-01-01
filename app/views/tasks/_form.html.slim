@@ -35,9 +35,17 @@
                 - if task.errors[:user_id].any?
                   .text-error.text-sm.mt-1= task.errors[:user_id].join(", ")
 
-            .form-control
+            .form-control data-controller="regular-task"
               = f.label :title, "タイトル", class: "label"
-              = f.text_field :title, class: "input input-bordered w-full", placeholder: "タスクのタイトル"
+              / 定型タスク選択ボタン
+              - all_regular_tasks = current_user.family.regular_tasks.order(:title)
+              = regular_task_selector(current_user, all_regular_tasks)
+              / タイトル入力 + 登録アイコン
+              .flex.items-center.gap-2
+                = f.text_field :title, class: "input input-bordered flex-1", placeholder: "タスクのタイトル", data: { regular_task_target: "titleInput" }
+                button.btn.btn-ghost.btn-circle.text-gray-400 type="button" data-action="regular-task#toggleRegister" data-regular-task-target="registerIcon" title="定型タスクとして登録"
+                  i.fas.fa-bookmark
+              = hidden_field_tag :register_regular_task, "false", data: { regular_task_target: "registerInput" }
               - if task.errors[:title].any?
                 .text-error.text-sm.mt-1= task.errors[:title].join(", ")
 

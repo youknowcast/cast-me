@@ -125,3 +125,23 @@ create_table "moments", charset: "utf8mb4", force: :cascade do |t|
   t.datetime "created_at", precision: 6, null: false
   t.datetime "updated_at", precision: 6, null: false
 end
+
+create_table "regular_tasks", force: :cascade do |t|
+  t.bigint "family_id", null: false
+  t.string "title", null: false, limit: 255
+  t.timestamps
+
+  t.index ["family_id"], name: "index_regular_tasks_on_family_id"
+  t.index ["family_id", "title"], name: "index_regular_tasks_on_family_id_and_title", unique: true
+end
+
+create_table "regular_task_user_usage_counts", force: :cascade do |t|
+  t.bigint "regular_task_id", null: false
+  t.bigint "user_id", null: false
+  t.integer "usage_count", null: false, default: 0
+  t.timestamps
+
+  t.index ["regular_task_id", "user_id"], name: "index_regular_task_user_usage_counts_unique", unique: true
+  t.index ["user_id", "usage_count"], name: "index_regular_task_user_usage_counts_on_user_and_count"
+end
+
