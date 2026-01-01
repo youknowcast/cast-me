@@ -48,6 +48,11 @@ class TasksController < ApplicationController
     @task = current_user.family.tasks.build(task_params)
 
     if @task.save
+      # 定型タスク登録が有効な場合
+      if params[:register_regular_task] == "true" && @task.title.present?
+        register_or_increment_regular_task(@task.title)
+      end
+
       set_calendar_data(@task.date)
       respond_to do |format|
         format.turbo_stream do
@@ -142,5 +147,12 @@ class TasksController < ApplicationController
 
   def task_params
     params.require(:task).permit(:title, :description, :date, :priority, :user_id)
+  end
+
+  def register_or_increment_regular_task(title)
+    regular_task = current_user.family.regular_tasks.find_or_create_by!(title: title)
+    regular_task.increment_usage_for!(current_user)
+  rescue ActiveRecord::RecordInvalid
+    # タイトルが無効な場合は無視
   end
 end

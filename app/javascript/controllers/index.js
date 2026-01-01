@@ -51,3 +51,6 @@ application.register("delete-confirm", DeleteConfirmController)
 
 import DeleteConfirmTriggerController from "./delete_confirm_trigger_controller"
 application.register("delete-confirm-trigger", DeleteConfirmTriggerController)
+
+import RegularTaskController from "./regular_task_controller"
+application.register("regular-task", RegularTaskController)
