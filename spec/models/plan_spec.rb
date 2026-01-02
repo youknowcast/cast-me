@@ -71,4 +71,36 @@ RSpec.describe Plan do
       end
     end
   end
+
+  describe 'associations' do
+    let(:family) { create(:family) }
+    let(:user1) { create(:user, family: family) }
+    let(:user2) { create(:user, family: family) }
+    let(:plan) { create(:plan, family: family, created_by: user1) }
+
+    before do
+      create(:plan_participant, plan: plan, user: user1, status: :joined)
+      create(:plan_participant, plan: plan, user: user2, status: :declined)
+    end
+
+    describe '#participants' do
+      it 'includes all participants including declined ones' do
+        expect(plan.participants).to include(user1, user2)
+      end
+    end
+
+    describe '#active_participants' do
+      it 'includes only joined and pending participants' do
+        expect(plan.active_participants).to include(user1)
+        expect(plan.active_participants).not_to include(user2)
+      end
+    end
+
+    describe '#joined_participants' do
+      it 'includes only joined participants' do
+        expect(plan.joined_participants).to include(user1)
+        expect(plan.joined_participants).not_to include(user2)
+      end
+    end
+  end
 end

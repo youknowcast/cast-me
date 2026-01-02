@@ -26,6 +26,13 @@ class Plan < ApplicationRecord
 
   has_many :plan_participants, dependent: :destroy
   has_many :participants, through: :plan_participants, source: :user
+  has_many :joined_plan_participants, lambda {
+    joined
+  }, class_name: 'PlanParticipant', dependent: :destroy, inverse_of: :plan
+  has_many :joined_participants, through: :joined_plan_participants, source: :user
+  has_many :active_plan_participants, -> { where.not(status: :declined) }, class_name: 'PlanParticipant',
+                                                                           dependent: :destroy, inverse_of: :plan
+  has_many :active_participants, through: :active_plan_participants, source: :user
 
   validates :date, presence: true
   validates :title, presence: true, length: { maximum: 255 }
