@@ -23,7 +23,7 @@ class CalendarController < ApplicationController
 
   def monthly_list
     @monthly_plans = current_user.family.plans.for_month(@date)
-                                 .includes(:created_by, :participants, :plan_participants)
+                                 .includes(:created_by, :active_participants, :active_plan_participants)
                                  .ordered_by_time
                                  .group_by(&:date)
     respond_to do |format|

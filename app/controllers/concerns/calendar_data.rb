@@ -17,7 +17,7 @@ module CalendarData
     @target_users = [current_user]
     @family_plans = current_user.family.plans.for_date(date)
                                 .left_joins(:plan_participants)
-                                .where(plan_participants: { user_id: current_user.id })
+                                .where(plan_participants: { user_id: current_user.id, status: %i[joined pending] })
                                 .includes(:created_by, :participants, :plan_participants)
                                 .distinct
                                 .ordered_by_time

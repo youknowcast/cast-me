@@ -41,9 +41,9 @@
                           = "#{plan.start_time.strftime('%H:%M')}〜#{plan.end_time&.strftime('%H:%M')}"
                     - if plan.description.present?
                       p.text-xs.text-gray-500.line-clamp-2.mb-2= linkify_urls(plan.description)
-                    - if plan.participants.any?
+                    - if plan.active_participants.any?
                       .flex.flex-wrap.gap-1
-                        - plan.participants.each do |user|
+                        - plan.active_participants.each do |user|
                           .badge.badge-ghost.badge-sm.py-0 class="text-[10px]" = user.login_id
         - else
           .flex.flex-col.items-center.justify-center.py-20.text-gray-400

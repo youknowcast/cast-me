@@ -5,7 +5,7 @@
 
   / 予定セクション
   .mb-4
-    - user_plans = family_plans.select { |p| p.participant_ids.include?(target_user.id) }
+    - user_plans = family_plans.select { |p| p.active_participant_ids.include?(target_user.id) }
     .flex.items-center.mb-2
       h4.text-md.font-semibold.text-gray-600
         i.fas.fa-calendar.mr-2
