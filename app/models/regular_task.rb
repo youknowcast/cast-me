@@ -15,9 +15,8 @@
 #
 class RegularTask < ApplicationRecord
   belongs_to :family
-  has_many :user_usage_counts, class_name: "RegularTaskUserUsageCount", dependent: :destroy
+  has_many :user_usage_counts, class_name: 'RegularTaskUserUsageCount', dependent: :destroy
 
-  validates :family_id, presence: true
   validates :title, presence: true, length: { maximum: 255 },
                     uniqueness: { scope: :family_id }
 
@@ -27,7 +26,7 @@ class RegularTask < ApplicationRecord
   def self.top_used_for_user(user, limit: 3)
     joins(:user_usage_counts)
       .where(regular_task_user_usage_counts: { user_id: user.id })
-      .order("regular_task_user_usage_counts.usage_count DESC, regular_tasks.title ASC")
+      .order('regular_task_user_usage_counts.usage_count DESC, regular_tasks.title ASC')
       .limit(limit)
   end
 

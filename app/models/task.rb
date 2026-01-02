@@ -23,8 +23,6 @@ class Task < ApplicationRecord
   belongs_to :family
   belongs_to :user
 
-  validates :family_id, presence: true
-  validates :user_id, presence: true
   validates :date, presence: true
   validates :title, presence: true, length: { maximum: 255 }
   validates :description, length: { maximum: 1000 }
@@ -39,21 +37,20 @@ class Task < ApplicationRecord
 
   def priority_text
     case priority
-    when 0 then "低"
-    when 1 then "中"
-    when 2 then "高"
-    when 3 then "緊急"
-    else "未設定"
+    when 0 then '低'
+    when 1 then '中'
+    when 2 then '高'
+    when 3 then '緊急'
+    else '未設定'
     end
   end
 
   def priority_class
     case priority
-    when 0 then "text-gray-500"
-    when 1 then "text-blue-600"
-    when 2 then "text-orange-600"
-    when 3 then "text-red-600"
-    else "text-gray-500"
+    when 1 then 'text-blue-600'
+    when 2 then 'text-orange-600'
+    when 3 then 'text-red-600'
+    else 'text-gray-500'
     end
   end
 end

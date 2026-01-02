@@ -19,12 +19,14 @@ class RegularTasksController < ApplicationController
     if @regular_task.save
       respond_to do |format|
         format.json { render json: { id: @regular_task.id, title: @regular_task.title }, status: :created }
-        format.html { redirect_back fallback_location: calendar_path, notice: "定型タスクを登録しました" }
+        format.html { redirect_back fallback_location: calendar_path, notice: '定型タスクを登録しました' }
       end
     else
       respond_to do |format|
         format.json { render json: { errors: @regular_task.errors.full_messages }, status: :unprocessable_entity }
-        format.html { redirect_back fallback_location: calendar_path, alert: @regular_task.errors.full_messages.join(", ") }
+        format.html do
+          redirect_back fallback_location: calendar_path, alert: @regular_task.errors.full_messages.join(', ')
+        end
       end
     end
   end

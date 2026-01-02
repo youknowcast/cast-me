@@ -13,5 +13,4 @@
 #  index_article_template_versions_on_template_id_and_version  (article_template_id,version) UNIQUE
 #
 class ArticleTemplateVersion < ApplicationRecord
-
 end

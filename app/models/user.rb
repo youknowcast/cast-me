@@ -34,7 +34,6 @@ class User < ApplicationRecord
     end
   end
 
-
   # OneSignal 用の external_id を生成
   # 数字のみの ID は OneSignal によってブロックされるため、プレフィックスを付ける
   # @see https://documentation.onesignal.com/docs/en/users#restricted-ids

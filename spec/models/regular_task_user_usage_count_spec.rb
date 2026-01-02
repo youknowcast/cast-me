@@ -57,7 +57,7 @@ RSpec.describe RegularTaskUserUsageCount, type: :model do
 
   describe 'default values' do
     it 'has a default usage_count of 0' do
-      new_usage = RegularTaskUserUsageCount.new
+      new_usage = described_class.new
       expect(new_usage.usage_count).to eq(0)
     end
   end

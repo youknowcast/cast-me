@@ -13,16 +13,20 @@ class Moment < ApplicationRecord
   validates :link, presence: true
   validate :valid_url?
 
-  private
-
-  def self.ransackable_attributes(auth_object = nil)
+  def self.ransackable_attributes(_auth_object = nil)
     %w[created_at description file_path id link updated_at]
   end
 
+  private
+
   def valid_url?
-    url = URI.parse(link) rescue false
-    unless url.kind_of?(URI::HTTP) || url.kind_of?(URI::HTTPS)
-      errors.add(:link, 'が有効な URL ではありません')
+    url = begin
+      URI.parse(link)
+    rescue StandardError
+      false
     end
+    return false if url.is_a?(URI::HTTP) || url.is_a?(URI::HTTPS)
+
+    errors.add(:link, 'が有効な URL ではありません')
   end
 end

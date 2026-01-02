@@ -1,10 +1,10 @@
 Rails.application.routes.draw do
   # Health check endpoint for Kamal
-  get "up" => "rails/health#show", as: :rails_health_check
+  get 'up' => 'rails/health#show', as: :rails_health_check
 
   devise_for :users
   devise_scope :user do
-    root to: "devise/sessions#new"
+    root to: 'devise/sessions#new'
   end
 
   # カレンダー関連
@@ -20,7 +20,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :regular_tasks, only: [:index, :create]
+  resources :regular_tasks, only: %i[index create]
 
   resources :plan_participants, only: [:update]
 

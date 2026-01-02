@@ -32,7 +32,7 @@ RSpec.describe RegularTask, type: :model do
     it 'is invalid without a family_id' do
       regular_task = build(:regular_task, family: nil)
       expect(regular_task).not_to be_valid
-      expect(regular_task.errors[:family_id]).to be_present
+      expect(regular_task.errors[:family]).to be_present
     end
 
     it 'is invalid without a title' do
@@ -70,7 +70,7 @@ RSpec.describe RegularTask, type: :model do
       let!(:task2) { create(:regular_task, family: family2) }
 
       it 'returns regular tasks for the specified family' do
-        expect(RegularTask.for_family(family1.id)).to eq([task1])
+        expect(described_class.for_family(family1.id)).to eq([task1])
       end
     end
   end
@@ -91,17 +91,17 @@ RSpec.describe RegularTask, type: :model do
     end
 
     it 'returns the top used tasks for the user ordered by usage count' do
-      result = RegularTask.top_used_for_user(user, limit: 3)
+      result = described_class.top_used_for_user(user, limit: 3)
       expect(result.map(&:title)).to eq(['Task A', 'Task C', 'Task B'])
     end
 
     it 'respects the limit parameter' do
-      result = RegularTask.top_used_for_user(user, limit: 2)
+      result = described_class.top_used_for_user(user, limit: 2)
       expect(result.count).to eq(2)
     end
 
     it 'does not include tasks with no usage for the user' do
-      result = RegularTask.top_used_for_user(user, limit: 10)
+      result = described_class.top_used_for_user(user, limit: 10)
       expect(result).not_to include(task4)
     end
   end
@@ -113,9 +113,9 @@ RSpec.describe RegularTask, type: :model do
 
     context 'when user has no usage record' do
       it 'creates a new usage record with count 1' do
-        expect {
+        expect do
           regular_task.increment_usage_for!(user)
-        }.to change(RegularTaskUserUsageCount, :count).by(1)
+        end.to change(RegularTaskUserUsageCount, :count).by(1)
 
         usage = regular_task.user_usage_counts.find_by(user: user)
         expect(usage.usage_count).to eq(1)
@@ -128,9 +128,9 @@ RSpec.describe RegularTask, type: :model do
       end
 
       it 'increments the existing usage count' do
-        expect {
+        expect do
           regular_task.increment_usage_for!(user)
-        }.not_to change(RegularTaskUserUsageCount, :count)
+        end.not_to change(RegularTaskUserUsageCount, :count)
 
         usage = regular_task.user_usage_counts.find_by(user: user)
         expect(usage.usage_count).to eq(6)

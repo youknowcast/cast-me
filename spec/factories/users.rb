@@ -13,6 +13,6 @@ FactoryBot.define do
   factory :user do
     association :family
     sequence(:login_id) { |n| "user#{n}" }
-    password { "password123" }
+    password { 'password123' }
   end
 end

@@ -19,16 +19,18 @@ namespace :ridgepole do
     ridgepole('--export', "-E #{Rails.env}", '--split', "--output #{schema_file}")
   end
 
-  private def schema_file
+  private
+
+  def schema_file
     Rails.root.join('db/Schemafile')
   end
 
-  private def config_file
+  def config_file
     Rails.root.join('config/database.yml')
   end
 
-  private def ridgepole(*options)
-    command = ['bundle exec ridgepole', "--config #{config_file}", "-s primary"]
+  def ridgepole(*options)
+    command = ['bundle exec ridgepole', "--config #{config_file}", '-s primary']
     system [command + options].join(' ')
   end
 end

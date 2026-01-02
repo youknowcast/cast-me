@@ -1,63 +1,64 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-create_table "users", force: :cascade do |t|
-  t.string "login_id", null: false
-  t.bigint "family_id", null: false
-  t.string "encrypted_password", null: false
+create_table 'users', force: :cascade do |t|
+  t.string 'login_id', null: false
+  t.bigint 'family_id', null: false
+  t.string 'encrypted_password', null: false
   t.timestamps
 
-  t.index ["login_id"], name: :index_login_id_on_users
+  t.index ['login_id'], name: :index_login_id_on_users
 end
 
-create_table "families", force: :cascade do |t|
-  t.string "name", null: false
+create_table 'families', force: :cascade do |t|
+  t.string 'name', null: false
   t.timestamps
 end
 
-create_table "family_wikis", force: :cascade do |t|
-  t.integer "family_id", null: false
+create_table 'family_wikis', force: :cascade do |t|
+  t.integer 'family_id', null: false
 end
 
-create_table "family_wiki_versions", force: :cascade do |t|
-  t.integer "family_id", null: false
-  t.integer "family_wiki_id", null: false
-  t.integer "version", null: false, default: 0
+create_table 'family_wiki_versions', force: :cascade do |t|
+  t.integer 'family_id', null: false
+  t.integer 'family_wiki_id', null: false
+  t.integer 'version', null: false, default: 0
 
   t.index %w[family_id family_wiki_id], name: :index_family_and_family_wiki_id, unique: true
 end
 
-create_table "family_wiki_contents", force: :cascade do |t|
-  t.integer "family_id", null: false
-  t.integer "families_wiki_version_id", null: false, default: 0
-  t.text "content", null: false
-  t.integer "status", null: false, default: 0
+create_table 'family_wiki_contents', force: :cascade do |t|
+  t.integer 'family_id', null: false
+  t.integer 'families_wiki_version_id', null: false, default: 0
+  t.text 'content', null: false
+  t.integer 'status', null: false, default: 0
 end
 
-create_table "articles", force: :cascade do |t|
-  t.bigint "user_id", null: false
-  t.date "date", null: false
-  t.integer "sequence_number", null: false
-  t.integer "display_order", null: false, default: 0
-  t.bigint "article_template_version_id", null: false
-  t.string "title", null: false
-  t.text "description"
+create_table 'articles', force: :cascade do |t|
+  t.bigint 'user_id', null: false
+  t.date 'date', null: false
+  t.integer 'sequence_number', null: false
+  t.integer 'display_order', null: false, default: 0
+  t.bigint 'article_template_version_id', null: false
+  t.string 'title', null: false
+  t.text 'description'
   t.timestamps
 
-  t.index %w[user_id date sequence_number], name: "index_articles_on_user_id_and_date_and_sequence_number", unique: true
+  t.index %w[user_id date sequence_number], name: 'index_articles_on_user_id_and_date_and_sequence_number', unique: true
 end
 
-create_table "article_templates", force: :cascade do |t|
-  t.string "name", null: false
+create_table 'article_templates', force: :cascade do |t|
+  t.string 'name', null: false
   t.timestamps
 end
 
-create_table "article_template_versions", force: :cascade do |t|
-  t.bigint "article_template_id", null: false
-  t.integer "version", null: false
+create_table 'article_template_versions', force: :cascade do |t|
+  t.bigint 'article_template_id', null: false
+  t.integer 'version', null: false
   t.timestamps
 
-  t.index %w[article_template_id version], name: "index_article_template_versions_on_template_id_and_version", unique: true
+  t.index %w[article_template_id version], name: 'index_article_template_versions_on_template_id_and_version',
+                                           unique: true
 end
 
 # TODO: custom fields 考えるのは後回し
@@ -79,69 +80,68 @@ end
 #  t.index %w[article_template_version_id custom_field_id], name: "index_template_versions_custom_fields_on_template_version_id_and_field_id", unique: true
 # end
 
-create_table "plans", force: :cascade do |t|
-  t.bigint "family_id", null: false
-  t.bigint "created_by_id"
-  t.date "date", null: false
-  t.string "title", null: false, limit: 255
-  t.text "description"
-  t.time "start_time"
-  t.time "end_time"
+create_table 'plans', force: :cascade do |t|
+  t.bigint 'family_id', null: false
+  t.bigint 'created_by_id'
+  t.date 'date', null: false
+  t.string 'title', null: false, limit: 255
+  t.text 'description'
+  t.time 'start_time'
+  t.time 'end_time'
   t.timestamps
-  t.bigint "last_edited_by_id"
+  t.bigint 'last_edited_by_id'
 
-  t.index ["family_id", "date"]
-  t.index ["date", "start_time"]
+  t.index %w[family_id date]
+  t.index %w[date start_time]
 end
 
-create_table "plan_participants", force: :cascade do |t|
-  t.bigint "plan_id", null: false
-  t.bigint "user_id", null: false
-  t.integer "status", null: false, default: 0 # 0: pending, 1: joined, 2: declined
-  t.timestamps
-
-  t.index ["plan_id", "user_id"], unique: true
-end
-
-create_table "tasks", force: :cascade do |t|
-  t.bigint "family_id", null: false
-  t.bigint "user_id", null: false
-  t.date "date", null: false
-  t.string "title", null: false, limit: 255
-  t.text "description"
-  t.boolean "completed", null: false, default: false
-  t.integer "priority", null: false, default: 0
+create_table 'plan_participants', force: :cascade do |t|
+  t.bigint 'plan_id', null: false
+  t.bigint 'user_id', null: false
+  t.integer 'status', null: false, default: 0 # 0: pending, 1: joined, 2: declined
   t.timestamps
 
-  t.index ["family_id", "date"]
-  t.index ["user_id", "date"]
-  t.index ["date", "completed"]
+  t.index %w[plan_id user_id], unique: true
 end
 
-create_table "moments", charset: "utf8mb4", force: :cascade do |t|
-  t.string "link", null: false
-  t.string "file_path"
-  t.string "description"
-  t.datetime "created_at", precision: 6, null: false
-  t.datetime "updated_at", precision: 6, null: false
-end
-
-create_table "regular_tasks", force: :cascade do |t|
-  t.bigint "family_id", null: false
-  t.string "title", null: false, limit: 255
+create_table 'tasks', force: :cascade do |t|
+  t.bigint 'family_id', null: false
+  t.bigint 'user_id', null: false
+  t.date 'date', null: false
+  t.string 'title', null: false, limit: 255
+  t.text 'description'
+  t.boolean 'completed', null: false, default: false
+  t.integer 'priority', null: false, default: 0
   t.timestamps
 
-  t.index ["family_id"], name: "index_regular_tasks_on_family_id"
-  t.index ["family_id", "title"], name: "index_regular_tasks_on_family_id_and_title", unique: true
+  t.index %w[family_id date]
+  t.index %w[user_id date]
+  t.index %w[date completed]
 end
 
-create_table "regular_task_user_usage_counts", force: :cascade do |t|
-  t.bigint "regular_task_id", null: false
-  t.bigint "user_id", null: false
-  t.integer "usage_count", null: false, default: 0
+create_table 'moments', charset: 'utf8mb4', force: :cascade do |t|
+  t.string 'link', null: false
+  t.string 'file_path'
+  t.string 'description'
+  t.datetime 'created_at', precision: 6, null: false
+  t.datetime 'updated_at', precision: 6, null: false
+end
+
+create_table 'regular_tasks', force: :cascade do |t|
+  t.bigint 'family_id', null: false
+  t.string 'title', null: false, limit: 255
   t.timestamps
 
-  t.index ["regular_task_id", "user_id"], name: "index_regular_task_user_usage_counts_unique", unique: true
-  t.index ["user_id", "usage_count"], name: "index_regular_task_user_usage_counts_on_user_and_count"
+  t.index ['family_id'], name: 'index_regular_tasks_on_family_id'
+  t.index %w[family_id title], name: 'index_regular_tasks_on_family_id_and_title', unique: true
 end
 
+create_table 'regular_task_user_usage_counts', force: :cascade do |t|
+  t.bigint 'regular_task_id', null: false
+  t.bigint 'user_id', null: false
+  t.integer 'usage_count', null: false, default: 0
+  t.timestamps
+
+  t.index %w[regular_task_id user_id], name: 'index_regular_task_user_usage_counts_unique', unique: true
+  t.index %w[user_id usage_count], name: 'index_regular_task_user_usage_counts_on_user_and_count'
+end

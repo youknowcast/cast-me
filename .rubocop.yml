@@ -1,0 +1,111 @@
+# RuboCop Configuration
+# https://docs.rubocop.org/rubocop/
+
+require:
+  - rubocop-rails
+  - rubocop-rspec
+
+AllCops:
+  TargetRubyVersion: 3.3
+  NewCops: enable
+  Exclude:
+    - 'bin/**/*'
+    - 'db/schema.rb'
+    - 'db/Schemafile'
+    - 'node_modules/**/*'
+    - 'vendor/**/*'
+    - 'tmp/**/*'
+    - 'log/**/*'
+    - 'storage/**/*'
+    - 'config/initializers/devise.rb'
+    - 'lib/tasks/*.rake'
+
+# Layout
+Layout/LineLength:
+  Max: 120
+
+# Metrics
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+    - 'config/routes.rb'
+    - 'config/environments/*.rb'
+    - 'lib/tasks/**/*'
+    - 'app/helpers/**/*'
+
+Metrics/MethodLength:
+  Max: 60
+
+Metrics/AbcSize:
+  Max: 50
+
+Metrics/ClassLength:
+  Max: 150
+
+Metrics/ModuleLength:
+  Max: 150
+
+Metrics/CyclomaticComplexity:
+  Max: 15
+
+Metrics/PerceivedComplexity:
+  Max: 15
+
+Metrics/ParameterLists:
+  Max: 8
+
+# Style
+Style/Documentation:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Style/StringLiterals:
+  EnforcedStyle: single_quotes
+
+Style/StringLiteralsInInterpolation:
+  EnforcedStyle: single_quotes
+
+Style/SymbolArray:
+  EnforcedStyle: percent
+
+Style/WordArray:
+  EnforcedStyle: percent
+
+# Naming
+Naming/AccessorMethodName:
+  Enabled: false
+
+# Rails
+Rails:
+  Enabled: true
+
+Rails/I18nLocaleTexts:
+  Enabled: false
+
+Rails/SkipsModelValidations:
+  Enabled: false
+
+# RSpec
+RSpec/ExampleLength:
+  Max: 15
+
+RSpec/MultipleExpectations:
+  Max: 5
+
+RSpec/NestedGroups:
+  Max: 4
+
+RSpec/IndexedLet:
+  Enabled: false
+
+RSpec/LetSetup:
+  Enabled: false
+
+RSpec/MultipleMemoizedHelpers:
+  Enabled: false
+
+RSpec/PendingWithoutReason:
+  Enabled: false
+

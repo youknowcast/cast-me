@@ -17,7 +17,7 @@ class PlanParticipant < ApplicationRecord
   belongs_to :plan
   belongs_to :user
 
-  enum status: { pending: 0, joined: 1, declined: 2 }
+  enum :status, { pending: 0, joined: 1, declined: 2 }
 
   validates :user_id, uniqueness: { scope: :plan_id }
 end

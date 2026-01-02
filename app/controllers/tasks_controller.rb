@@ -1,20 +1,19 @@
 class TasksController < ApplicationController
   include CalendarData
   before_action :authenticate_user!
-  before_action :set_task, only: [:show, :edit, :update, :destroy, :toggle]
+  before_action :set_task, only: %i[show edit update destroy toggle]
 
   def index
     @tasks = current_user.tasks.for_date(params[:date]).ordered_by_priority
   end
 
-  def show
-  end
+  def show; end
 
   def new
     date = if params[:date].present?
              Date.parse(params[:date])
            else
-             Date.today
+             Time.zone.today
            end
 
     set_scope
@@ -25,22 +24,32 @@ class TasksController < ApplicationController
 
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.update("side-panel", partial: "form", locals: { task: @task, scope: @scope })
+        render turbo_stream: turbo_stream.update('side-panel', partial: 'form', locals: { task: @task, scope: @scope })
       end
       format.html { render :new }
     end
   rescue Date::Error
     set_scope
     @task = current_user.family.tasks.build(
-      date: Date.today,
+      date: Time.zone.today,
       user_id: current_user.id
     )
 
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.update("side-panel", partial: "form", locals: { task: @task, scope: @scope })
+        render turbo_stream: turbo_stream.update('side-panel', partial: 'form', locals: { task: @task, scope: @scope })
       end
       format.html { render :new }
+    end
+  end
+
+  def edit
+    set_scope
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.update('side-panel', partial: 'form', locals: { task: @task, scope: @scope })
+      end
+      format.html { render :edit }
     end
   end
 
@@ -49,7 +58,7 @@ class TasksController < ApplicationController
 
     if @task.save
       # 定型タスク登録が有効な場合
-      if params[:register_regular_task] == "true" && @task.title.present?
+      if params[:register_regular_task] == 'true' && @task.title.present?
         register_or_increment_regular_task(@task.title)
       end
 
@@ -57,28 +66,21 @@ class TasksController < ApplicationController
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
-            turbo_stream.update("daily_details", partial: "calendar/daily_view", locals: { date: @date }),
-            turbo_stream.update("side-panel", "")
+            turbo_stream.update('daily_details', partial: 'calendar/daily_view', locals: { date: @date }),
+            turbo_stream.update('side-panel', '')
           ]
         end
-        format.html { redirect_to calendar_path, notice: "タスクを作成しました" }
+        format.html { redirect_to calendar_path, notice: 'タスクを作成しました' }
       end
     else
       set_scope
       respond_to do |format|
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("side-panel", partial: "form", locals: { task: @task, scope: @scope }) }
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.replace('side-panel', partial: 'form',
+                                                                  locals: { task: @task, scope: @scope })
+        end
         format.html { render :new }
       end
-    end
-  end
-
-  def edit
-    set_scope
-    respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: turbo_stream.update("side-panel", partial: "form", locals: { task: @task, scope: @scope })
-      end
-      format.html { render :edit }
     end
   end
 
@@ -88,16 +90,19 @@ class TasksController < ApplicationController
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
-            turbo_stream.update("daily_details", partial: "calendar/daily_view", locals: { date: @date }),
-            turbo_stream.update("side-panel", "")
+            turbo_stream.update('daily_details', partial: 'calendar/daily_view', locals: { date: @date }),
+            turbo_stream.update('side-panel', '')
           ]
         end
-        format.html { redirect_to calendar_path, notice: "タスクを更新しました" }
+        format.html { redirect_to calendar_path, notice: 'タスクを更新しました' }
       end
     else
       set_scope
       respond_to do |format|
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("side-panel", partial: "form", locals: { task: @task, scope: @scope }) }
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.replace('side-panel', partial: 'form',
+                                                                  locals: { task: @task, scope: @scope })
+        end
         format.html { render :edit }
       end
     end
@@ -110,9 +115,10 @@ class TasksController < ApplicationController
 
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.update("daily_details", partial: "calendar/daily_view", locals: { date: @date })
+        render turbo_stream: turbo_stream.update('daily_details', partial: 'calendar/daily_view',
+                                                                  locals: { date: @date })
       end
-      format.html { redirect_to calendar_path, notice: "タスクを削除しました" }
+      format.html { redirect_to calendar_path, notice: 'タスクを削除しました' }
     end
   end
 
@@ -121,7 +127,8 @@ class TasksController < ApplicationController
 
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.replace(helpers.dom_id(@task), partial: "calendar/task_item", locals: { task: @task })
+        render turbo_stream: turbo_stream.replace(helpers.dom_id(@task), partial: 'calendar/task_item',
+                                                                         locals: { task: @task })
       end
       format.html { redirect_to calendar_path }
     end
@@ -135,14 +142,14 @@ class TasksController < ApplicationController
 
   def set_scope
     scope_param = params[:scope].to_s.downcase.strip
-    if scope_param == 'my'
-      @scope = 'my'
-    elsif scope_param == 'family'
-      @scope = 'family'
-    else
-      # Fallback logic
-      @scope = (action_name == 'my' || params[:controller] == 'calendar' && action_name == 'my' ? 'my' : 'family')
-    end
+    @scope = if scope_param == 'my'
+               'my'
+             elsif scope_param == 'family'
+               'family'
+             else
+               # Fallback logic
+               (action_name == 'my' || (params[:controller] == 'calendar' && action_name == 'my') ? 'my' : 'family')
+             end
   end
 
   def task_params
