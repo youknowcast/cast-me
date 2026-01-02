@@ -3,8 +3,8 @@
 # Table name: users
 #
 #  id                 :integer          not null, primary key
+#  avatar             :binary
 #  encrypted_password :string           not null
-#  icon               :binary
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
 #  family_id          :bigint           not null

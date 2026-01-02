@@ -25,5 +25,11 @@ Rails.application.routes.draw do
   resources :plan_participants, only: [:update]
 
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
+
+  # 設定
+  resource :settings, only: [:show] do
+    patch :update_avatar
+  end
+
   resources :moments
 end

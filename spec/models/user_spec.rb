@@ -3,8 +3,8 @@
 # Table name: users
 #
 #  id                 :integer          not null, primary key
+#  avatar             :binary
 #  encrypted_password :string           not null
-#  icon               :binary
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
 #  family_id          :bigint           not null
@@ -20,22 +20,22 @@ RSpec.describe User, type: :model do
   describe 'validations' do
     let(:family) { create(:family) }
 
-    describe 'icon validation' do
-      it 'is valid with an icon under 64KB' do
-        small_icon = 'x' * 1.kilobyte
-        user = build(:user, family: family, icon: small_icon)
+    describe 'avatar validation' do
+      it 'is valid with an avatar under 64KB' do
+        small_avatar = 'x' * 1.kilobyte
+        user = build(:user, family: family, avatar: small_avatar)
         expect(user).to be_valid
       end
 
-      it 'is invalid with an icon over 64KB' do
-        large_icon = 'x' * 65.kilobytes
-        user = build(:user, family: family, icon: large_icon)
+      it 'is invalid with an avatar over 64KB' do
+        large_avatar = 'x' * 65.kilobytes
+        user = build(:user, family: family, avatar: large_avatar)
         expect(user).not_to be_valid
-        expect(user.errors[:icon]).to be_present
+        expect(user.errors[:avatar]).to be_present
       end
 
-      it 'is valid without an icon' do
-        user = build(:user, family: family, icon: nil)
+      it 'is valid without an avatar' do
+        user = build(:user, family: family, avatar: nil)
         expect(user).to be_valid
       end
     end
@@ -50,17 +50,17 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe '#icon_data_url' do
+  describe '#avatar_data_url' do
     let(:family) { create(:family) }
 
-    it 'returns nil when icon is not present' do
-      user = create(:user, family: family, icon: nil)
-      expect(user.icon_data_url).to be_nil
+    it 'returns nil when avatar is not present' do
+      user = create(:user, family: family, avatar: nil)
+      expect(user.avatar_data_url).to be_nil
     end
 
-    it 'returns base64 data URL when icon is present' do
-      user = create(:user, family: family, icon: 'test_binary_data')
-      expect(user.icon_data_url).to start_with('data:image/png;base64,')
+    it 'returns base64 data URL when avatar is present' do
+      user = create(:user, family: family, avatar: 'test_binary_data')
+      expect(user.avatar_data_url).to start_with('data:image/png;base64,')
     end
   end
 end

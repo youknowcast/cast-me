@@ -1,0 +1,30 @@
+.container.mx-auto.p-4.max-w-md
+  h1.text-2xl.font-bold.mb-6 設定
+
+  .card.bg-base-100.shadow-xl
+    .card-body
+      / Family 名
+      .form-control.mb-4
+        label.label
+          span.label-text Family
+        .input.input-bordered.bg-base-200.flex.items-center = @family.name
+
+      / Login ID
+      .form-control.mb-4
+        label.label
+          span.label-text Login ID
+        .input.input-bordered.bg-base-200.flex.items-center = current_user.login_id
+
+      / アバター
+      = form_with url: update_avatar_settings_path, method: :patch, data: { controller: 'avatar-upload' } do |f|
+        .form-control
+          label.label
+            span.label-text アバター
+          .flex.items-center.gap-4
+            .avatar
+              .w-16.h-16.rounded-full.overflow-hidden.flex.items-center.justify-center.bg-neutral
+                = user_avatar_tag(current_user, size_class: 'w-16 h-16', icon_class: 'text-4xl text-neutral-content')
+            = f.file_field :avatar, accept: 'image/*', class: 'hidden', data: { 'avatar-upload-target': 'input', action: 'change->avatar-upload#submit' }
+            button.btn.btn-outline.btn-sm type="button" data-action="click->avatar-upload#selectFile"
+              i.fas.fa-edit.mr-1
+              | 編集
