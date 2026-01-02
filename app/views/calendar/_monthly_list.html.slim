@@ -40,7 +40,7 @@
                         span.text-xs.font-medium.text-gray-500
                           = "#{plan.start_time.strftime('%H:%M')}〜#{plan.end_time&.strftime('%H:%M')}"
                     - if plan.description.present?
-                      p.text-xs.text-gray-500.line-clamp-2.mb-2 = plan.description
+                      p.text-xs.text-gray-500.line-clamp-2.mb-2= linkify_urls(plan.description)
                     - if plan.participants.any?
                       .flex.flex-wrap.gap-1
                         - plan.participants.each do |user|

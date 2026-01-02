@@ -29,6 +29,65 @@ module ApplicationHelper
   end
 
   # ============================================
+  # テキスト処理
+  # ============================================
+
+  # プレーンテキスト中のURLをリンクに変換する
+  # スキーム付きURL（http://, https://）のみをリンク化
+  # @param text [String] 変換対象のテキスト
+  # @return [ActiveSupport::SafeBuffer] HTML安全な文字列
+  def linkify_urls(text)
+    return ''.html_safe if text.blank?
+
+    # URLの正規表現
+    # ホスト部分はドメイン形式のみを許可（IPやlocalhostは除外）し、ポート番号をサポート
+    url_regex = %r{
+      https?://
+      (?:
+        (?:[a-zA-Z0-9][-a-zA-Z0-9]*\.)+[a-zA-Z]{2,} # ドメイン（少なくとも1つのドットが必要）
+      )
+      (?::\d+)?                                      # ポート番号（任意）
+      (?:/                                           # パス（任意）
+        (?:
+          [^\s&<>"']+                                # 空白、&、タグ、引用符以外の文字
+          |
+          &(?!lt;|gt;|quot;|\#)                      # HTMLエンティティ以外の&
+        )*
+      )?
+    }x
+
+    # テキストをエスケープしてからURL部分をリンクに変換
+    escaped_text = ERB::Util.html_escape(text)
+
+    # URLをリンクタグに変換
+    linked_text = escaped_text.gsub(url_regex) do |url|
+      # 末尾の句読点を除外
+      trailing = ''
+      while url =~ /[.,;:!?)\]]+\z/
+        char = ::Regexp.last_match(0)
+        # 括弧やブラケットが対になっている場合は除外しない（Wikipedia対応）
+        break if char == ')' && url.count('(') > url.count(')') - 1
+        break if char == ']' && url.count('[') > url.count(']') - 1
+
+        trailing = char + trailing
+        url = url[0...-char.length]
+      end
+
+      # マッチしたURLをリンクに変換
+      "<a href=\"#{url}\" target=\"_blank\" rel=\"noopener noreferrer\">#{url}</a>#{trailing}"
+    end
+
+    # 改行をHTMLの<br>タグに変換
+    linked_text.gsub!("\n", '<br>')
+
+    # rubocop:disable Rails/OutputSafety
+    # 全ての入力は既にERB::Util.html_escapeでエスケープ済み
+    # 生成したHTMLタグのみを含む安全な文字列
+    linked_text.html_safe
+    # rubocop:enable Rails/OutputSafety
+  end
+
+  # ============================================
   # ビジネスロジック
   # ============================================
 

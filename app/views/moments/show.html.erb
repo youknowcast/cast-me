@@ -12,7 +12,7 @@
 
 <p>
   <strong>Description:</strong>
-  <%= @moment.description %>
+  <%= linkify_urls(@moment.description) %>
 </p>
 
 <%= link_to 'Edit', edit_moment_path(@moment) %> |

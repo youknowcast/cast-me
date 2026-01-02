@@ -14,7 +14,7 @@
         data-scope=current_scope
       ]= plan.title
       - if plan.description.present?
-        p.text-sm.text-gray-600.mt-1= plan.description
+        p.text-sm.text-gray-600.mt-1= linkify_urls(plan.description)
       - if plan.start_time.present?
         p.text-xs.text-gray-500.mt-1
           i.far.fa-clock.mr-1
