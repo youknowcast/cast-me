@@ -28,11 +28,24 @@ export default class extends Controller {
     // 初期状態を設定
     this.initializePanel()
 
+    // グローバルイベントリスナーを追加
+    this.boundClose = this.close.bind(this)
+    window.addEventListener('side-panel:close', this.boundClose)
+
     // 少し遅延してから表示
     setTimeout(() => {
       this.show()
     }, 10)
   }
+
+  disconnect(): void {
+    // グローバルイベントリスナーを削除
+    if (this.boundClose) {
+      window.removeEventListener('side-panel:close', this.boundClose)
+    }
+  }
+
+  private boundClose: (() => void) | null = null
 
   initializePanel(): void {
     const panel = this.panelTarget
