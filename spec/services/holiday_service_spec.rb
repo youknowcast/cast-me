@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe HolidayService, type: :service, holiday_mock: false do
+RSpec.describe HolidayService, holiday_mock: false, type: :service do
   describe '.holidays' do
     let(:current_month) { Time.current.strftime('%Y-%m') }
     let(:cache_key) { "holidays-#{current_month}" }

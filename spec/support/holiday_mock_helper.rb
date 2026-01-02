@@ -19,8 +19,6 @@ RSpec.configure do |config|
   config.before do |example|
     # 外部APIへのアクセスを防ぐためにデフォルトでモック化
     # 明示的に holiday_mock: false が指定されている場合はスキップする
-    unless example.metadata[:holiday_mock] == false
-      stub_default_holidays
-    end
+    stub_default_holidays unless example.metadata[:holiday_mock] == false
   end
 end
