@@ -8,9 +8,12 @@ class HolidayService
     current_key = Time.current.strftime('%Y-%m')
     cache_key = "holidays-#{current_key}"
 
-    Rails.cache.fetch(cache_key, expires_in: 1.month) do
-      fetch_holidays
-    end
+    cached_data = Rails.cache.read(cache_key)
+    return cached_data if cached_data
+
+    data = fetch_holidays
+    Rails.cache.write(cache_key, data, expires_in: 1.month) unless data.empty?
+    data
   end
 
   def self.fetch_holidays
