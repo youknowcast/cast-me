@@ -3,7 +3,7 @@
     = link_to my_calendar_path(date: @date), class: "#{'active' if my_scope?}", data: { calendar_sync_date: 'true' } do
       = user_avatar_tag(current_user)
       span.btm-nav-label = current_user.display_name
-    = link_to calendar_path(date: @date), class: "#{ 'active' unless my_scope? && controller_name != 'settings'}", data: { calendar_sync_date: 'true' } do
+    = link_to calendar_path(date: @date), class: "#{'active' if family_scope?}", data: { calendar_sync_date: 'true' } do
       i.fas.fa-users.text-3xl
       span.btm-nav-label Family
     = link_to settings_path, class: "#{'active' if controller_name == 'settings'}" do

@@ -1,6 +1,6 @@
 class ApplicationController < ActionController::Base
   before_action :set_calendar_date
-  helper_method :current_scope, :my_scope?
+  helper_method :current_scope, :my_scope?, :family_scope?
 
   def current_scope
     @current_scope ||= begin
@@ -19,6 +19,10 @@ class ApplicationController < ActionController::Base
 
   def my_scope?
     current_scope == 'my'
+  end
+
+  def family_scope?
+    current_scope == 'family' && controller_name != 'settings'
   end
 
   def set_calendar_date
