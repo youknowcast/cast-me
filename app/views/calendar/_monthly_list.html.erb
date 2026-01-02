@@ -30,8 +30,8 @@
             <% day_plans = plans_by_date[day] %>
             <div class="day-group space-y-2">
               <div class="flex items-center gap-2">
-                <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
-                  <span class="text-blue-600 font-bold"><%= day.day %></span>
+                <div class="px-3 h-8 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
+                  <span class="text-blue-600 font-bold"><%= I18n.l(day, format: '%m月%d日(%a)') %></span>
                 </div>
                 <div class="h-px flex-1 bg-gray-100"></div>
               </div>
