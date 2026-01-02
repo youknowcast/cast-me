@@ -5,6 +5,7 @@ module CalendarData
 
   def set_calendar_data(date)
     @date = date
+    @holidays = HolidayService.holidays
     if my_scope?
       set_my_calendar_data(date)
     else
