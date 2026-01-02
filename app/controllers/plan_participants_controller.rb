@@ -1,5 +1,6 @@
 class PlanParticipantsController < ApplicationController
   include CalendarData
+
   before_action :authenticate_user!
 
   def update

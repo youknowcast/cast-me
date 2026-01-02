@@ -2,6 +2,7 @@ class SettingsController < ApplicationController
   before_action :authenticate_user!
 
   AVATAR_SIZE = 128 # アバターの最大サイズ（ピクセル）
+  private_constant :AVATAR_SIZE
 
   def show
     @family = current_user.family

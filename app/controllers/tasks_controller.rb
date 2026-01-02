@@ -1,5 +1,6 @@
 class TasksController < ApplicationController
   include CalendarData
+
   before_action :authenticate_user!
   before_action :set_task, only: %i[show edit update destroy toggle]
 

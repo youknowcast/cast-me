@@ -1,6 +1,6 @@
 class ApplicationController < ActionController::Base
   before_action :set_calendar_date
-  helper_method :current_scope, :my_scope?, :family_scope?
+  helper_method :current_scope, :my_scope?, :family_scope?, :setting_scope?
 
   def current_scope
     @current_scope ||= begin
@@ -11,19 +11,22 @@ class ApplicationController < ActionController::Base
       when 'family'
         'family'
       else
-        # Fallback to action name if controller is calendar, otherwise default to family
-        controller_name == 'calendar' && action_name == 'my' ? 'my' : 'family'
+        # FIXME: 画面が増えてきたら current_scope の扱いは再考の余地あり
+        if controller_name == 'settings'
+          controller_name
+        else
+          # Fallback to action name if controller is calendar, otherwise default to family
+          controller_name == 'calendar' && action_name == 'my' ? 'my' : 'family'
+        end
       end
     end
   end
 
-  def my_scope?
-    current_scope == 'my'
-  end
+  def my_scope? = current_scope == 'my'
 
-  def family_scope?
-    current_scope == 'family' && controller_name != 'settings'
-  end
+  def family_scope? = current_scope == 'family'
+
+  def setting_scope? = controller_name == 'settings'
 
   def set_calendar_date
     @date = if params[:date].present?
