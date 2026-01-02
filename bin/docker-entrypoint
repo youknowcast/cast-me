@@ -8,7 +8,7 @@ chown -R rails:rails /rails/data /rails/storage /rails/log /rails/tmp 2>/dev/nul
 
 # Apply database schema with ridgepole (as rails user)
 echo "Applying database schema with ridgepole..."
-gosu rails bundle exec ridgepole -c config/database.yml -E production -f db/Schemafile -a
+gosu rails bundle exec ridgepole -c config/database.yml -E production -f db/Schemafile -a -r /app/config/ridgepole.rb
 
 # Execute the main command as rails user
 exec gosu rails "$@"

@@ -30,7 +30,7 @@ namespace :ridgepole do
   end
 
   def ridgepole(*options)
-    command = ['bundle exec ridgepole', "--config #{config_file}", '-s primary']
+    command = ['bundle exec ridgepole', "--config #{config_file}", '-s primary', "-r #{Rails.root.join('config/ridgepole.rb')}"]
     system [command + options].join(' ')
   end
 end
