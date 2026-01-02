@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 /**
- * Close Panel Trigger Controller
+ * Side Panel Closer Controller
  *
  * connect時にパネルクローズイベントを発火させ、自身を削除する。
  * Turbo Streamでイベントを発火させたい場合に使用する。

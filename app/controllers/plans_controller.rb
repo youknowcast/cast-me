@@ -74,7 +74,7 @@ class PlansController < ApplicationController
         format.turbo_stream do
           render turbo_stream: [
             turbo_stream.update('daily_details', partial: 'calendar/daily_view', locals: { date: @date }),
-            turbo_stream.append('side-panel', "<div data-controller='close-panel-trigger'></div>".html_safe)
+            turbo_stream.append('side-panel', "<div data-controller='side-panel-closer'></div>".html_safe)
           ]
         end
         format.html { redirect_to calendar_path, notice: '予定を作成しました' }
@@ -105,7 +105,7 @@ class PlansController < ApplicationController
         format.turbo_stream do
           render turbo_stream: [
             turbo_stream.update('daily_details', partial: 'calendar/daily_view', locals: { date: @date }),
-            turbo_stream.append('side-panel', "<div data-controller='close-panel-trigger'></div>".html_safe)
+            turbo_stream.append('side-panel', "<div data-controller='side-panel-closer'></div>".html_safe)
           ]
         end
         format.html { redirect_to calendar_path, notice: '予定を更新しました' }
