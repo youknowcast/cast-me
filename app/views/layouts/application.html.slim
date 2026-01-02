@@ -36,8 +36,9 @@ html data-theme="cupcake"
           });
   body.h-screen
     .flex.flex-col.md:flex-row.h-full.pb-16.md:pb-0
-      .sidebar.hidden.md:block.md:shrink-0
-        = render 'shared/sidebar'
+      - if user_signed_in?
+        .sidebar.hidden.md:block.md:shrink-0
+          = render 'shared/sidebar'
 
       .main.flex-1.grow.overflow-y-auto
         = yield
