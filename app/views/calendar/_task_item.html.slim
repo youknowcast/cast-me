@@ -20,7 +20,7 @@
             class=task.priority_class
           ]= task.priority_text
         - if task.description.present?
-          p.text-sm.text-gray-600.mt-1= task.description
+          p.text-sm.text-gray-600.mt-1= linkify_urls(task.description)
       .flex.space-x-2
 
         button.btn.btn-xs.btn-outline[

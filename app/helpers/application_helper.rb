@@ -29,6 +29,45 @@ module ApplicationHelper
   end
 
   # ============================================
+  # テキスト処理
+  # ============================================
+
+  # プレーンテキスト中のURLをリンクに変換する
+  # スキーム付きURL（http://, https://）のみをリンク化
+  # @param text [String] 変換対象のテキスト
+  # @return [ActiveSupport::SafeBuffer] HTML安全な文字列
+  def linkify_urls(text)
+    return ''.html_safe if text.blank?
+
+    # URLの正規表現（スキーム必須）
+    # https://example.com, http://example.com/path?query=value など
+    url_regex = %r{
+      https?://\S+           # スキーム＋任意の非空白文字
+    }x
+
+    # テキストをエスケープしてからURL部分をリンクに変換
+    escaped_text = ERB::Util.html_escape(text)
+
+    # URLをリンクタグに変換
+    linked_text = escaped_text.gsub(url_regex) do |url|
+      # 末尾の句読点を除外
+      trailing = ''
+      while url =~ /[.,;:!?)\]]+\z/
+        trailing = ::Regexp.last_match(0) + trailing
+        url = url[0...-::Regexp.last_match(0).length]
+      end
+
+      # マッチしたURLをリンクに変換
+      "<a href=\"#{ERB::Util.html_escape(url)}\" target=\"_blank\" rel=\"noopener noreferrer\">#{ERB::Util.html_escape(url)}</a>#{trailing}"
+    end
+
+    # 改行をHTMLの<br>タグに変換
+    linked_text.gsub!("\n", '<br>')
+
+    linked_text.html_safe
+  end
+
+  # ============================================
   # ビジネスロジック
   # ============================================
 

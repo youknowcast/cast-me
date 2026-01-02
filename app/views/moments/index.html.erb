@@ -31,7 +31,7 @@
         <tr>
           <td><%= link_to moment.link, moment.link %></td>
           <td><%= moment.file_path %></td>
-          <td><%= moment.description %></td>
+          <td><%= linkify_urls(moment.description) %></td>
           <td><%= link_to 'Show', moment %></td>
           <td><%= link_to 'Edit', edit_moment_path(moment) %></td>
           <td><%= link_to 'Destroy', moment, method: :delete, data: { confirm: 'Are you sure?' } %></td>
