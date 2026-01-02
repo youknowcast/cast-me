@@ -17,22 +17,22 @@ Ridgepole::Rails.options[:skip_column_options] = [:after]
 # 参照: https://ledsun.hatenablog.com/entry/2025/11/15/171036
 module RidgepoleDiffPatch
   def scan_definition_change(from, to, from_indices, table_name, table_options, table_delta)
-    super(from, to, from_indices, table_name, table_options, table_delta)
+    super
 
-    if Ridgepole::Rails.options[:skip_column_options].include?(:after) && table_delta[:definition]
-      [:add, :change].each do |action|
-         if (delta = table_delta[:definition][action])
-           delta.each do |_, attrs|
-             if attrs[:options]
-               attrs[:options].delete(:after)
-             end
-           end
-         end
+    return unless Ridgepole::Rails.options[:skip_column_options].include?(:after) && table_delta[:definition]
+
+    %i[add change].each do |action|
+      next unless (delta = table_delta[:definition][action])
+
+      delta.each_value do |attrs|
+        attrs[:options]&.delete(:after)
       end
     end
   end
 end
 
-class Ridgepole::Diff
-  prepend RidgepoleDiffPatch
+module Ridgepole
+  class Diff
+    prepend RidgepoleDiffPatch
+  end
 end
