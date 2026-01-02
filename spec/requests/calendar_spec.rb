@@ -4,7 +4,7 @@ RSpec.describe 'Calendars', type: :request do
   let(:family) { create(:family) }
   let(:user) { create(:user, family: family) }
   let(:other_user) { create(:user, family: family) }
-  let(:date) { Date.today }
+  let(:date) { Time.zone.today }
 
   before do
     sign_in user
@@ -34,7 +34,7 @@ RSpec.describe 'Calendars', type: :request do
     end
 
     it 'assigns correct plans to @monthly_plans' do
-      # Note: The controller groups by date
+      # NOTE: The controller groups by date
       get monthly_list_calendar_path, params: { date: date }, as: :turbo_stream
 
       # @monthly_plans is grouped by date
