@@ -39,6 +39,39 @@ RSpec.describe ApplicationHelper, type: :helper do
       end
     end
 
+    context 'with edge cases and malformed inputs' do
+      it 'handles Wikipedia links with parentheses' do
+        text = 'Visit https://en.wikipedia.org/wiki/Ruby_(programming_language)'
+        result = helper.linkify_urls(text)
+        expect(result).to include('<a href="https://en.wikipedia.org/wiki/Ruby_(programming_language)"')
+      end
+
+      it 'handles bracketed paths' do
+        text = 'Check https://example.com/path[bracketed]'
+        result = helper.linkify_urls(text)
+        expect(result).to include('<a href="https://example.com/path[bracketed]"')
+      end
+
+      it 'handles URLs nested in parentheses' do
+        text = 'Check (https://example.com/path/to/page)'
+        result = helper.linkify_urls(text)
+        expect(result).to include('(<a href="https://example.com/path/to/page"')
+        expect(result).to end_with('</a>)')
+      end
+
+      it 'does not linkify malformed domains' do
+        text = 'Invalid https://.com or https://-'
+        result = helper.linkify_urls(text)
+        expect(result).not_to include('<a href')
+      end
+
+      it 'handles URLs with ports' do
+        text = 'Service at https://example.com:8080/api'
+        result = helper.linkify_urls(text)
+        expect(result).to include('<a href="https://example.com:8080/api"')
+      end
+    end
+
     context 'with URLs without scheme' do
       it 'does not convert scheme-less URLs' do
         text = 'Visit example.com for more'

@@ -39,16 +39,21 @@ module ApplicationHelper
   def linkify_urls(text)
     return ''.html_safe if text.blank?
 
-    # URLの正規表現（スキーム必須）
-    # HTMLエスケープ後のテキストでマッチするため、特定のHTMLエンティティで停止
-    # &amp; はクエリパラメータに現れるが、&lt;, &gt;, &quot; などでは停止
+    # URLの正規表現
+    # ホスト部分はドメイン形式のみを許可（IPやlocalhostは除外）し、ポート番号をサポート
     url_regex = %r{
-      https?://                    # スキーム
-      (?:                          # URL本体（繰り返し）
-        [^\s&]+                    # &以外の非空白文字（1つ以上）
-        |                          # または
-        &(?!lt;|gt;|quot;|\#)      # &の後にlt;, gt;, quot;, #が続かない場合（&amp; などは許可）
-      )+
+      https?://
+      (?:
+        (?:[a-zA-Z0-9][-a-zA-Z0-9]*\.)+[a-zA-Z]{2,} # ドメイン（少なくとも1つのドットが必要）
+      )
+      (?::\d+)?                                      # ポート番号（任意）
+      (?:/                                           # パス（任意）
+        (?:
+          [^\s&<>"']+                                # 空白、&、タグ、引用符以外の文字
+          |
+          &(?!lt;|gt;|quot;|\#)                      # HTMLエンティティ以外の&
+        )*
+      )?
     }x
 
     # テキストをエスケープしてからURL部分をリンクに変換
@@ -59,12 +64,16 @@ module ApplicationHelper
       # 末尾の句読点を除外
       trailing = ''
       while url =~ /[.,;:!?)\]]+\z/
-        trailing = ::Regexp.last_match(0) + trailing
-        url = url[0...-::Regexp.last_match(0).length]
+        char = ::Regexp.last_match(0)
+        # 括弧やブラケットが対になっている場合は除外しない（Wikipedia対応）
+        break if char == ')' && url.count('(') > url.count(')') - 1
+        break if char == ']' && url.count('[') > url.count(']') - 1
+
+        trailing = char + trailing
+        url = url[0...-char.length]
       end
 
       # マッチしたURLをリンクに変換
-      # URLは既にエスケープ済みなので、再度エスケープしない
       "<a href=\"#{url}\" target=\"_blank\" rel=\"noopener noreferrer\">#{url}</a>#{trailing}"
     end
 
