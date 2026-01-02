@@ -86,7 +86,7 @@ html data-theme="cupcake"
     / タイムピッカーモーダル (グローバル)
     #timepicker-modal-container data-controller="timepicker"
       dialog#timepicker-modal.modal.modal-bottom data-timepicker-target="modal" style="z-index: 99999;"
-        .modal-box.p-0.bg-white.text-gray-900.flex.flex-col.overflow-hidden.rounded-t-3xl.shadow-2xl style="height: auto; max-height: 50vh;"
+        .modal-box.p-0.bg-white.text-gray-900.flex.flex-col.overflow-hidden.rounded-t-3xl.shadow-2xl style="max-height: 70vh;"
           / Handle bar
           .w-full.flex.justify-center.pt-3.pb-1.shrink-0.bg-white
             .w-10.h-1.bg-gray-300.rounded-full
@@ -99,14 +99,14 @@ html data-theme="cupcake"
               i.fas.fa-times.text-base
 
           / Time display
-          .flex.items-center.justify-center.py-4.bg-gray-50.border-b.border-gray-100
+          .flex.items-center.justify-center.py-4.bg-gray-50.border-b.border-gray-100.shrink-0
             span.text-4xl.font-bold.text-gray-900 data-timepicker-target="hourValue" 00
             span.text-4xl.font-bold.text-gray-400.mx-2
               | :
             span.text-4xl.font-bold.text-gray-900 data-timepicker-target="minuteValue" 00
 
-          / Drum wheels container
-          .flex.flex-1.relative.bg-white style="height: 220px;"
+          / Drum wheels container - use flex-1 with min-height instead of fixed height
+          .flex.flex-1.relative.bg-white.min-h-0 style="min-height: 180px; max-height: 220px;"
             / Selection highlight bar
             .absolute.left-0.right-0.top-1/2.transform.-translate-y-1/2.h-11.bg-blue-50.border-y.border-blue-200.pointer-events-none.z-0
 
@@ -132,7 +132,7 @@ html data-theme="cupcake"
               .h-full.overflow-y-auto.snap-y.snap-mandatory.overscroll-contain style="scroll-snap-type: y mandatory; -webkit-overflow-scrolling: touch;" data-action="scroll->timepicker#onMinuteScroll scrollend->timepicker#onMinuteScrollEnd"
                 .py-20 data-timepicker-target="minuteWheel"
 
-          / Footer with confirm button
+          / Footer with confirm button - always visible
           .p-4.bg-white.border-t.border-gray-100.shrink-0
             button.btn.btn-primary.w-full.rounded-xl.h-12.text-base.font-bold type="button" data-action="timepicker#confirm"
               | 確定
