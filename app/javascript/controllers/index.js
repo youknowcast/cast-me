@@ -57,3 +57,6 @@ application.register("regular-task", RegularTaskController)
 
 import PlanFormController from "./plan_form_controller"
 application.register("plan-form", PlanFormController)
+
+import ClosePanelTriggerController from "./close_panel_trigger_controller"
+application.register("close-panel-trigger", ClosePanelTriggerController)

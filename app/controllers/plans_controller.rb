@@ -74,7 +74,7 @@ class PlansController < ApplicationController
         format.turbo_stream do
           render turbo_stream: [
             turbo_stream.update('daily_details', partial: 'calendar/daily_view', locals: { date: @date }),
-            turbo_stream.append('side-panel', html: close_panel_script)
+            turbo_stream.append('side-panel', "<div data-controller='close-panel-trigger'></div>".html_safe)
           ]
         end
         format.html { redirect_to calendar_path, notice: '予定を作成しました' }
@@ -105,7 +105,7 @@ class PlansController < ApplicationController
         format.turbo_stream do
           render turbo_stream: [
             turbo_stream.update('daily_details', partial: 'calendar/daily_view', locals: { date: @date }),
-            turbo_stream.append('side-panel', html: close_panel_script)
+            turbo_stream.append('side-panel', "<div data-controller='close-panel-trigger'></div>".html_safe)
           ]
         end
         format.html { redirect_to calendar_path, notice: '予定を更新しました' }
@@ -163,13 +163,9 @@ class PlansController < ApplicationController
   def render_form_with_errors
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.update('plan-form-container', partial: 'form_body', locals: { plan: @plan })
+        render turbo_stream: turbo_stream.update('plan-form-container', partial: 'form_body', locals: { plan: @plan }), status: :unprocessable_entity
       end
-      format.html { render @plan.persisted? ? :edit : :new }
+      format.html { render @plan.persisted? ? :edit : :new, status: :unprocessable_entity }
     end
-  end
-
-  def close_panel_script
-    "<script>window.dispatchEvent(new CustomEvent('side-panel:close'))</script>".html_safe
   end
 end
