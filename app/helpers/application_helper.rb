@@ -18,7 +18,7 @@ module ApplicationHelper
   # @param size_class [String] Tailwind CSS のサイズクラス (e.g., 'w-8 h-8')
   # @param icon_class [String] Font Awesome アイコンのクラス (e.g., 'text-3xl')
   def user_avatar_tag(user, size_class: 'w-8 h-8', icon_class: 'text-3xl')
-    if user.avatar.present?
+    if user&.avatar.present?
       content_tag(:img, nil,
                   src: user.avatar_data_url,
                   alt: user.display_name,
