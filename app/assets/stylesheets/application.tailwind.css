@@ -4,6 +4,14 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  .btm-nav {
+    height: calc(5.5rem + env(safe-area-inset-bottom));
+    padding-top: 0.75rem;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
 /*
 
 @layer components {
