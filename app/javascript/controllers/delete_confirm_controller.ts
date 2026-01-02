@@ -1,32 +1,19 @@
-import { Controller } from "@hotwired/stimulus"
+import { BaseActionSheetController } from "../lib/base_action_sheet_controller"
 
-export default class extends Controller {
+export default class extends BaseActionSheetController {
 	static targets = ["modal", "message"]
 
-	declare readonly modalTarget: HTMLDialogElement
 	declare readonly messageTarget: HTMLElement
 
 	private deleteUrl = ""
 	private deleteMethod = "delete"
 
-	connect() {
-		window.addEventListener('delete-confirm:open', this.open.bind(this) as any)
-		this.modalTarget.addEventListener('click', this.handleBackdropClick.bind(this))
+	get eventPrefix() {
+		return 'delete-confirm'
 	}
 
-	disconnect() {
-		window.removeEventListener('delete-confirm:open', this.open.bind(this) as any)
-		this.modalTarget.removeEventListener('click', this.handleBackdropClick.bind(this))
-	}
-
-	handleBackdropClick(event: MouseEvent) {
-		if (event.target === this.modalTarget) {
-			this.close()
-		}
-	}
-
-	open(event: CustomEvent) {
-		const { url, message, method } = event.detail
+	onOpen(detail: any) {
+		const { url, message, method } = detail
 		this.deleteUrl = url
 		this.deleteMethod = method || "delete"
 
@@ -35,15 +22,18 @@ export default class extends Controller {
 		} else {
 			this.messageTarget.textContent = "この項目を削除しますか？"
 		}
-
-		this.modalTarget.showModal()
 	}
 
-	close() {
-		this.modalTarget.close()
+	/**
+	 * backdrop クリック時は閉じるだけ（削除しない）
+	 */
+	protected handleBackdropClick(event: MouseEvent) {
+		if (event.target === this.modalTarget) {
+			this.close()
+		}
 	}
 
-	confirm() {
+	onConfirm() {
 		if (this.deleteUrl) {
 			// Create and submit a form with the delete method
 			const form = document.createElement('form')
@@ -71,6 +61,6 @@ export default class extends Controller {
 			document.body.appendChild(form)
 			form.submit()
 		}
-		this.close()
+		return null // No event dispatch needed
 	}
 }

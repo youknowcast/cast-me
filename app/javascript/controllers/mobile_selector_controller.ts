@@ -1,28 +1,27 @@
-import { Controller } from "@hotwired/stimulus"
+import { BaseActionSheetController } from "../lib/base_action_sheet_controller"
 
-export default class extends Controller {
-	static targets = ["input", "triggerText", "modal", "optionCheck"]
-	static values = { id: String }
+export default class extends BaseActionSheetController {
+	static targets = ["modal", "input", "triggerText", "optionCheck"]
 
 	declare readonly inputTarget: HTMLInputElement
 	declare readonly triggerTextTarget: HTMLElement
-	declare readonly modalTarget: HTMLDialogElement
 	declare readonly optionCheckTargets: HTMLElement[]
 
+	get eventPrefix() {
+		return 'mobile-selector'
+	}
+
 	connect() {
+		super.connect()
 		this.updateChecks()
 	}
 
-	open() {
-		if (this.modalTarget) {
-			this.modalTarget.showModal()
-		}
+	onOpen(_detail: any) {
+		// No special initialization needed
 	}
 
-	close() {
-		if (this.modalTarget) {
-			this.modalTarget.close()
-		}
+	onConfirm() {
+		return null // No event dispatch needed
 	}
 
 	select(event: CustomEvent & { params: { value: string, text: string } }) {

@@ -1,45 +1,25 @@
-import { Controller } from "@hotwired/stimulus"
+import { BaseActionSheetController } from "../lib/base_action_sheet_controller"
 
-export default class extends Controller {
+export default class extends BaseActionSheetController {
 	static targets = ["modal", "scrollArea", "loader"]
 
-	declare readonly modalTarget: HTMLDialogElement
 	declare readonly scrollAreaTarget: HTMLElement
 	declare readonly loaderTarget: HTMLElement
 
 	private selectedDate: Date | null = null
 	private renderedMonths: string[] = [] // YYYY-MM
-	private currentTrigger: any = null
 	private isInitialRender = true
 	private isLoadingPast = false
 
-	connect() {
-		console.log('[Datepicker] Controller connected')
-		window.addEventListener('datepicker:open', this.open.bind(this) as any)
-		// Handle backdrop click (clicking outside modal-box) to confirm
-		this.modalTarget.addEventListener('click', this.handleBackdropClick.bind(this))
+	get eventPrefix() {
+		return 'datepicker'
 	}
 
-	disconnect() {
-		window.removeEventListener('datepicker:open', this.open.bind(this) as any)
-		this.modalTarget.removeEventListener('click', this.handleBackdropClick.bind(this))
-	}
-
-	handleBackdropClick(event: MouseEvent) {
-		// If click target is the dialog itself (backdrop), not the modal-box content, confirm and close
-		if (event.target === this.modalTarget) {
-			this.confirm()
-		}
-	}
-
-	open(event: CustomEvent) {
-		console.log('[Datepicker] Open called with event:', event.detail)
-		const { date, trigger } = event.detail
+	onOpen(detail: any) {
+		const { date } = detail
 		this.selectedDate = date ? new Date(date) : new Date()
-		this.currentTrigger = trigger
 
-		this.modalTarget.showModal()
-		console.log('[Datepicker] Modal shown, isInitialRender:', this.isInitialRender)
+		console.log('[Datepicker] Open called, isInitialRender:', this.isInitialRender)
 
 		if (this.isInitialRender) {
 			this.initialRender()
@@ -50,24 +30,15 @@ export default class extends Controller {
 		}
 	}
 
-	close() {
-		this.modalTarget.close()
-	}
-
-	confirm() {
-		if (this.selectedDate && this.currentTrigger) {
-			window.dispatchEvent(new CustomEvent('datepicker:confirmed', {
-				detail: {
-					date: this.formatDate(this.selectedDate),
-					trigger: this.currentTrigger
-				}
-			}))
+	onConfirm() {
+		if (this.selectedDate) {
+			return { date: this.formatDate(this.selectedDate) }
 		}
-		this.close()
+		return null
 	}
 
-	initialRender() {
-		console.log('[Datepicker] initialRender called, scrollAreaTarget:', this.scrollAreaTarget)
+	private initialRender() {
+		console.log('[Datepicker] initialRender called')
 		this.scrollAreaTarget.innerHTML = ""
 		this.renderedMonths = []
 
@@ -83,7 +54,7 @@ export default class extends Controller {
 		this.scrollToSelected()
 	}
 
-	scrollToSelected() {
+	private scrollToSelected() {
 		requestAnimationFrame(() => {
 			const date = this.selectedDate || new Date()
 			const monthId = `month-${date.getFullYear()}-${date.getMonth() + 1}`
@@ -106,7 +77,7 @@ export default class extends Controller {
 		}
 	}
 
-	loadMore(direction: 'future' | 'past') {
+	private loadMore(direction: 'future' | 'past') {
 		if (this.renderedMonths.length === 0) return
 
 		const lastRendered = direction === 'future'
@@ -121,7 +92,7 @@ export default class extends Controller {
 		this.renderMonth(nextDate, direction === 'past')
 	}
 
-	renderMonth(date: Date, prepend = false) {
+	private renderMonth(date: Date, prepend = false) {
 		const year = date.getFullYear()
 		const month = date.getMonth()
 		const monthKey = `${year}-${month + 1}`
@@ -212,12 +183,12 @@ export default class extends Controller {
 		}
 	}
 
-	selectDate(date: Date) {
+	private selectDate(date: Date) {
 		this.selectedDate = date
 		this.updateHighlight()
 	}
 
-	updateHighlight() {
+	private updateHighlight() {
 		// Remove old selection
 		this.scrollAreaTarget.querySelectorAll('.bg-blue-500').forEach(el => {
 			el.classList.remove('bg-blue-500', 'text-white', 'font-bold', 'shadow-md')

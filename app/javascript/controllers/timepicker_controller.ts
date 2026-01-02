@@ -1,9 +1,8 @@
-import { Controller } from "@hotwired/stimulus"
+import { BaseDrumPickerController } from "../lib/base_drum_picker_controller"
 
-export default class extends Controller {
+export default class extends BaseDrumPickerController {
 	static targets = ["modal", "hourWheel", "minuteWheel", "hourValue", "minuteValue"]
 
-	declare readonly modalTarget: HTMLDialogElement
 	declare readonly hourWheelTarget: HTMLElement
 	declare readonly minuteWheelTarget: HTMLElement
 	declare readonly hourValueTarget: HTMLElement
@@ -11,28 +10,13 @@ export default class extends Controller {
 
 	private selectedHour = 0
 	private selectedMinute = 0
-	private currentTrigger: any = null
-	private itemHeight = 44 // Height of each wheel item in pixels
 
-	connect() {
-		window.addEventListener('timepicker:open', this.open.bind(this) as any)
-		this.modalTarget.addEventListener('click', this.handleBackdropClick.bind(this))
+	get eventPrefix() {
+		return 'timepicker'
 	}
 
-	disconnect() {
-		window.removeEventListener('timepicker:open', this.open.bind(this) as any)
-		this.modalTarget.removeEventListener('click', this.handleBackdropClick.bind(this))
-	}
-
-	handleBackdropClick(event: MouseEvent) {
-		if (event.target === this.modalTarget) {
-			this.confirm()
-		}
-	}
-
-	open(event: CustomEvent) {
-		const { time, trigger } = event.detail
-		this.currentTrigger = trigger
+	onOpen(detail: any) {
+		const { time } = detail
 
 		// Parse time if provided
 		if (time) {
@@ -46,25 +30,12 @@ export default class extends Controller {
 		}
 
 		this.renderWheels()
-		this.modalTarget.showModal()
 		this.scrollToSelected()
 	}
 
-	close() {
-		this.modalTarget.close()
-	}
-
-	confirm() {
-		if (this.currentTrigger) {
-			const timeStr = `${String(this.selectedHour).padStart(2, '0')}:${String(this.selectedMinute).padStart(2, '0')}`
-			window.dispatchEvent(new CustomEvent('timepicker:confirmed', {
-				detail: {
-					time: timeStr,
-					trigger: this.currentTrigger
-				}
-			}))
-		}
-		this.close()
+	onConfirm() {
+		const timeStr = `${String(this.selectedHour).padStart(2, '0')}:${String(this.selectedMinute).padStart(2, '0')}`
+		return { time: timeStr }
 	}
 
 	renderWheels() {
@@ -74,38 +45,25 @@ export default class extends Controller {
 
 		// Create hour items (0-23)
 		for (let h = 0; h < 24; h++) {
-			const item = this.createWheelItem(h, 'hour')
+			const item = this.createWheelItem(h, String(h).padStart(2, '0'), (value) => {
+				this.selectedHour = value
+				this.scrollHourTo(value)
+				this.updateDisplay()
+			})
 			this.hourWheelTarget.appendChild(item)
 		}
 
 		// Create minute items (0-59)
 		for (let m = 0; m < 60; m++) {
-			const item = this.createWheelItem(m, 'minute')
+			const item = this.createWheelItem(m, String(m).padStart(2, '0'), (value) => {
+				this.selectedMinute = value
+				this.scrollMinuteTo(value)
+				this.updateDisplay()
+			})
 			this.minuteWheelTarget.appendChild(item)
 		}
 
 		this.updateDisplay()
-	}
-
-	createWheelItem(value: number, type: 'hour' | 'minute'): HTMLElement {
-		const item = document.createElement('button')
-		item.type = 'button'
-		item.className = 'w-full h-11 flex items-center justify-center text-xl font-medium text-gray-400 transition-all duration-150 touch-manipulation'
-		item.textContent = String(value).padStart(2, '0')
-		item.dataset.value = String(value)
-
-		item.addEventListener('click', () => {
-			if (type === 'hour') {
-				this.selectedHour = value
-				this.scrollHourTo(value)
-			} else {
-				this.selectedMinute = value
-				this.scrollMinuteTo(value)
-			}
-			this.updateDisplay()
-		})
-
-		return item
 	}
 
 	scrollToSelected() {
@@ -115,31 +73,17 @@ export default class extends Controller {
 		})
 	}
 
-	scrollHourTo(hour: number, smooth = true) {
-		const container = this.hourWheelTarget.parentElement
-		if (container) {
-			const scrollTop = hour * this.itemHeight
-			container.scrollTo({
-				top: scrollTop,
-				behavior: smooth ? 'smooth' : 'instant' as any
-			})
-		}
+	private scrollHourTo(hour: number, smooth = true) {
+		this.scrollWheelTo(this.hourWheelTarget.parentElement, hour, smooth)
 	}
 
-	scrollMinuteTo(minute: number, smooth = true) {
-		const container = this.minuteWheelTarget.parentElement
-		if (container) {
-			const scrollTop = minute * this.itemHeight
-			container.scrollTo({
-				top: scrollTop,
-				behavior: smooth ? 'smooth' : 'instant' as any
-			})
-		}
+	private scrollMinuteTo(minute: number, smooth = true) {
+		this.scrollWheelTo(this.minuteWheelTarget.parentElement, minute, smooth)
 	}
 
 	onHourScroll(event: Event) {
 		const container = event.target as HTMLElement
-		const newHour = Math.round(container.scrollTop / this.itemHeight)
+		const newHour = this.getIndexFromScroll(container)
 		if (newHour !== this.selectedHour && newHour >= 0 && newHour < 24) {
 			this.selectedHour = newHour
 			this.updateDisplay()
@@ -148,7 +92,7 @@ export default class extends Controller {
 
 	onMinuteScroll(event: Event) {
 		const container = event.target as HTMLElement
-		const newMinute = Math.round(container.scrollTop / this.itemHeight)
+		const newMinute = this.getIndexFromScroll(container)
 		if (newMinute !== this.selectedMinute && newMinute >= 0 && newMinute < 60) {
 			this.selectedMinute = newMinute
 			this.updateDisplay()
@@ -164,30 +108,11 @@ export default class extends Controller {
 		this.scrollMinuteTo(this.selectedMinute)
 	}
 
-	updateDisplay() {
+	private updateDisplay() {
 		this.hourValueTarget.textContent = String(this.selectedHour).padStart(2, '0')
 		this.minuteValueTarget.textContent = String(this.selectedMinute).padStart(2, '0')
 
-		// Update visual styles for hour wheel
-		this.hourWheelTarget.querySelectorAll('button').forEach((btn, index) => {
-			if (index === this.selectedHour) {
-				btn.classList.remove('text-gray-400')
-				btn.classList.add('text-gray-900', 'font-bold', 'text-2xl')
-			} else {
-				btn.classList.remove('text-gray-900', 'font-bold', 'text-2xl')
-				btn.classList.add('text-gray-400')
-			}
-		})
-
-		// Update visual styles for minute wheel
-		this.minuteWheelTarget.querySelectorAll('button').forEach((btn, index) => {
-			if (index === this.selectedMinute) {
-				btn.classList.remove('text-gray-400')
-				btn.classList.add('text-gray-900', 'font-bold', 'text-2xl')
-			} else {
-				btn.classList.remove('text-gray-900', 'font-bold', 'text-2xl')
-				btn.classList.add('text-gray-400')
-			}
-		})
+		this.updateWheelHighlight(this.hourWheelTarget, this.selectedHour)
+		this.updateWheelHighlight(this.minuteWheelTarget, this.selectedMinute)
 	}
 }
