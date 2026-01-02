@@ -16,15 +16,15 @@
         .input.input-bordered.bg-base-200.flex.items-center = current_user.login_id
 
       / アバター
-      = form_with url: update_avatar_settings_path, method: :patch, data: { controller: 'avatar-upload' } do |f|
-        .form-control
-          label.label
-            span.label-text アバター
-          .flex.items-center.gap-4
-            .avatar
-              .w-16.h-16.rounded-full.overflow-hidden.flex.items-center.justify-center.bg-neutral
-                = user_avatar_tag(current_user, size_class: 'w-16 h-16', icon_class: 'text-4xl text-neutral-content')
+      .form-control data-controller="avatar-upload"
+        label.label
+          span.label-text アバター
+        .flex.items-center.gap-4
+          .avatar
+            .w-14.h-14.rounded-full.overflow-hidden.flex.items-center.justify-center.bg-neutral
+              = user_avatar_tag(current_user, size_class: 'w-14 h-14', icon_class: 'text-3xl text-neutral-content')
+          = form_with url: update_avatar_settings_path, method: :patch, html: { 'data-avatar-upload-target': 'form' } do |f|
             = f.file_field :avatar, accept: 'image/*', class: 'hidden', data: { 'avatar-upload-target': 'input', action: 'change->avatar-upload#submit' }
-            button.btn.btn-outline.btn-sm type="button" data-action="click->avatar-upload#selectFile"
-              i.fas.fa-edit.mr-1
-              | 編集
+          button.btn.btn-outline.btn-sm type="button" data-action="click->avatar-upload#selectFile"
+            i.fas.fa-edit.mr-1
+            | 編集
