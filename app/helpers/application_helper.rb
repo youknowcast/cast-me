@@ -58,7 +58,8 @@ module ApplicationHelper
       end
 
       # マッチしたURLをリンクに変換
-      "<a href=\"#{ERB::Util.html_escape(url)}\" target=\"_blank\" rel=\"noopener noreferrer\">#{ERB::Util.html_escape(url)}</a>#{trailing}"
+      # URLは既にエスケープ済みなので、再度エスケープしない
+      "<a href=\"#{url}\" target=\"_blank\" rel=\"noopener noreferrer\">#{url}</a>#{trailing}"
     end
 
     # 改行をHTMLの<br>タグに変換
