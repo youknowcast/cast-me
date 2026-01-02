@@ -1,6 +1,6 @@
 .mb-8.border-b.pb-4.last:border-b-0
-  h3.text-lg.font-bold.text-gray-800.mb-3
-    i.fas.fa-user.mr-2
+  h3.text-lg.font-bold.text-gray-800.mb-3.flex.items-center
+    span.mr-2 = user_avatar_tag(target_user, size_class: 'w-5 h-5', icon_class: 'text-lg')
     = target_user.login_id
 
   / 予定セクション
