@@ -17,6 +17,7 @@ export default class extends Controller {
 
 	connect() {
 		this.updateSelectedDateStyle()
+		this.syncState()
 	}
 
 	// Action for Date Links (Grid)
@@ -71,6 +72,36 @@ export default class extends Controller {
 		}
 
 		this.detailsFrameTarget.src = url.toString()
+		this.syncState()
+	}
+
+	syncState() {
+		// Sync browser URL
+		const currentUrl = new URL(window.location.href)
+		currentUrl.searchParams.set("date", this.dateValue)
+		window.history.replaceState({}, '', currentUrl)
+
+		// Sync all navigation links that have data-calendar-sync-date attribute
+		document.querySelectorAll('[data-calendar-sync-date="true"]').forEach((el: Element) => {
+			const link = el as HTMLAnchorElement
+			const linkUrl = new URL(link.href)
+			linkUrl.searchParams.set("date", this.dateValue)
+			link.href = linkUrl.toString()
+		})
+
+		// Sync monthpicker connector if it exists
+		const monthpickerTrigger = document.querySelector('[data-controller="monthpicker-connector"]') as HTMLElement
+		if (monthpickerTrigger) {
+			const triggerDateArr = this.dateValue.split('-')
+			if (triggerDateArr.length >= 2) {
+				const yearMonth = `${triggerDateArr[0]}年${triggerDateArr[1]}月`
+				const textEl = monthpickerTrigger.querySelector('[data-monthpicker-connector-target="triggerText"]')
+				if (textEl) {
+					textEl.textContent = yearMonth
+				}
+			}
+			monthpickerTrigger.dataset.monthpickerConnectorDateValue = this.dateValue
+		}
 	}
 
 	scrollToDetails() {

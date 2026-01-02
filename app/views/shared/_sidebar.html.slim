@@ -1,7 +1,7 @@
 ul.menu.bg-base-100.rounded-box
   li
-    = link_to calendar_path, class: "tooltip tooltip-right #{'active' unless my_scope?}", data: { tip: "Family Calendar" } do
+    = link_to calendar_path(date: @date), class: "tooltip tooltip-right #{'active' unless my_scope?}", data: { tip: "Family Calendar", calendar_sync_date: 'true' } do
       i.fas.fa-users.text-3xl
   li
-    = link_to my_calendar_path, class: "tooltip tooltip-right #{'active' if my_scope?}", data: { tip: "My Calendar" } do
+    = link_to my_calendar_path(date: @date), class: "tooltip tooltip-right #{'active' if my_scope?}", data: { tip: "My Calendar", calendar_sync_date: 'true' } do
       i.fas.fa-user.text-3xl
