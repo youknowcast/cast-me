@@ -65,7 +65,11 @@ module ApplicationHelper
     # 改行をHTMLの<br>タグに変換
     linked_text.gsub!("\n", '<br>')
 
+    # rubocop:disable Rails/OutputSafety
+    # 全ての入力は既にERB::Util.html_escapeでエスケープ済み
+    # 生成したHTMLタグのみを含む安全な文字列
     linked_text.html_safe
+    # rubocop:enable Rails/OutputSafety
   end
 
   # ============================================
