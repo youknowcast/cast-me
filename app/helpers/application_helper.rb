@@ -72,7 +72,8 @@ module ApplicationHelper
       # 全定型タスクの選択モーダル
       if all_regular_tasks.any?
         concat(
-          action_sheet_modal(id: id, title: '定型タスクを選択', controller: 'regular-task') do
+          action_sheet_modal(id: id, title: '定型タスクを選択', controller: 'regular-task',
+                             target: 'selectModal', close_action: 'closeSelect') do
             content_tag(:ul, class: 'menu w-full p-0', data: { 'regular-task-target': 'selectList' }) do
               all_regular_tasks.each do |rt|
                 concat(

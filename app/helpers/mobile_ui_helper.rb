@@ -16,6 +16,8 @@ module MobileUiHelper
   # @param id [String] モーダルのID
   # @param title [String] モーダルのタイトル
   # @param controller [String] Stimulusコントローラー名
+  # @param target [String] Stimulusターゲット名 (デフォルト: 'modal')
+  # @param close_action [String] 閉じるボタンのアクション (デフォルト: 'close')
   # @param cancel_text [String] キャンセルボタンのテキスト
   # @yield モーダル内のコンテンツ
   #
@@ -24,9 +26,15 @@ module MobileUiHelper
   #     content_tag(:ul, class: "menu") { ... }
   #   end
   #
-  def action_sheet_modal(id:, title:, controller:, cancel_text: 'キャンセル', &block)
+  #   # カスタムターゲット名を使用する場合:
+  #   action_sheet_modal(id: "my_modal", title: "選択", controller: "regular-task",
+  #                      target: "selectModal", close_action: "closeSelect") do
+  #     ...
+  #   end
+  #
+  def action_sheet_modal(id:, title:, controller:, target: 'modal', close_action: 'close', cancel_text: 'キャンセル', &block)
     content_tag(:dialog, id: id, class: 'modal modal-bottom sm:modal-middle',
-                         data: { "#{controller}-target": 'modal' }) do
+                         data: { "#{controller}-target": target }) do
       content_tag(:div, class: 'modal-box p-0 max-h-[70vh] flex flex-col') do
         # Header
         concat(
@@ -44,7 +52,7 @@ module MobileUiHelper
         concat(
           content_tag(:div, class: 'p-4 border-t mt-auto') do
             content_tag(:button, cancel_text, type: 'button', class: 'btn btn-ghost w-full',
-                                              data: { action: "#{controller}#close" })
+                                              data: { action: "#{controller}##{close_action}" })
           end
         )
       end
