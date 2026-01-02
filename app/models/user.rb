@@ -39,7 +39,7 @@ class User < ApplicationRecord
 
   # アバターの data URL を返すメソッド
   def avatar_data_url
-    return nil unless avatar.present?
+    return nil if avatar.blank?
 
     # 画像フォーマットを検出してBase64エンコード
     "data:image/png;base64,#{Base64.strict_encode64(avatar)}"
@@ -62,7 +62,7 @@ class User < ApplicationRecord
   private
 
   def avatar_size_within_limit
-    return unless avatar.present?
+    return if avatar.blank?
     return unless avatar.bytesize > AVATAR_MAX_SIZE
 
     errors.add(:avatar, 'は64KB以下にしてください')
