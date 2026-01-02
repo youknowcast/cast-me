@@ -5,12 +5,14 @@ class CalendarController < ApplicationController
 
   def index
     @weeks = generate_calendar_weeks
+    @holidays = HolidayService.holidays
     # Fetch data for the selected/default date in the details view
     set_family_calendar_data(@date)
   end
 
   def my
     @weeks = generate_calendar_weeks
+    @holidays = HolidayService.holidays
     # Fetch data for the selected/default date in the details view
     set_my_calendar_data(@date)
   end

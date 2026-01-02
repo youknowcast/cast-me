@@ -39,7 +39,7 @@
             - week.each do |day|
               - day_plans = current_user.family.plans.for_date(day)
               - day_tasks = current_user.tasks.for_date(day)
-              = render "calendar_grid_cell", day: day, date: @date, plans: day_plans, tasks: day_tasks, scope: "family"
+              = render "calendar_grid_cell", day: day, date: @date, plans: day_plans, tasks: day_tasks, scope: "family", holidays: @holidays
 
         / User Filter Select Box
         .mt-4
