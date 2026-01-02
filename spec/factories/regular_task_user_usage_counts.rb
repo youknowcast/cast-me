@@ -9,6 +9,11 @@
 #  regular_task_id :bigint           not null
 #  user_id         :bigint           not null
 #
+# Indexes
+#
+#  index_regular_task_user_usage_counts_on_user_and_count  (user_id,usage_count)
+#  index_regular_task_user_usage_counts_unique             (regular_task_id,user_id) UNIQUE
+#
 FactoryBot.define do
   factory :regular_task_user_usage_count do
     association :regular_task

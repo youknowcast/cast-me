@@ -14,6 +14,11 @@
 #  family_id         :bigint           not null
 #  last_edited_by_id :bigint
 #
+# Indexes
+#
+#  index_plans_on_date_and_start_time  (date,start_time)
+#  index_plans_on_family_id_and_date   (family_id,date)
+#
 FactoryBot.define do
   factory :plan do
     association :family

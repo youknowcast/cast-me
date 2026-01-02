@@ -1,3 +1,18 @@
+# == Schema Information
+#
+# Table name: regular_tasks
+#
+#  id         :integer          not null, primary key
+#  title      :string(255)      not null
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#  family_id  :bigint           not null
+#
+# Indexes
+#
+#  index_regular_tasks_on_family_id            (family_id)
+#  index_regular_tasks_on_family_id_and_title  (family_id,title) UNIQUE
+#
 require 'rails_helper'
 
 RSpec.describe RegularTask, type: :model do

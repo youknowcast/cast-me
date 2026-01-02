@@ -6,6 +6,7 @@ create_table 'users', force: :cascade do |t|
   t.bigint 'family_id', null: false
   t.string 'encrypted_password', null: false
   t.timestamps
+  t.binary 'icon'
 
   t.index ['login_id'], name: :index_login_id_on_users
 end
