@@ -45,7 +45,11 @@ RSpec.describe 'Plans', type: :request do
 
       it 'returns error when no participants are selected' do
         post plans_path,
-             params: { plan: { title: 'No Participants', date: Time.zone.today.to_s, participant_ids: [] }, scope: 'family' }, as: :turbo_stream
+             params: {
+               plan: { title: 'No Participants', date: Time.zone.today.to_s, participant_ids: [] },
+               scope: 'family'
+             },
+             as: :turbo_stream
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.body).to include('参加者を1人以上選択してください')
       end

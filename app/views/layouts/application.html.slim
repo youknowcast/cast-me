@@ -219,10 +219,9 @@ html data-theme="cupcake"
             button.btn.btn-error.flex-1.rounded-xl.h-12.text-base.font-bold type="button" data-action="delete-confirm#confirm"
               | 削除する
 
-    - if @notice.present?
-
-      p.notice
-        = @notice
-    - if @alert.present?
-      p.alert
-        = @alert
+    - if flash[:notice].present?
+      .fixed.top-4.right-4.z-50.bg-green-100.border-l-4.border-green-500.text-green-700.p-4.rounded.shadow-lg.alert.alert-success
+        = flash[:notice]
+    - if flash[:alert].present?
+      .fixed.top-4.right-4.z-50.bg-red-100.border-l-4.border-red-500.text-red-700.p-4.rounded.shadow-lg.alert.alert-error
+        = flash[:alert]
