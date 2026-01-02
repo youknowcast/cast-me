@@ -23,7 +23,8 @@ class TasksController < ApplicationController
 
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.update('side-panel', partial: 'form', locals: { task: @task, scope: current_scope })
+        render turbo_stream: turbo_stream.update('side-panel', partial: 'form',
+                                                               locals: { task: @task, scope: current_scope })
       end
       format.html { render :new }
     end
@@ -35,7 +36,8 @@ class TasksController < ApplicationController
 
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.update('side-panel', partial: 'form', locals: { task: @task, scope: current_scope })
+        render turbo_stream: turbo_stream.update('side-panel', partial: 'form',
+                                                               locals: { task: @task, scope: current_scope })
       end
       format.html { render :new }
     end
@@ -44,7 +46,8 @@ class TasksController < ApplicationController
   def edit
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.update('side-panel', partial: 'form', locals: { task: @task, scope: current_scope })
+        render turbo_stream: turbo_stream.update('side-panel', partial: 'form',
+                                                               locals: { task: @task, scope: current_scope })
       end
       format.html { render :edit }
     end
@@ -134,7 +137,6 @@ class TasksController < ApplicationController
   def set_task
     @task = current_user.family.tasks.find(params[:id])
   end
-
 
   def task_params
     params.require(:task).permit(:title, :description, :date, :priority, :user_id)

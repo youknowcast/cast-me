@@ -5,13 +5,14 @@ class ApplicationController < ActionController::Base
   def current_scope
     @current_scope ||= begin
       scope_param = params[:scope].to_s.downcase.strip
-      if scope_param == 'my'
+      case scope_param
+      when 'my'
         'my'
-      elsif scope_param == 'family'
+      when 'family'
         'family'
       else
         # Fallback to action name if controller is calendar, otherwise default to family
-        (controller_name == 'calendar' && action_name == 'my') ? 'my' : 'family'
+        controller_name == 'calendar' && action_name == 'my' ? 'my' : 'family'
       end
     end
   end

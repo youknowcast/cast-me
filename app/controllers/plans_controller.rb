@@ -163,7 +163,8 @@ class PlansController < ApplicationController
   def render_form_with_errors
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.update('plan-form-container', partial: 'form_body', locals: { plan: @plan }), status: :unprocessable_entity
+        render turbo_stream: turbo_stream.update('plan-form-container', partial: 'form_body', locals: { plan: @plan }),
+               status: :unprocessable_entity
       end
       format.html { render @plan.persisted? ? :edit : :new, status: :unprocessable_entity }
     end
