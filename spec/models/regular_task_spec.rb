@@ -32,7 +32,7 @@ RSpec.describe RegularTask, type: :model do
     it 'is invalid without a family_id' do
       regular_task = build(:regular_task, family: nil)
       expect(regular_task).not_to be_valid
-      expect(regular_task.errors[:family_id]).to be_present
+      expect(regular_task.errors[:family]).to be_present
     end
 
     it 'is invalid without a title' do
