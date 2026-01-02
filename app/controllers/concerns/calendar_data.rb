@@ -5,7 +5,7 @@ module CalendarData
 
   def set_calendar_data(date)
     @date ||= date
-    if params[:scope] == 'my' || action_name == 'my'
+    if my_scope?
       set_my_calendar_data(date)
     else
       set_family_calendar_data(date)

@@ -1,6 +1,4 @@
-- current_scope = local_assigns[:scope] || params[:scope]
-- if current_scope.blank? || current_scope == 'undefined' || current_scope == 'null'
-  - current_scope = (controller_name == 'calendar' && action_name == 'my' ? 'my' : 'family')
+
 
 - # target_user が渡されない場合のフォールバック（通常は渡されるはず）
 - target_user ||= current_user

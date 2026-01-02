@@ -24,9 +24,9 @@
       / フォーム
       .side-panel-body
         = form_with model: task do |f|
-          = hidden_field_tag :scope, scope
+          = hidden_field_tag :scope, current_scope
           .space-y-6
-            - if scope.to_s == 'my'
+            - if my_scope?
               = f.hidden_field :user_id, value: (task.user_id || current_user.id)
             - else
               .form-control

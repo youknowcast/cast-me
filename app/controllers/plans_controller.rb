@@ -21,7 +21,7 @@ class PlansController < ApplicationController
       created_by: current_user
     )
     # Myスコープの場合、自分自身をデフォルト参加者として設定
-    @plan.participant_ids = [current_user.id] if params[:scope] == 'my'
+    @plan.participant_ids = [current_user.id] if my_scope?
 
     respond_to do |format|
       format.turbo_stream do
@@ -35,7 +35,7 @@ class PlansController < ApplicationController
       date: Time.zone.today,
       created_by: current_user
     )
-    @plan.participant_ids = [current_user.id] if params[:scope] == 'my'
+    @plan.participant_ids = [current_user.id] if my_scope?
 
     respond_to do |format|
       format.turbo_stream do

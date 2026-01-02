@@ -13,9 +13,8 @@ class PlanParticipantsController < ApplicationController
 
       respond_to do |format|
         format.turbo_stream do
-          scope = params[:scope] == 'my' ? 'my' : 'family'
           render turbo_stream: turbo_stream.update('daily_details', partial: 'calendar/daily_view',
-                                                                    locals: { date: @date, scope: scope })
+                                                                    locals: { date: @date, scope: current_scope })
         end
         format.html { redirect_to calendar_path(date: @date) }
       end
