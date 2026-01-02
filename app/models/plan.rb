@@ -33,6 +33,7 @@ class Plan < ApplicationRecord
   validate :end_time_after_start_time, if: -> { start_time.present? && end_time.present? }
 
   scope :for_date, ->(date) { where(date: date) }
+  scope :for_month, ->(date) { where(date: date.all_month) }
   scope :for_family, ->(family_id) { where(family_id: family_id) }
   scope :ordered_by_time, -> { order(:start_time, :title) }
 

@@ -1,0 +1,73 @@
+<div class="side-panel-overlay"
+     data-controller="side-panel"
+     data-side-panel-target="overlay"
+     data-action="click->side-panel#closeBackground"
+     style="display: block; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999;">
+
+  <div class="side-panel-backdrop opacity-0"
+       data-side-panel-target="backdrop">
+  </div>
+
+  <div class="side-panel translate-x-full"
+       data-side-panel-target="panel">
+
+    <div class="side-panel-content">
+      <!-- ヘッダー -->
+      <div class="side-panel-header">
+        <h3 class="text-lg font-semibold text-gray-900">
+          <%= date&.strftime('%Y年%m月') %>の予定一覧
+        </h3>
+        <button class="btn btn-sm btn-circle btn-ghost"
+                data-action="click->side-panel#close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- リスト本体 -->
+      <div class="side-panel-body flex-1 overflow-y-auto p-4 space-y-6">
+        <% if plans_by_date.any? %>
+          <% plans_by_date.keys.sort.each do |day| %>
+            <% day_plans = plans_by_date[day] %>
+            <div class="day-group space-y-2">
+              <div class="flex items-center gap-2">
+                <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
+                  <span class="text-blue-600 font-bold"><%= day.day %></span>
+                </div>
+                <div class="h-px flex-1 bg-gray-100"></div>
+              </div>
+              <div class="pl-12 space-y-3">
+                <% day_plans.each do |plan| %>
+                  <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                    <div class="flex justify-between items-start mb-1">
+                      <h4 class="font-bold text-gray-800"><%= plan.title %></h4>
+                      <% if plan.start_time.present? %>
+                        <span class="text-xs font-medium text-gray-500">
+                          <%= plan.start_time.strftime('%H:%M') %>〜<%= plan.end_time&.strftime('%H:%M') %>
+                        </span>
+                      <% end %>
+                    </div>
+                    <% if plan.description.present? %>
+                      <p class="text-xs text-gray-500 line-clamp-2 mb-2"><%= plan.description %></p>
+                    <% end %>
+                    <% if plan.participants.any? %>
+                      <div class="flex flex-wrap gap-1">
+                        <% plan.participants.each do |user| %>
+                          <div class="badge badge-ghost badge-sm text-[10px] py-0"><%= user.login_id %></div>
+                        <% end %>
+                      </div>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="flex flex-col items-center justify-center py-20 text-gray-400">
+            <i class="fas fa-calendar-xmark text-4xl mb-4"></i>
+            <p>この月の予定はありません</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

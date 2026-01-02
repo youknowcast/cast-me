@@ -15,6 +15,13 @@
       span data-monthpicker-connector-target="triggerText"
         = @date.strftime("%Y年%m月")
       i.fas.fa-caret-down.ml-2.text-sm
+    button.btn.btn-ghost.btn-circle.ml-2[
+      data-controller="side-panel-opener"
+      data-action="click->side-panel-opener#openMonthlyList"
+      data-date=@date.to_s
+      title="月間予定リスト"
+    ]
+      i.fas.fa-list-ul.text-xl
 
 
 
