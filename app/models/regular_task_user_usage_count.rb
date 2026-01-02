@@ -18,7 +18,6 @@ class RegularTaskUserUsageCount < ApplicationRecord
   belongs_to :regular_task
   belongs_to :user
 
-  validates :regular_task_id, presence: true
-  validates :user_id, presence: true, uniqueness: { scope: :regular_task_id }
+  validates :user_id, uniqueness: { scope: :regular_task_id }
   validates :usage_count, numericality: { greater_than_or_equal_to: 0 }
 end

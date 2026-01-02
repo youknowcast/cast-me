@@ -27,7 +27,6 @@ class Plan < ApplicationRecord
   has_many :plan_participants, dependent: :destroy
   has_many :participants, through: :plan_participants, source: :user
 
-  validates :family_id, presence: true
   validates :date, presence: true
   validates :title, presence: true, length: { maximum: 255 }
   validates :description, length: { maximum: 1000 }
@@ -40,8 +39,8 @@ class Plan < ApplicationRecord
   private
 
   def end_time_after_start_time
-    if end_time <= start_time
-      errors.add(:end_time, "は開始時刻より後に設定してください")
-    end
+    return unless end_time <= start_time
+
+    errors.add(:end_time, 'は開始時刻より後に設定してください')
   end
 end

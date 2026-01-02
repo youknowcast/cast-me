@@ -25,7 +25,7 @@ class CalendarController < ApplicationController
 
   private
 
-  def date = @_date ||= params[:date] ? Date.parse(params[:date]) : Date.today
+  def date = @date ||= params[:date] ? Date.parse(params[:date]) : Time.zone.today
 
   def generate_calendar_weeks
     first_day = date.beginning_of_month

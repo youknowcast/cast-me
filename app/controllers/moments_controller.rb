@@ -1,6 +1,5 @@
-#
 class MomentsController < ApplicationController
-  before_action :set_moment, only: %i[ show edit update destroy ]
+  before_action :set_moment, only: %i[show edit update destroy]
 
   # GET /moments or /moments.json
   def index
@@ -28,7 +27,7 @@ class MomentsController < ApplicationController
 
     respond_to do |format|
       if @moment.save
-        format.html { redirect_to @moment, notice: "Moment was successfully created." }
+        format.html { redirect_to @moment, notice: 'Moment was successfully created.' }
         format.json { render :show, status: :created, location: @moment }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -41,7 +40,7 @@ class MomentsController < ApplicationController
   def update
     respond_to do |format|
       if @moment.update(moment_params)
-        format.html { redirect_to @moment, notice: "Moment was successfully updated." }
+        format.html { redirect_to @moment, notice: 'Moment was successfully updated.' }
         format.json { render :show, status: :ok, location: @moment }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -54,12 +53,13 @@ class MomentsController < ApplicationController
   def destroy
     @moment.destroy
     respond_to do |format|
-      format.html { redirect_to moments_url, notice: "Moment was successfully destroyed." }
+      format.html { redirect_to moments_url, notice: 'Moment was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
 
   private
+
   # Use callbacks to share common setup or constraints between actions.
   def set_moment
     @moment = Moment.find(params[:id])

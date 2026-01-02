@@ -1,20 +1,19 @@
 class PlansController < ApplicationController
   include CalendarData
   before_action :authenticate_user!
-  before_action :set_plan, only: [:show, :edit, :update, :destroy]
+  before_action :set_plan, only: %i[show edit update destroy]
 
   def index
     @plans = current_user.family.plans.for_date(params[:date]).ordered_by_time
   end
 
-  def show
-  end
+  def show; end
 
   def new
     date = if params[:date].present?
              Date.parse(params[:date])
            else
-             Date.today
+             Time.zone.today
            end
 
     @plan = current_user.family.plans.build(
@@ -22,31 +21,36 @@ class PlansController < ApplicationController
       created_by: current_user
     )
     # Myスコープの場合、自分自身をデフォルト参加者として設定
-    if params[:scope] == 'my'
-      @plan.participant_ids = [current_user.id]
-    end
+    @plan.participant_ids = [current_user.id] if params[:scope] == 'my'
 
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.update("side-panel", partial: "form", locals: { plan: @plan })
+        render turbo_stream: turbo_stream.update('side-panel', partial: 'form', locals: { plan: @plan })
       end
       format.html { render :new }
     end
   rescue Date::Error
     # 無効な日付の場合は今日の日付を使用
     @plan = current_user.family.plans.build(
-      date: Date.today,
+      date: Time.zone.today,
       created_by: current_user
     )
-    if params[:scope] == 'my'
-      @plan.participant_ids = [current_user.id]
-    end
+    @plan.participant_ids = [current_user.id] if params[:scope] == 'my'
 
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.update("side-panel", partial: "form", locals: { plan: @plan })
+        render turbo_stream: turbo_stream.update('side-panel', partial: 'form', locals: { plan: @plan })
       end
       format.html { render :new }
+    end
+  end
+
+  def edit
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.update('side-panel', partial: 'form', locals: { plan: @plan })
+      end
+      format.html { render :edit }
     end
   end
 
@@ -63,26 +67,19 @@ class PlansController < ApplicationController
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
-            turbo_stream.update("daily_details", partial: "calendar/daily_view", locals: { date: @date }),
-            turbo_stream.update("side-panel", "")
+            turbo_stream.update('daily_details', partial: 'calendar/daily_view', locals: { date: @date }),
+            turbo_stream.update('side-panel', '')
           ]
         end
-        format.html { redirect_to calendar_path, notice: "予定を作成しました" }
+        format.html { redirect_to calendar_path, notice: '予定を作成しました' }
       end
     else
       respond_to do |format|
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("side-panel", partial: "form", locals: { plan: @plan }) }
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.replace('side-panel', partial: 'form', locals: { plan: @plan })
+        end
         format.html { render :new }
       end
-    end
-  end
-
-  def edit
-    respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: turbo_stream.update("side-panel", partial: "form", locals: { plan: @plan })
-      end
-      format.html { render :edit }
     end
   end
 
@@ -99,15 +96,17 @@ class PlansController < ApplicationController
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
-            turbo_stream.update("daily_details", partial: "calendar/daily_view", locals: { date: @date }),
-            turbo_stream.update("side-panel", "")
+            turbo_stream.update('daily_details', partial: 'calendar/daily_view', locals: { date: @date }),
+            turbo_stream.update('side-panel', '')
           ]
         end
-        format.html { redirect_to calendar_path, notice: "予定を更新しました" }
+        format.html { redirect_to calendar_path, notice: '予定を更新しました' }
       end
     else
       respond_to do |format|
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("side-panel", partial: "form", locals: { plan: @plan }) }
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.replace('side-panel', partial: 'form', locals: { plan: @plan })
+        end
         format.html { render :edit }
       end
     end
@@ -120,9 +119,10 @@ class PlansController < ApplicationController
 
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.update("daily_details", partial: "calendar/daily_view", locals: { date: @date })
+        render turbo_stream: turbo_stream.update('daily_details', partial: 'calendar/daily_view',
+                                                                  locals: { date: @date })
       end
-      format.html { redirect_to calendar_path, notice: "予定を削除しました" }
+      format.html { redirect_to calendar_path, notice: '予定を削除しました' }
     end
   end
 

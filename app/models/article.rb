@@ -18,5 +18,4 @@
 #  index_articles_on_user_id_and_date_and_sequence_number  (user_id,date,sequence_number) UNIQUE
 #
 class Article < ApplicationRecord
-
 end

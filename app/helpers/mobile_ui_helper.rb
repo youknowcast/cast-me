@@ -24,25 +24,27 @@ module MobileUiHelper
   #     content_tag(:ul, class: "menu") { ... }
   #   end
   #
-  def action_sheet_modal(id:, title:, controller:, cancel_text: "キャンセル", &block)
-    content_tag(:dialog, id: id, class: "modal modal-bottom sm:modal-middle", data: { "#{controller}-target": "modal" }) do
-      content_tag(:div, class: "modal-box p-0 max-h-[70vh] flex flex-col") do
+  def action_sheet_modal(id:, title:, controller:, cancel_text: 'キャンセル', &block)
+    content_tag(:dialog, id: id, class: 'modal modal-bottom sm:modal-middle',
+                         data: { "#{controller}-target": 'modal' }) do
+      content_tag(:div, class: 'modal-box p-0 max-h-[70vh] flex flex-col') do
         # Header
         concat(
-          content_tag(:div, class: "p-4 border-b sticky top-0 bg-base-100 z-10") do
-            content_tag(:h3, title, class: "text-lg font-bold text-center")
+          content_tag(:div, class: 'p-4 border-b sticky top-0 bg-base-100 z-10') do
+            content_tag(:h3, title, class: 'text-lg font-bold text-center')
           end
         )
         # Content
         concat(
-          content_tag(:div, class: "overflow-y-auto") do
+          content_tag(:div, class: 'overflow-y-auto') do
             capture(&block)
           end
         )
         # Footer
         concat(
-          content_tag(:div, class: "p-4 border-t mt-auto") do
-            content_tag(:button, cancel_text, type: "button", class: "btn btn-ghost w-full", data: { action: "#{controller}#close" })
+          content_tag(:div, class: 'p-4 border-t mt-auto') do
+            content_tag(:button, cancel_text, type: 'button', class: 'btn btn-ghost w-full',
+                                              data: { action: "#{controller}#close" })
           end
         )
       end
@@ -57,13 +59,15 @@ module MobileUiHelper
   #
   def action_sheet_item(value:, text:, controller:)
     content_tag(:li) do
-      content_tag(:button, type: "button",
-                  class: "py-4 px-6 active:bg-primary active:text-primary-content flex justify-between items-center",
-                  data: { action: "#{controller}#select",
-                         "#{controller}-value-param": value,
-                         "#{controller}-text-param": text }) do
+      content_tag(:button, type: 'button',
+                           class: %w[py-4 px-6 active:bg-primary active:text-primary-content
+                                     flex justify-between items-center].join(' '),
+                           data: { action: "#{controller}#select",
+                                   "#{controller}-value-param": value,
+                                   "#{controller}-text-param": text }) do
         concat content_tag(:span, text)
-        concat content_tag(:i, "", class: "fas fa-check opacity-0", data: { "#{controller}-target": "optionCheck", value: value })
+        concat content_tag(:i, '', class: 'fas fa-check opacity-0',
+                                   data: { "#{controller}-target": 'optionCheck', value: value })
       end
     end
   end
@@ -78,16 +82,17 @@ module MobileUiHelper
   # @param method [Symbol] フィールド名
   # @param options [Hash] オプション
   #
-  def mobile_date_field(form, method, options = {})
-    value = form.object.send(method) || Date.today
+  def mobile_date_field(form, method, _options = {})
+    value = form.object.send(method) || Time.zone.today
     id = "mobile_date_#{method}_#{form.object.object_id}"
 
-    content_tag(:div, data: { controller: "datepicker-connector" }) do
-      concat form.hidden_field(method, id: id, data: { datepicker_connector_target: "input" })
+    content_tag(:div, data: { controller: 'datepicker-connector' }) do
+      concat form.hidden_field(method, id: id, data: { datepicker_connector_target: 'input' })
       concat(
-        content_tag(:button, type: "button", class: "btn btn-outline w-full justify-between font-normal", data: { action: "datepicker-connector#open" }) do
-          concat content_tag(:span, value.strftime("%Y/%m/%d"), data: { datepicker_connector_target: "triggerText" })
-          concat content_tag(:i, "", class: "fas fa-calendar-alt text-gray-400")
+        content_tag(:button, type: 'button', class: 'btn btn-outline w-full justify-between font-normal',
+                             data: { action: 'datepicker-connector#open' }) do
+          concat content_tag(:span, value.strftime('%Y/%m/%d'), data: { datepicker_connector_target: 'triggerText' })
+          concat content_tag(:i, '', class: 'fas fa-calendar-alt text-gray-400')
         end
       )
     end
@@ -99,22 +104,23 @@ module MobileUiHelper
   # @param method [Symbol] フィールド名
   # @param options [Hash] オプション
   #
-  def mobile_time_field(form, method, options = {})
+  def mobile_time_field(form, method, _options = {})
     raw_value = form.object.send(method)
     value = case raw_value
-            when ->(v) { v.respond_to?(:strftime) } then raw_value.strftime("%H:%M")
-            when String then raw_value.presence || ""
-            else ""
+            when ->(v) { v.respond_to?(:strftime) } then raw_value.strftime('%H:%M')
+            when String then raw_value.presence || ''
+            else ''
             end
     id = "mobile_time_#{method}_#{form.object.object_id}"
 
-    content_tag(:div, data: { controller: "timepicker-connector" }) do
-      concat form.hidden_field(method, id: id, data: { timepicker_connector_target: "input" }, value: value)
+    content_tag(:div, data: { controller: 'timepicker-connector' }) do
+      concat form.hidden_field(method, id: id, data: { timepicker_connector_target: 'input' }, value: value)
       concat(
-        content_tag(:button, type: "button", class: "btn btn-outline w-full justify-between font-normal", data: { action: "timepicker-connector#open" }) do
-          display_value = value.present? ? value : "--:--"
-          concat content_tag(:span, display_value, data: { timepicker_connector_target: "triggerText" })
-          concat content_tag(:i, "", class: "fas fa-clock text-gray-400")
+        content_tag(:button, type: 'button', class: 'btn btn-outline w-full justify-between font-normal',
+                             data: { action: 'timepicker-connector#open' }) do
+          display_value = value.presence || '--:--'
+          concat content_tag(:span, display_value, data: { timepicker_connector_target: 'triggerText' })
+          concat content_tag(:i, '', class: 'fas fa-clock text-gray-400')
         end
       )
     end
@@ -164,33 +170,35 @@ module MobileUiHelper
 
   def mobile_selector_internal(name, value, collection, value_method, text_method, options, html_options)
     selected_item = collection.find { |i| i.send(value_method).to_s == value.to_s }
-    label_text = selected_item ? selected_item.send(text_method) : (options[:prompt] || "選択してください")
+    label_text = selected_item ? selected_item.send(text_method) : (options[:prompt] || '選択してください')
     id = "mobile_selector_#{name}_#{SecureRandom.hex(4)}"
 
-    content_tag(:div, data: { controller: "mobile-selector", "mobile-selector-id-value": id }) do
-      concat hidden_field_tag(name, value, id: id, data: { "mobile-selector-target": "input" }.merge(html_options[:data] || {}))
+    content_tag(:div, data: { controller: 'mobile-selector', 'mobile-selector-id-value': id }) do
+      concat hidden_field_tag(name, value, id: id,
+                                           data: { 'mobile-selector-target': 'input' }.merge(html_options[:data] || {}))
       concat(
-        content_tag(:button, type: "button", class: "btn btn-outline w-full justify-between font-normal", data: { action: "mobile-selector#open" }) do
-          concat content_tag(:span, label_text, data: { "mobile-selector-target": "triggerText" })
-          concat content_tag(:i, "", class: "fas fa-chevron-down text-gray-400")
+        content_tag(:button, type: 'button', class: 'btn btn-outline w-full justify-between font-normal',
+                             data: { action: 'mobile-selector#open' }) do
+          concat content_tag(:span, label_text, data: { 'mobile-selector-target': 'triggerText' })
+          concat content_tag(:i, '', class: 'fas fa-chevron-down text-gray-400')
         end
       )
       concat(
-        action_sheet_modal(id: "modal_#{id}", title: options[:label] || "選択してください", controller: "mobile-selector") do
-          content_tag(:ul, class: "menu w-full p-0") do
+        action_sheet_modal(id: "modal_#{id}", title: options[:label] || '選択してください', controller: 'mobile-selector') do
+          content_tag(:ul, class: 'menu w-full p-0') do
             if options[:include_blank]
               concat(action_sheet_item(
-                value: options[:blank_value] || "all",
-                text: options[:blank_text] || "全員",
-                controller: "mobile-selector"
-              ))
+                       value: options[:blank_value] || 'all',
+                       text: options[:blank_text] || '全員',
+                       controller: 'mobile-selector'
+                     ))
             end
             collection.each do |item|
               concat(action_sheet_item(
-                value: item.send(value_method),
-                text: item.send(text_method),
-                controller: "mobile-selector"
-              ))
+                       value: item.send(value_method),
+                       text: item.send(text_method),
+                       controller: 'mobile-selector'
+                     ))
             end
           end
         end

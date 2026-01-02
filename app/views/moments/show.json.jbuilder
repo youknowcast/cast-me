@@ -1,1 +1,1 @@
-json.partial! "moments/moment", moment: @moment
+json.partial! 'moments/moment', moment: @moment

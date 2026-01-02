@@ -29,7 +29,7 @@ class PlanNotificationService
       api_instance = OneSignal::DefaultApi.new
 
       notification = OneSignal::Notification.new(
-        app_id: ENV['ONESIGNAL_APP_ID'],
+        app_id: ENV.fetch('ONESIGNAL_APP_ID', nil),
         include_aliases: { 'external_id' => user_ids.map { |id| User.onesignal_external_id(id) } },
         target_channel: 'push',
         headings: { 'en' => title, 'ja' => title },

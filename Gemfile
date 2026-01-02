@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-git_source(:github) { |_repo| 'https://github.com/#{repo}.git' }
+git_source(:github) { |_repo| "https://github.com/#{repo}.git" }
 
 ruby file: '.ruby-version'
 
@@ -32,8 +32,8 @@ gem 'turbo-rails'
 gem 'kaminari'
 gem 'ransack'
 
-gem 'tailwindcss-rails', '~> 2.7.9'
 gem 'slim-rails'
+gem 'tailwindcss-rails', '~> 2.7.9'
 
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.4', require: false
@@ -74,6 +74,11 @@ group :development do
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'annotate'
   gem 'spring'
+
+  # Code linting
+  gem 'rubocop', require: false
+  gem 'rubocop-rails', require: false
+  gem 'rubocop-rspec', require: false
 end
 
 group :test do
