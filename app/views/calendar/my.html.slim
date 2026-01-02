@@ -38,7 +38,7 @@
             - week.each do |day|
               - day_plans = current_user.family.plans.for_date(day).left_joins(:plan_participants).where("plan_participants.user_id = ?", current_user.id).distinct
               - day_tasks = current_user.tasks.for_date(day)
-              = render "calendar_grid_cell", day: day, date: @date, plans: day_plans, tasks: day_tasks, scope: "my"
+              = render "calendar_grid_cell", day: day, date: @date, plans: day_plans, tasks: day_tasks, scope: "my", holidays: @holidays
 
     / 当日情報部分
     .lg:col-span-1
