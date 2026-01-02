@@ -3,11 +3,16 @@
 # Table name: users
 #
 #  id                 :integer          not null, primary key
+#  avatar             :binary
 #  encrypted_password :string           not null
-#  login_id           :string           not null
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
 #  family_id          :bigint           not null
+#  login_id           :string           not null
+#
+# Indexes
+#
+#  index_login_id_on_users  (login_id)
 #
 FactoryBot.define do
   factory :user do

@@ -3,6 +3,7 @@
 # Table name: users
 #
 #  id                 :integer          not null, primary key
+#  avatar             :binary
 #  encrypted_password :string           not null
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
@@ -14,6 +15,9 @@
 #  index_login_id_on_users  (login_id)
 #
 class User < ApplicationRecord
+  AVATAR_MAX_SIZE = 64.kilobytes.freeze
+  private_constant :AVATAR_MAX_SIZE
+
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :timeoutable
@@ -26,6 +30,20 @@ class User < ApplicationRecord
   has_many :plan_participants, dependent: :destroy
 
   validates :login_id, presence: true, uniqueness: true
+  validate :avatar_size_within_limit
+
+  # 表示名を返すメソッド（login_id をそのまま使用）
+  def display_name
+    login_id
+  end
+
+  # アバターの data URL を返すメソッド
+  def avatar_data_url
+    return nil if avatar.blank?
+
+    # 画像フォーマットを検出してBase64エンコード
+    "data:image/png;base64,#{Base64.strict_encode64(avatar)}"
+  end
 
   class << self
     def onesignal_external_id(id)
@@ -39,5 +57,14 @@ class User < ApplicationRecord
   # @see https://documentation.onesignal.com/docs/en/users#restricted-ids
   def onesignal_external_id
     "user_#{id}"
+  end
+
+  private
+
+  def avatar_size_within_limit
+    return if avatar.blank?
+    return unless avatar.bytesize > AVATAR_MAX_SIZE
+
+    errors.add(:avatar, 'は64KB以下にしてください')
   end
 end

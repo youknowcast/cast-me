@@ -4,6 +4,9 @@
 
 import { application } from "./application"
 
+import AvatarUploadController from "./avatar_upload_controller"
+application.register("avatar-upload", AvatarUploadController)
+
 import CalendarInteractionController from "./calendar_interaction_controller"
 application.register("calendar-interaction", CalendarInteractionController)
 
@@ -12,6 +15,12 @@ application.register("datepicker-connector", DatepickerConnectorController)
 
 import DatepickerController from "./datepicker_controller"
 application.register("datepicker", DatepickerController)
+
+import DeleteConfirmController from "./delete_confirm_controller"
+application.register("delete-confirm", DeleteConfirmController)
+
+import DeleteConfirmTriggerController from "./delete_confirm_trigger_controller"
+application.register("delete-confirm-trigger", DeleteConfirmTriggerController)
 
 import HelloController from "./hello_controller"
 application.register("hello", HelloController)
@@ -25,8 +34,23 @@ application.register("mobile-selector", MobileSelectorController)
 import ModalController from "./modal_controller"
 application.register("modal", ModalController)
 
+import MonthpickerConnectorController from "./monthpicker_connector_controller"
+application.register("monthpicker-connector", MonthpickerConnectorController)
+
+import MonthpickerController from "./monthpicker_controller"
+application.register("monthpicker", MonthpickerController)
+
+import PlanFormController from "./plan_form_controller"
+application.register("plan-form", PlanFormController)
+
+import RegularTaskController from "./regular_task_controller"
+application.register("regular-task", RegularTaskController)
+
 import ScrollController from "./scroll_controller"
 application.register("scroll", ScrollController)
+
+import SidePanelCloserController from "./side_panel_closer_controller"
+application.register("side-panel-closer", SidePanelCloserController)
 
 import SidePanelController from "./side_panel_controller"
 application.register("side-panel", SidePanelController)
@@ -39,24 +63,3 @@ application.register("timepicker-connector", TimepickerConnectorController)
 
 import TimepickerController from "./timepicker_controller"
 application.register("timepicker", TimepickerController)
-
-import MonthpickerConnectorController from "./monthpicker_connector_controller"
-application.register("monthpicker-connector", MonthpickerConnectorController)
-
-import MonthpickerController from "./monthpicker_controller"
-application.register("monthpicker", MonthpickerController)
-
-import DeleteConfirmController from "./delete_confirm_controller"
-application.register("delete-confirm", DeleteConfirmController)
-
-import DeleteConfirmTriggerController from "./delete_confirm_trigger_controller"
-application.register("delete-confirm-trigger", DeleteConfirmTriggerController)
-
-import RegularTaskController from "./regular_task_controller"
-application.register("regular-task", RegularTaskController)
-
-import PlanFormController from "./plan_form_controller"
-application.register("plan-form", PlanFormController)
-
-import SidePanelCloserController from "./side_panel_closer_controller"
-application.register("side-panel-closer", SidePanelCloserController)
