@@ -4,8 +4,8 @@ module CalendarData
   private
 
   def set_calendar_data(date)
-    @date ||= date
-    if params[:scope] == 'my' || action_name == 'my'
+    @date = date
+    if my_scope?
       set_my_calendar_data(date)
     else
       set_family_calendar_data(date)
@@ -13,7 +13,7 @@ module CalendarData
   end
 
   def set_my_calendar_data(date)
-    @date ||= date
+    @date = date
     @target_users = [current_user]
     @family_plans = current_user.family.plans.for_date(date)
                                 .left_joins(:plan_participants)
@@ -25,7 +25,7 @@ module CalendarData
   end
 
   def set_family_calendar_data(date)
-    @date ||= date
+    @date = date
     set_target_users
     @family_plans = current_user.family.plans.for_date(date).includes(:created_by, :participants,
                                                                       :plan_participants).ordered_by_time

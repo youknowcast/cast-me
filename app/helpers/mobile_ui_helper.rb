@@ -111,8 +111,11 @@ module MobileUiHelper
   # @param form [FormBuilder] Railsフォームビルダー
   # @param method [Symbol] フィールド名
   # @param options [Hash] オプション
+  #   - :input_data [Hash] inputタグに追加するdata属性
+  #   - :display_data [Hash] 表示spanに追加するdata属性
+  #   - :wrapper_data [Hash] wrapper divに追加するdata属性
   #
-  def mobile_time_field(form, method, _options = {})
+  def mobile_time_field(form, method, options = {})
     raw_value = form.object.send(method)
     value = case raw_value
             when ->(v) { v.respond_to?(:strftime) } then raw_value.strftime('%H:%M')
@@ -121,13 +124,17 @@ module MobileUiHelper
             end
     id = "mobile_time_#{method}_#{form.object.object_id}"
 
-    content_tag(:div, data: { controller: 'timepicker-connector' }) do
-      concat form.hidden_field(method, id: id, data: { timepicker_connector_target: 'input' }, value: value)
+    input_data = { timepicker_connector_target: 'input' }.merge(options[:input_data] || {})
+    display_data = { timepicker_connector_target: 'triggerText' }.merge(options[:display_data] || {})
+    wrapper_data = { controller: 'timepicker-connector' }.merge(options[:wrapper_data] || {})
+
+    content_tag(:div, data: wrapper_data) do
+      concat form.hidden_field(method, id: id, data: input_data, value: value)
       concat(
         content_tag(:button, type: 'button', class: 'btn btn-outline w-full justify-between font-normal',
                              data: { action: 'timepicker-connector#open' }) do
           display_value = value.presence || '--:--'
-          concat content_tag(:span, display_value, data: { timepicker_connector_target: 'triggerText' })
+          concat content_tag(:span, display_value, data: display_data)
           concat content_tag(:i, '', class: 'fas fa-clock text-gray-400')
         end
       )

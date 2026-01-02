@@ -39,7 +39,7 @@ class Plan < ApplicationRecord
   private
 
   def end_time_after_start_time
-    return unless end_time <= start_time
+    return unless end_time < start_time
 
     errors.add(:end_time, 'は開始時刻より後に設定してください')
   end
