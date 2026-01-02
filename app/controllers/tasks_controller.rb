@@ -71,7 +71,7 @@ class TasksController < ApplicationController
             turbo_stream.replace("calendar-cell-#{@task.date}",
                                  partial: 'calendar/calendar_grid_cell',
                                  locals: { day: @task.date, date: @date, plans: @family_plans, tasks: @family_tasks,
-                                           scope: current_scope }),
+                                           scope: current_scope, holidays: @holidays }),
             turbo_stream.update('side-panel', '')
           ]
         end
@@ -98,7 +98,7 @@ class TasksController < ApplicationController
             turbo_stream.replace("calendar-cell-#{@task.date}",
                                  partial: 'calendar/calendar_grid_cell',
                                  locals: { day: @task.date, date: @date, plans: @family_plans, tasks: @family_tasks,
-                                           scope: current_scope }),
+                                           scope: current_scope, holidays: @holidays }),
             turbo_stream.update('side-panel', '')
           ]
         end
@@ -128,7 +128,7 @@ class TasksController < ApplicationController
           turbo_stream.replace("calendar-cell-#{date}",
                                partial: 'calendar/calendar_grid_cell',
                                locals: { day: date, date: @date, plans: @family_plans, tasks: @family_tasks,
-                                         scope: current_scope })
+                                         scope: current_scope, holidays: @holidays })
         ]
       end
       format.html { redirect_to calendar_path, notice: 'タスクを削除しました' }
@@ -147,7 +147,7 @@ class TasksController < ApplicationController
           turbo_stream.replace("calendar-cell-#{@task.date}",
                                partial: 'calendar/calendar_grid_cell',
                                locals: { day: @task.date, date: @date, plans: @family_plans, tasks: @family_tasks,
-                                         scope: current_scope })
+                                         scope: current_scope, holidays: @holidays })
         ]
       end
       format.html { redirect_to calendar_path }

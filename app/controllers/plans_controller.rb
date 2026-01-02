@@ -78,7 +78,7 @@ class PlansController < ApplicationController
             turbo_stream.replace("calendar-cell-#{@plan.date}",
                                  partial: 'calendar/calendar_grid_cell',
                                  locals: { day: @plan.date, date: @date, plans: @family_plans, tasks: @family_tasks,
-                                           scope: current_scope }),
+                                           scope: current_scope, holidays: @holidays }),
             turbo_stream.append('side-panel', "<div data-controller='side-panel-closer'></div>".html_safe)
           ]
         end
@@ -113,7 +113,7 @@ class PlansController < ApplicationController
             turbo_stream.replace("calendar-cell-#{@plan.date}",
                                  partial: 'calendar/calendar_grid_cell',
                                  locals: { day: @plan.date, date: @date, plans: @family_plans, tasks: @family_tasks,
-                                           scope: current_scope }),
+                                           scope: current_scope, holidays: @holidays }),
             turbo_stream.append('side-panel', "<div data-controller='side-panel-closer'></div>".html_safe)
           ]
         end
@@ -137,7 +137,7 @@ class PlansController < ApplicationController
           turbo_stream.replace("calendar-cell-#{date}",
                                partial: 'calendar/calendar_grid_cell',
                                locals: { day: date, date: @date, plans: @family_plans, tasks: @family_tasks,
-                                         scope: current_scope })
+                                         scope: current_scope, holidays: @holidays })
         ]
       end
       format.html { redirect_to calendar_path, notice: '予定を削除しました' }
