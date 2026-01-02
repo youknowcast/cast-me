@@ -40,9 +40,15 @@ module ApplicationHelper
     return ''.html_safe if text.blank?
 
     # URLの正規表現（スキーム必須）
-    # https://example.com, http://example.com/path?query=value など
+    # HTMLエスケープ後のテキストでマッチするため、特定のHTMLエンティティで停止
+    # &amp; はクエリパラメータに現れるが、&lt;, &gt;, &quot; などでは停止
     url_regex = %r{
-      https?://\S+           # スキーム＋任意の非空白文字
+      https?://                    # スキーム
+      (?:                          # URL本体（繰り返し）
+        [^\s&]+                    # &以外の非空白文字（1つ以上）
+        |                          # または
+        &(?!lt;|gt;|quot;|\#)      # &の後にlt;, gt;, quot;, #が続かない場合（&amp; などは許可）
+      )+
     }x
 
     # テキストをエスケープしてからURL部分をリンクに変換
