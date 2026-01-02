@@ -2,7 +2,7 @@ require 'net/http'
 require 'json'
 
 class HolidayService
-  API_URL = 'https://holidays-jp.github.io/api/v1/date.json'
+  API_URL = 'https://holidays-jp.github.io/api/v1/date.json'.freeze
 
   def self.holidays
     current_key = Time.current.strftime('%Y-%m')
@@ -23,7 +23,7 @@ class HolidayService
     data = JSON.parse(response.body)
 
     if data.empty?
-      Rails.logger.warn("Fetched holidays are empty. Not caching.")
+      Rails.logger.warn('Fetched holidays are empty. Not caching.')
       return {}
     end
 
