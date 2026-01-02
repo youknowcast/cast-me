@@ -74,6 +74,10 @@ class PlansController < ApplicationController
         format.turbo_stream do
           render turbo_stream: [
             turbo_stream.update('daily_details', partial: 'calendar/daily_view', locals: { date: @date }),
+            turbo_stream.replace("calendar-cell-#{@plan.date}",
+                                 partial: 'calendar/calendar_grid_cell',
+                                 locals: { day: @plan.date, date: @date, plans: @family_plans, tasks: @family_tasks,
+                                           scope: current_scope }),
             turbo_stream.append('side-panel', "<div data-controller='side-panel-closer'></div>".html_safe)
           ]
         end
@@ -105,6 +109,10 @@ class PlansController < ApplicationController
         format.turbo_stream do
           render turbo_stream: [
             turbo_stream.update('daily_details', partial: 'calendar/daily_view', locals: { date: @date }),
+            turbo_stream.replace("calendar-cell-#{@plan.date}",
+                                 partial: 'calendar/calendar_grid_cell',
+                                 locals: { day: @plan.date, date: @date, plans: @family_plans, tasks: @family_tasks,
+                                           scope: current_scope }),
             turbo_stream.append('side-panel', "<div data-controller='side-panel-closer'></div>".html_safe)
           ]
         end
@@ -122,8 +130,14 @@ class PlansController < ApplicationController
 
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.update('daily_details', partial: 'calendar/daily_view',
-                                                                  locals: { date: @date })
+        render turbo_stream: [
+          turbo_stream.update('daily_details', partial: 'calendar/daily_view',
+                                               locals: { date: @date }),
+          turbo_stream.replace("calendar-cell-#{date}",
+                               partial: 'calendar/calendar_grid_cell',
+                               locals: { day: date, date: @date, plans: @family_plans, tasks: @family_tasks,
+                                         scope: current_scope })
+        ]
       end
       format.html { redirect_to calendar_path, notice: '予定を削除しました' }
     end

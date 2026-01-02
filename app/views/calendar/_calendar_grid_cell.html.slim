@@ -3,6 +3,7 @@
 - has_alert = day_has_unfinished_tasks?(day, current_user)
 
 = link_to calendar_daily_view_path(date: day, scope: scope),
+          id: "calendar-cell-#{day}",
           class: "block h-full min-h-24 border border-gray-200 p-2 hover:bg-gray-50 transition-colors relative #{is_today ? 'bg-blue-50' : (is_current_month ? 'bg-white' : 'bg-gray-50')}",
           data: { action: "click->calendar-interaction#selectDate", "calendar-date": day.to_s, "calendar-interaction-target": "day" } do
   .flex.justify-between.items-start.mb-1

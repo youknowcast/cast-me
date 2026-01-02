@@ -67,6 +67,10 @@ class TasksController < ApplicationController
         format.turbo_stream do
           render turbo_stream: [
             turbo_stream.update('daily_details', partial: 'calendar/daily_view', locals: { date: @date }),
+            turbo_stream.replace("calendar-cell-#{@task.date}",
+                                 partial: 'calendar/calendar_grid_cell',
+                                 locals: { day: @task.date, date: @date, plans: @family_plans, tasks: @family_tasks,
+                                           scope: current_scope }),
             turbo_stream.update('side-panel', '')
           ]
         end
@@ -90,6 +94,10 @@ class TasksController < ApplicationController
         format.turbo_stream do
           render turbo_stream: [
             turbo_stream.update('daily_details', partial: 'calendar/daily_view', locals: { date: @date }),
+            turbo_stream.replace("calendar-cell-#{@task.date}",
+                                 partial: 'calendar/calendar_grid_cell',
+                                 locals: { day: @task.date, date: @date, plans: @family_plans, tasks: @family_tasks,
+                                           scope: current_scope }),
             turbo_stream.update('side-panel', '')
           ]
         end
@@ -113,8 +121,14 @@ class TasksController < ApplicationController
 
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.update('daily_details', partial: 'calendar/daily_view',
-                                                                  locals: { date: @date })
+        render turbo_stream: [
+          turbo_stream.update('daily_details', partial: 'calendar/daily_view',
+                                               locals: { date: @date }),
+          turbo_stream.replace("calendar-cell-#{date}",
+                               partial: 'calendar/calendar_grid_cell',
+                               locals: { day: date, date: @date, plans: @family_plans, tasks: @family_tasks,
+                                         scope: current_scope })
+        ]
       end
       format.html { redirect_to calendar_path, notice: 'タスクを削除しました' }
     end
@@ -123,10 +137,17 @@ class TasksController < ApplicationController
   def toggle
     @task.update(completed: !@task.completed)
 
+    set_calendar_data(@task.date)
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.replace(helpers.dom_id(@task), partial: 'calendar/task_item',
-                                                                         locals: { task: @task })
+        render turbo_stream: [
+          turbo_stream.replace(helpers.dom_id(@task), partial: 'calendar/task_item',
+                                                      locals: { task: @task }),
+          turbo_stream.replace("calendar-cell-#{@task.date}",
+                               partial: 'calendar/calendar_grid_cell',
+                               locals: { day: @task.date, date: @date, plans: @family_plans, tasks: @family_tasks,
+                                         scope: current_scope })
+        ]
       end
       format.html { redirect_to calendar_path }
     end
