@@ -1,0 +1,51 @@
+.side-panel-overlay[
+  data-controller="side-panel"
+  data-side-panel-target="overlay"
+  data-action="click->side-panel#closeBackground"
+  style="display: block; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999;"
+]
+  .side-panel-backdrop.opacity-0[
+    data-side-panel-target="backdrop"
+  ]
+
+  .side-panel.translate-x-full[
+    data-side-panel-target="panel"
+  ]
+    .side-panel-content
+      / ヘッダー
+      .side-panel-header
+        h3.text-lg.font-semibold.text-gray-900
+          = "#{date&.strftime('%Y年%m月')}の予定一覧"
+        button.btn.btn-sm.btn-circle.btn-ghost[
+          data-action="click->side-panel#close"
+        ]
+          i.fas.fa-times
+
+      / リスト本体
+      .side-panel-body.flex-1.overflow-y-auto.p-4.space-y-6
+        - if plans_by_date.any?
+          - plans_by_date.keys.sort.each do |day|
+            - day_plans = plans_by_date[day]
+            .day-group.space-y-2
+              .flex.items-center.gap-2
+                .px-3.h-8.rounded-full.bg-blue-50.flex.items-center.justify-center.shrink-0
+                  span.text-blue-600.font-bold = I18n.l(day, format: '%m月%d日(%a)')
+                .h-px.flex-1.bg-gray-100
+              .pl-12.space-y-3
+                - day_plans.each do |plan|
+                  .p-3.bg-gray-50.rounded-xl.border.border-gray-100
+                    .flex.justify-between.items-start.mb-1
+                      h4.font-bold.text-gray-800 = plan.title
+                      - if plan.start_time.present?
+                        span.text-xs.font-medium.text-gray-500
+                          = "#{plan.start_time.strftime('%H:%M')}〜#{plan.end_time&.strftime('%H:%M')}"
+                    - if plan.description.present?
+                      p.text-xs.text-gray-500.line-clamp-2.mb-2 = plan.description
+                    - if plan.participants.any?
+                      .flex.flex-wrap.gap-1
+                        - plan.participants.each do |user|
+                          .badge.badge-ghost.badge-sm.py-0 class="text-[10px]" = user.login_id
+        - else
+          .flex.flex-col.items-center.justify-center.py-20.text-gray-400
+            i.fas.fa-calendar-xmark.text-4xl.mb-4
+            p この月の予定はありません

@@ -26,6 +26,10 @@ export default class extends Controller {
     const scope = this.getScope()
     this.openSidePanel(`/tasks/new?date=${date}&scope=${scope}`)
   }
+  openMonthlyList(): void {
+    const date = (this.element as HTMLElement).dataset.date
+    this.openSidePanel(`/calendar/monthly_list?date=${date}`)
+  }
 
   openPlanEdit(): void {
     const planId = (this.element as HTMLElement).dataset.planId

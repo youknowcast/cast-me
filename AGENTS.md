@@ -46,6 +46,12 @@
     -   Use **TypeScript** (`.ts`) for controllers.
     -   Avoid inline JavaScript.
 4.  **Testing**: Use **RSpec** (`spec/`).
+5.  **Local Verification**:
+    -   The application is hosted via Docker Compose.
+    -   Access the local development environment at **[http://localhost:1984](http://localhost:1984)**.
+    -   **CRITICAL**: Do not use port 3000 for local browser verification, as it is not the external port mapped by Docker.
+6.  **Code Quality**:
+    -   **CRITICAL**: After making any code changes, always run `rubocop -A` (or `bundle exec rubocop -A`) to ensure the code follows the project's style guide and to auto-fix any offenses. Always verify that no new offenses were introduced.
 
 ## Key Configuration Files
 -   `Procfile.dev`: Runs Rails and `yarn build --watch` for JS.

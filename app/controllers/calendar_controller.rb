@@ -1,5 +1,6 @@
 class CalendarController < ApplicationController
   include CalendarData
+
   before_action :authenticate_user!
 
   def index
@@ -16,6 +17,20 @@ class CalendarController < ApplicationController
 
   def daily_view
     set_calendar_data(@date)
+  end
+
+  def monthly_list
+    @monthly_plans = current_user.family.plans.for_month(@date)
+                                 .includes(:created_by, :participants, :plan_participants)
+                                 .ordered_by_time
+                                 .group_by(&:date)
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.update('side-panel', partial: 'calendar/monthly_list',
+                                                               locals: { plans_by_date: @monthly_plans, date: @date })
+      end
+      format.html { head :ok }
+    end
   end
 
   private

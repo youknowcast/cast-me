@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   get 'calendar', to: 'calendar#index'
   get 'calendar/my', to: 'calendar#my', as: :my_calendar
   get 'calendar/daily_view', to: 'calendar#daily_view'
+  get 'calendar/monthly_list', to: 'calendar#monthly_list', as: :monthly_list_calendar
 
   # 予定とタスクの管理
   resources :plans
