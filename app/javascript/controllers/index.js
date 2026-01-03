@@ -22,6 +22,9 @@ application.register("delete-confirm", DeleteConfirmController)
 import DeleteConfirmTriggerController from "./delete_confirm_trigger_controller"
 application.register("delete-confirm-trigger", DeleteConfirmTriggerController)
 
+import FlashController from "./flash_controller"
+application.register("flash", FlashController)
+
 import HelloController from "./hello_controller"
 application.register("hello", HelloController)
 
