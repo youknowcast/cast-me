@@ -48,7 +48,7 @@ RSpec.describe User, type: :model do
       end
 
       it 'is valid with today date' do
-        user = build(:user, family: family, birth: Date.today)
+        user = build(:user, family: family, birth: Time.zone.today)
         expect(user).to be_valid
       end
 

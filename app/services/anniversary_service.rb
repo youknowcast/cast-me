@@ -5,13 +5,13 @@ class AnniversaryService
     anniversaries = []
 
     users.each do |user|
-      if user.birth.present? && user.birth.month == date.month && user.birth.day == date.day
-        anniversaries << Anniversary.new(
-          name: "#{user.display_name}さんの誕生日",
-          type: :birthday,
-          user: user
-        )
-      end
+      next unless user.birth.present? && user.birth.month == date.month && user.birth.day == date.day
+
+      anniversaries << Anniversary.new(
+        name: "#{user.display_name}さんの誕生日",
+        type: :birthday,
+        user: user
+      )
     end
 
     anniversaries

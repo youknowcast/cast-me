@@ -72,7 +72,7 @@ class User < ApplicationRecord
 
   def birth_not_in_future
     return if birth.blank?
-    return unless birth > Date.today
+    return unless birth > Time.zone.today
 
     errors.add(:birth, 'は未来の日付にできません')
   end
