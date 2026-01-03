@@ -3,22 +3,20 @@ class ApplicationController < ActionController::Base
   helper_method :current_scope, :my_scope?, :family_scope?, :setting_scope?
 
   def current_scope
-    @current_scope ||= begin
-      if controller_name.in?(%w[settings everyday_task_templates task_templates])
-        'settings'
-      else
-        scope_param = params[:scope].to_s.downcase.strip
-        case scope_param
-        when 'my'
-          'my'
-        when 'family'
-          'family'
-        else
-          # Fallback to action name if controller is calendar, otherwise default to family
-          controller_name == 'calendar' && action_name == 'my' ? 'my' : 'family'
-        end
-      end
-    end
+    @current_scope ||= if controller_name.in?(%w[settings everyday_task_templates task_templates])
+                         'settings'
+                       else
+                         scope_param = params[:scope].to_s.downcase.strip
+                         case scope_param
+                         when 'my'
+                           'my'
+                         when 'family'
+                           'family'
+                         else
+                           # Fallback to action name if controller is calendar, otherwise default to family
+                           controller_name == 'calendar' && action_name == 'my' ? 'my' : 'family'
+                         end
+                       end
   end
 
   def my_scope? = current_scope == 'my'
