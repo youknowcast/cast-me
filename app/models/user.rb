@@ -4,6 +4,7 @@
 #
 #  id                 :integer          not null, primary key
 #  avatar             :binary
+#  birth              :date
 #  encrypted_password :string           not null
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
@@ -31,6 +32,7 @@ class User < ApplicationRecord
 
   validates :login_id, presence: true, uniqueness: true
   validate :avatar_size_within_limit
+  validate :birth_not_in_future
 
   # 表示名を返すメソッド（login_id をそのまま使用）
   def display_name
@@ -66,5 +68,12 @@ class User < ApplicationRecord
     return unless avatar.bytesize > AVATAR_MAX_SIZE
 
     errors.add(:avatar, 'は64KB以下にしてください')
+  end
+
+  def birth_not_in_future
+    return if birth.blank?
+    return unless birth > Time.zone.today
+
+    errors.add(:birth, 'は未来の日付にできません')
   end
 end

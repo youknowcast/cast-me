@@ -8,6 +8,15 @@ class SettingsController < ApplicationController
     @family = current_user.family
   end
 
+  def update
+    if current_user.update(user_params)
+      redirect_to settings_path, notice: '設定を更新しました'
+    else
+      @family = current_user.family
+      render :show, status: :unprocessable_entity
+    end
+  end
+
   def update_avatar
     if params[:avatar].present?
       resized_avatar = resize_avatar(params[:avatar])
@@ -57,5 +66,9 @@ class SettingsController < ApplicationController
     File.binread(output_path)
   ensure
     File.delete(output_path) if output_path && File.exist?(output_path)
+  end
+
+  def user_params
+    params.require(:user).permit(:birth)
   end
 end

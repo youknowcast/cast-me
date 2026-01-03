@@ -3,6 +3,7 @@
 - is_current_month = day.month == date.month
 - is_today = day == Date.today
 - has_alert = day_has_unfinished_tasks?(day, current_user)
+- anniversaries = anniversaries_on(day, current_user.family.users)
 
 = link_to calendar_daily_view_path(date: day, scope: scope),
           id: "calendar-cell-#{day}",
@@ -27,7 +28,9 @@
         i.fas.fa-calendar-day.text-xs
         span.font-bold.text-xs= plans.count
 
-    - if tasks.any?
-      .badge.badge-sm.bg-orange-100.text-orange-700.border-none.flex.items-center.gap-0.5.h-5.px-1
-        i.fas.fa-check-square.text-xs
         span.font-bold.text-xs= tasks.count
+
+    - if anniversaries.any?
+      .badge.badge-sm.bg-pink-100.text-pink-700.border-none.flex.items-center.gap-0.5.h-5.px-1[title=anniversaries.map(&:name).join("\n")]
+        i.fas.fa-cake-candles.text-xs
+        span.font-bold.text-xs= anniversaries.count

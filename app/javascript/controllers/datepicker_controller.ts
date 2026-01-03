@@ -1,10 +1,11 @@
 import { BaseActionSheetController } from "../lib/base_action_sheet_controller"
 
 export default class extends BaseActionSheetController {
-	static targets = ["modal", "scrollArea", "loader"]
+	static targets = ["modal", "scrollArea", "loader", "headerTitle"]
 
 	declare readonly scrollAreaTarget: HTMLElement
 	declare readonly loaderTarget: HTMLElement
+	declare readonly headerTitleTarget: HTMLElement
 
 	private selectedDate: Date | null = null
 	private renderedMonths: string[] = [] // YYYY-MM
@@ -13,6 +14,17 @@ export default class extends BaseActionSheetController {
 
 	get eventPrefix() {
 		return 'datepicker'
+	}
+
+	connect() {
+		console.log('[Datepicker] connected. Instance:', this)
+		super.connect()
+		window.addEventListener('monthpicker:confirmed', this.onMonthJump.bind(this) as any)
+	}
+
+	disconnect() {
+		super.disconnect()
+		window.removeEventListener('monthpicker:confirmed', this.onMonthJump.bind(this) as any)
 	}
 
 	onOpen(detail: any) {
@@ -35,6 +47,43 @@ export default class extends BaseActionSheetController {
 			return { date: this.formatDate(this.selectedDate) }
 		}
 		return null
+	}
+
+	openMonthPicker() {
+		const target = this.selectedDate || new Date()
+		window.dispatchEvent(new CustomEvent('monthpicker:open', {
+			detail: {
+				date: this.formatDate(target),
+				trigger: this.element
+			}
+		}))
+	}
+
+	private onMonthJump(event: CustomEvent) {
+		const { year, month, trigger } = event.detail
+		if (trigger === this.element) {
+			this.jumpToMonth(year, month)
+		}
+	}
+
+	private jumpToMonth(year: number, month: number) {
+		this.renderedMonths = []
+		this.scrollAreaTarget.innerHTML = ""
+
+		const start = new Date(year, month - 2, 1) // Start 1 month before to allow smooth scrolling if needed
+		for (let i = 0; i < 7; i++) {
+			const monthDate = new Date(start.getFullYear(), start.getMonth() + i, 1)
+			this.renderMonth(monthDate)
+		}
+
+		requestAnimationFrame(() => {
+			const monthId = `month-${year}-${month}`
+			const element = document.getElementById(monthId)
+			if (element) {
+				element.scrollIntoView({ block: 'start', behavior: 'instant' as any })
+			}
+			this.updateHeaderTitle()
+		})
 	}
 
 	private initialRender() {
@@ -74,6 +123,36 @@ export default class extends BaseActionSheetController {
 		// Load more past months when near top
 		if (area.scrollTop <= 300 && !this.isLoadingPast) {
 			this.loadMore('past')
+		}
+		this.updateHeaderTitle()
+	}
+
+	private updateHeaderTitle() {
+		if (!this.headerTitleTarget) return
+
+		// Find which month is mostly visible
+		const area = this.scrollAreaTarget
+		const areaRect = area.getBoundingClientRect()
+		const months = Array.from(area.querySelectorAll('[id^="month-"]'))
+
+		let mostVisibleMonth = months[0]
+		let maxVisibleHeight = 0
+
+		months.forEach(month => {
+			const rect = month.getBoundingClientRect()
+			const visibleTop = Math.max(rect.top, areaRect.top)
+			const visibleBottom = Math.min(rect.bottom, areaRect.bottom)
+			const visibleHeight = Math.max(0, visibleBottom - visibleTop)
+
+			if (visibleHeight > maxVisibleHeight) {
+				maxVisibleHeight = visibleHeight
+				mostVisibleMonth = month
+			}
+		})
+
+		if (mostVisibleMonth) {
+			const [_, year, month] = mostVisibleMonth.id.split('-')
+			this.headerTitleTarget.textContent = `${year}年${month}月`
 		}
 	}
 
@@ -134,6 +213,7 @@ export default class extends BaseActionSheetController {
 			dayEl.type = 'button'
 			dayEl.className = "h-10 w-10 mx-auto flex items-center justify-center cursor-pointer rounded-full transition-all duration-150 text-sm font-medium touch-manipulation"
 			dayEl.textContent = d.toString()
+			dayEl.setAttribute('data-date', this.formatDate(new Date(year, month, d)))
 
 			const currentDate = new Date(year, month, d)
 			const dayOfWeek = currentDate.getDay()

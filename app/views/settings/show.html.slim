@@ -15,6 +15,22 @@
           span.label-text Login ID
         .input.input-bordered.bg-base-200.flex.items-center = current_user.login_id
 
+      / Birthday (Editable)
+      = form_with model: current_user, url: settings_path, method: :patch, local: true do |f|
+        - if current_user.errors.any?
+          .alert.alert-error.mb-4
+            ul
+              - current_user.errors.full_messages.each do |msg|
+                li = msg
+
+        .form-control.mb-4
+          label.label
+            span.label-text 誕生日
+          = mobile_date_field f, :birth
+
+        .flex.justify-end.mb-6
+          = f.submit '設定を保存', class: 'btn btn-primary btn-sm'
+
       / アバター
       .form-control data-controller="avatar-upload"
         label.label

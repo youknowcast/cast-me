@@ -59,7 +59,9 @@ html data-theme="cupcake"
           / Header with close button
           .px-4.py-3.flex.justify-between.items-center.bg-white.border-b.border-gray-100.shrink-0
             .w-10
-            h3.text-base.font-bold.text-gray-900 日付を選択
+            button.flex.items-center.gap-1.px-3.py-1.rounded-lg.bg-gray-50.hover:bg-gray-100.active:bg-gray-200.transition-colors type="button" data-action="click->datepicker#openMonthPicker"
+              h3.text-base.font-bold.text-gray-900 data-datepicker-target="headerTitle" 日付を選択
+              i.fas.fa-chevron-down.text-xs.text-gray-400
             button.w-10.h-10.flex.items-center.justify-center.text-gray-400.rounded-full type="button" data-action="datepicker#close"
               i.fas.fa-times.text-base
 
