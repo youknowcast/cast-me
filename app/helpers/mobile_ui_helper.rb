@@ -177,8 +177,8 @@ module MobileUiHelper
   # @param options [Hash] オプション
   # @param html_options [Hash] HTMLオプション
   #
-  def mobile_selector(name, value, collection, value_method, text_method, options = {}, html_options = {}, &block)
-    mobile_selector_internal(name, value, collection, value_method, text_method, options, html_options, &block)
+  def mobile_selector(name, value, collection, value_method, text_method, options = {}, html_options = {}, &)
+    mobile_selector_internal(name, value, collection, value_method, text_method, options, html_options, &)
   end
 
   private
@@ -202,7 +202,8 @@ module MobileUiHelper
       trigger_content = if block_given?
                           capture(&block)
                         else
-                          content_tag(:button, type: 'button', class: 'btn btn-outline w-full justify-between font-normal',
+                          content_tag(:button, type: 'button',
+                                               class: 'btn btn-outline w-full justify-between font-normal',
                                                data: { action: 'mobile-selector#open' }) do
                             concat content_tag(:span, label_text, data: { 'mobile-selector-target': 'triggerText' })
                             concat content_tag(:i, '', class: 'fas fa-chevron-down text-gray-400')
