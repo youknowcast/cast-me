@@ -26,7 +26,7 @@
         .form-control.mb-4
           label.label
             span.label-text 誕生日
-          = f.date_field :birth, class: 'input input-bordered w-full'
+          = mobile_date_field f, :birth
 
         .flex.justify-end.mb-6
           = f.submit '設定を保存', class: 'btn btn-primary btn-sm'
