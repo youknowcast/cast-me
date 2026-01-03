@@ -177,13 +177,13 @@ module MobileUiHelper
   # @param options [Hash] オプション
   # @param html_options [Hash] HTMLオプション
   #
-  def mobile_selector(name, value, collection, value_method, text_method, options = {}, html_options = {})
-    mobile_selector_internal(name, value, collection, value_method, text_method, options, html_options)
+  def mobile_selector(name, value, collection, value_method, text_method, options = {}, html_options = {}, &block)
+    mobile_selector_internal(name, value, collection, value_method, text_method, options, html_options, &block)
   end
 
   private
 
-  def mobile_selector_internal(name, value, collection, value_method, text_method, options, html_options)
+  def mobile_selector_internal(name, value, collection, value_method, text_method, options, html_options, &block)
     selected_item = collection.find { |i| i.send(value_method).to_s == value.to_s }
     label_text = selected_item ? selected_item.send(text_method) : (options[:prompt] || '選択してください')
     id = "mobile_selector_#{name}_#{SecureRandom.hex(4)}"
@@ -198,13 +198,17 @@ module MobileUiHelper
     content_tag(:div, data: wrapper_data) do
       concat hidden_field_tag(name, value, id: id,
                                            data: { 'mobile-selector-target': 'input' }.merge(html_options[:data] || {}))
-      concat(
-        content_tag(:button, type: 'button', class: 'btn btn-outline w-full justify-between font-normal',
-                             data: { action: 'mobile-selector#open' }) do
-          concat content_tag(:span, label_text, data: { 'mobile-selector-target': 'triggerText' })
-          concat content_tag(:i, '', class: 'fas fa-chevron-down text-gray-400')
-        end
-      )
+
+      trigger_content = if block_given?
+                          capture(&block)
+                        else
+                          content_tag(:button, type: 'button', class: 'btn btn-outline w-full justify-between font-normal',
+                                               data: { action: 'mobile-selector#open' }) do
+                            concat content_tag(:span, label_text, data: { 'mobile-selector-target': 'triggerText' })
+                            concat content_tag(:i, '', class: 'fas fa-chevron-down text-gray-400')
+                          end
+                        end
+      concat(trigger_content)
       concat(
         action_sheet_modal(id: "modal_#{id}", title: options[:label] || '選択してください', controller: 'mobile-selector') do
           content_tag(:ul, class: 'menu w-full p-0') do
