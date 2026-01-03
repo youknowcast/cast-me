@@ -7,6 +7,9 @@ import { application } from "./application"
 import AvatarUploadController from "./avatar_upload_controller"
 application.register("avatar-upload", AvatarUploadController)
 
+import BulkAddController from "./bulk_add_controller"
+application.register("bulk-add", BulkAddController)
+
 import CalendarInteractionController from "./calendar_interaction_controller"
 application.register("calendar-interaction", CalendarInteractionController)
 

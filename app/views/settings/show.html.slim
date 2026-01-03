@@ -28,3 +28,15 @@
           button.btn.btn-outline.btn-sm type="button" data-action="click->avatar-upload#selectFile"
             i.fas.fa-edit.mr-1
             | 編集
+
+      .divider.my-2
+
+      / 毎日のタスク管理
+      .form-control
+        label.label
+          span.label-text 毎日のタスク管理
+        = link_to everyday_task_templates_path, class: 'btn btn-outline btn-sm w-full justify-between' do
+          span
+            i.fas.fa-tasks.mr-2
+            | 毎日のタスクセットを管理
+          i.fas.fa-chevron-right

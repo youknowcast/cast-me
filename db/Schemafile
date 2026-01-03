@@ -114,10 +114,12 @@ create_table 'tasks', force: :cascade do |t|
   t.boolean 'completed', null: false, default: false
   t.integer 'priority', null: false, default: 0
   t.timestamps
+  t.bigint 'task_template_id'
 
   t.index %w[family_id date]
   t.index %w[user_id date]
   t.index %w[date completed]
+  t.index ['task_template_id'], name: 'index_tasks_on_task_template_id'
 end
 
 create_table 'moments', charset: 'utf8mb4', force: :cascade do |t|
@@ -145,4 +147,24 @@ create_table 'regular_task_user_usage_counts', force: :cascade do |t|
 
   t.index %w[regular_task_id user_id], name: 'index_regular_task_user_usage_counts_unique', unique: true
   t.index %w[user_id usage_count], name: 'index_regular_task_user_usage_counts_on_user_and_count'
+end
+
+create_table 'everyday_task_templates', force: :cascade do |t|
+  t.bigint 'family_id', null: false
+  t.string 'name', null: false
+  t.timestamps
+
+  t.index ['family_id'], name: 'index_everyday_task_templates_on_family_id'
+end
+
+create_table 'task_templates', force: :cascade do |t|
+  t.bigint 'everyday_task_template_id', null: false
+  t.bigint 'user_id', null: false
+  t.string 'title', null: false, limit: 255
+  t.text 'description'
+  t.integer 'priority', null: false, default: 0
+  t.timestamps
+
+  t.index ['everyday_task_template_id'], name: 'index_task_templates_on_everyday_task_template_id'
+  t.index ['user_id'], name: 'index_task_templates_on_user_id'
 end
