@@ -4,6 +4,7 @@
 #
 #  id                 :integer          not null, primary key
 #  avatar             :binary
+#  birth              :date
 #  encrypted_password :string           not null
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
@@ -36,6 +37,29 @@ RSpec.describe User, type: :model do
 
       it 'is valid without an avatar' do
         user = build(:user, family: family, avatar: nil)
+        expect(user).to be_valid
+      end
+    end
+
+    describe 'birth validation' do
+      it 'is valid with a past date' do
+        user = build(:user, family: family, birth: 1.day.ago)
+        expect(user).to be_valid
+      end
+
+      it 'is valid with today date' do
+        user = build(:user, family: family, birth: Date.today)
+        expect(user).to be_valid
+      end
+
+      it 'is invalid with a future date' do
+        user = build(:user, family: family, birth: 1.day.from_now)
+        expect(user).not_to be_valid
+        expect(user.errors[:birth]).to include('は未来の日付にできません')
+      end
+
+      it 'is valid without birth' do
+        user = build(:user, family: family, birth: nil)
         expect(user).to be_valid
       end
     end

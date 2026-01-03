@@ -34,7 +34,7 @@ Rails.application.routes.draw do
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 
   # 設定
-  resource :settings, only: [:show] do
+  resource :settings, only: %i[show update] do
     patch :update_avatar
   end
 
