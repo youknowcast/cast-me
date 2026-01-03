@@ -20,14 +20,23 @@ export default class extends Controller {
 			body: formData,
 			headers: {
 				'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
-				'Accept': 'application/html' // We want a redirect/reload
+				'Accept': 'text/html'
 			}
 		}).then(response => {
-			if (response.redirected) {
-				window.location.href = response.url
+			if (response.ok) {
+				// Use Turbo or direct location update to refresh the page
+				const currentUrl = new URL(window.location.href)
+				window.location.href = currentUrl.toString()
 			} else {
-				window.location.reload()
+				console.error('Bulk add failed', response)
+				alert('一括登録に失敗しました。')
 			}
+		}).catch(error => {
+			console.error('Network error during bulk add', error)
+			alert('ネットワークエラーが発生しました。')
+		}).finally(() => {
+			// Reset the selector value so it can be triggered again
+			event.target.value = ''
 		})
 	}
 }

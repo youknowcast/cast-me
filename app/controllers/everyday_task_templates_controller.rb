@@ -40,7 +40,7 @@ class EverydayTaskTemplatesController < ApplicationController
   end
 
   def bulk_add
-    date = params[:date] || Time.zone.today
+    date = @date
 
     Task.transaction do
       @everyday_task_template.task_templates.each do |template|

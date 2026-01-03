@@ -1,4 +1,9 @@
 .container.mx-auto.p-4.max-w-md
+  .mb-4
+    = link_to settings_path, class: 'text-sm text-gray-500 hover:underline inline-flex items-center' do
+      i.fas.fa-chevron-left.mr-1
+      | 設定に戻る
+
   .flex.justify-between.items-center.mb-6
     h1.text-2xl.font-bold 毎日のタスク
     = link_to new_everyday_task_template_path, class: 'btn btn-primary btn-sm' do

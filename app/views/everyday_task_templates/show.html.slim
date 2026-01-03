@@ -17,9 +17,7 @@
             .flex.justify-between.items-start
               div
                 .flex.items-center.gap-2.mb-1
-                  .avatar
-                    .w-6.h-6.rounded-full.overflow-hidden
-                      = user_avatar_tag(template.user, size_class: 'w-6 h-6', icon_class: 'text-xs')
+                  = user_avatar_tag(template.user, size_class: 'w-5 h-5', icon_class: 'text-[10px]')
                   span.font-bold = template.title
                 - if template.description.present?
                   p.text-sm.text-gray-500 = template.description

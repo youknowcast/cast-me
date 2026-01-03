@@ -188,7 +188,14 @@ module MobileUiHelper
     label_text = selected_item ? selected_item.send(text_method) : (options[:prompt] || '選択してください')
     id = "mobile_selector_#{name}_#{SecureRandom.hex(4)}"
 
-    content_tag(:div, data: { controller: 'mobile-selector', 'mobile-selector-id-value': id }) do
+    base_data = { controller: 'mobile-selector', 'mobile-selector-id-value': id }
+    provided_data = options[:wrapper_data] || {}
+    if provided_data[:controller].present?
+      base_data[:controller] = "#{base_data[:controller]} #{provided_data[:controller]}"
+    end
+    wrapper_data = base_data.merge(provided_data.except(:controller))
+
+    content_tag(:div, data: wrapper_data) do
       concat hidden_field_tag(name, value, id: id,
                                            data: { 'mobile-selector-target': 'input' }.merge(html_options[:data] || {}))
       concat(

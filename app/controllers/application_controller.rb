@@ -4,16 +4,15 @@ class ApplicationController < ActionController::Base
 
   def current_scope
     @current_scope ||= begin
-      scope_param = params[:scope].to_s.downcase.strip
-      case scope_param
-      when 'my'
-        'my'
-      when 'family'
-        'family'
+      if controller_name.in?(%w[settings everyday_task_templates task_templates])
+        'settings'
       else
-        # FIXME: 画面が増えてきたら current_scope の扱いは再考の余地あり
-        if controller_name == 'settings'
-          controller_name
+        scope_param = params[:scope].to_s.downcase.strip
+        case scope_param
+        when 'my'
+          'my'
+        when 'family'
+          'family'
         else
           # Fallback to action name if controller is calendar, otherwise default to family
           controller_name == 'calendar' && action_name == 'my' ? 'my' : 'family'
@@ -26,7 +25,9 @@ class ApplicationController < ActionController::Base
 
   def family_scope? = current_scope == 'family'
 
-  def setting_scope? = controller_name == 'settings'
+  def setting_scope?
+    controller_name.in?(%w[settings everyday_task_templates task_templates])
+  end
 
   def set_calendar_date
     @date = if params[:date].present?
