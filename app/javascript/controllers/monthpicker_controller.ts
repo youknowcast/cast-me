@@ -39,8 +39,9 @@ export default class extends BaseDrumPickerController {
 			const url = new URL(this.baseUrl, window.location.origin)
 			url.searchParams.set('date', dateStr)
 			window.location.href = url.toString()
+			return null
 		}
-		return null // No event dispatch needed, we're navigating
+		return { year: this.selectedYear, month: this.selectedMonth }
 	}
 
 	renderWheels() {
