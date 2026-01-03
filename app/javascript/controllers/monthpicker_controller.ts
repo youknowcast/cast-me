@@ -48,9 +48,11 @@ export default class extends BaseDrumPickerController {
 		this.yearWheelTarget.innerHTML = ''
 		this.monthWheelTarget.innerHTML = ''
 
-		// Create year items (current year -5 to +5)
+		// Create year items (1980 to current year +5 for flexibility)
 		const currentYear = new Date().getFullYear()
-		for (let y = currentYear - 5; y <= currentYear + 5; y++) {
+		const startYear = 1980
+		const endYear = currentYear + 5
+		for (let y = startYear; y <= endYear; y++) {
 			const item = this.createWheelItem(y, String(y) + '年', (value) => {
 				this.selectedYear = value
 				this.scrollYearTo(value)
@@ -80,8 +82,8 @@ export default class extends BaseDrumPickerController {
 	}
 
 	private scrollYearTo(year: number, smooth = true) {
-		const currentYear = new Date().getFullYear()
-		const index = year - (currentYear - 5)
+		const startYear = 1980
+		const index = year - startYear
 		this.scrollWheelTo(this.yearWheelTarget.parentElement, index, smooth)
 	}
 
@@ -92,9 +94,11 @@ export default class extends BaseDrumPickerController {
 	onYearScroll(event: Event) {
 		const container = event.target as HTMLElement
 		const currentYear = new Date().getFullYear()
+		const startYear = 1980
+		const endYear = currentYear + 5
 		const index = this.getIndexFromScroll(container)
-		const newYear = (currentYear - 5) + index
-		if (newYear !== this.selectedYear && newYear >= currentYear - 5 && newYear <= currentYear + 5) {
+		const newYear = startYear + index
+		if (newYear !== this.selectedYear && newYear >= startYear && newYear <= endYear) {
 			this.selectedYear = newYear
 			this.updateDisplay()
 		}
