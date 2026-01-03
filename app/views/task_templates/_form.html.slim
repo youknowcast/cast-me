@@ -1,0 +1,29 @@
+.container.mx-auto.p-4.max-w-md
+  h1.text-2xl.font-bold.mb-6 = @task_template.new_record? ? 'タスクTemplate追加' : 'タスクTemplate編集'
+
+  .card.bg-base-100.shadow-xl
+    .card-body
+      = form_with model: [@everyday_task_template, @task_template] do |f|
+        .form-control.mb-4
+          = f.label :user_id, '担当ユーザー', class: 'label'
+          = mobile_collection_select f, :user_id, current_user.family.users, :id, :login_id, { label: '担当ユーザーを選択' }
+          - if @task_template.errors[:user_id].any?
+            .text-error.text-sm.mt-1 = @task_template.errors[:user_id].join(', ')
+
+        .form-control.mb-4
+          = f.label :title, 'タイトル', class: 'label'
+          = f.text_field :title, class: 'input input-bordered', placeholder: 'タスクのタイトル'
+          - if @task_template.errors[:title].any?
+            .text-error.text-sm.mt-1 = @task_template.errors[:title].join(', ')
+
+        .form-control.mb-4
+          = f.label :description, '詳細', class: 'label'
+          = f.text_area :description, rows: 3, class: 'textarea textarea-bordered', placeholder: 'タスクの詳細'
+
+        .form-control.mb-4
+          = f.label :priority, '優先度', class: 'label'
+          = f.number_field :priority, class: 'input input-bordered'
+
+        .flex.justify-end.gap-2.mt-6
+          = link_to 'キャンセル', everyday_task_template_path(@everyday_task_template), class: 'btn btn-ghost'
+          = f.submit '保存', class: 'btn btn-primary'

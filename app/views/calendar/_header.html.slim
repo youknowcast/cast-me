@@ -23,3 +23,9 @@
     ]
       i.fas.fa-plus.mr-1
       | タスク追加
+
+    - templates = current_user.family.everyday_task_templates.order(:name)
+    - if templates.any?
+      = mobile_selector :everyday_task_template_id, nil, templates, :id, :name,
+                        { label: "毎日のタスクを一括追加", prompt: "まとめて追加" },
+                        { data: { controller: 'bulk-add', action: 'change->bulk-add#submit', 'bulk-add-date-value': date.to_s, 'bulk-add-url-value': '/everyday_task_templates/:id/bulk_add' }, class: 'btn-sm btn-outline' }

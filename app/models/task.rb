@@ -2,26 +2,29 @@
 #
 # Table name: tasks
 #
-#  id          :integer          not null, primary key
-#  completed   :boolean          default(FALSE), not null
-#  date        :date             not null
-#  description :text
-#  priority    :integer          default(0), not null
-#  title       :string(255)      not null
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
-#  family_id   :bigint           not null
-#  user_id     :bigint           not null
+#  id               :integer          not null, primary key
+#  completed        :boolean          default(FALSE), not null
+#  date             :date             not null
+#  description      :text
+#  priority         :integer          default(0), not null
+#  title            :string(255)      not null
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#  family_id        :bigint           not null
+#  task_template_id :bigint
+#  user_id          :bigint           not null
 #
 # Indexes
 #
 #  index_tasks_on_date_and_completed  (date,completed)
 #  index_tasks_on_family_id_and_date  (family_id,date)
+#  index_tasks_on_task_template_id    (task_template_id)
 #  index_tasks_on_user_id_and_date    (user_id,date)
 #
 class Task < ApplicationRecord
   belongs_to :family
   belongs_to :user
+  belongs_to :task_template, optional: true
 
   validates :date, presence: true
   validates :title, presence: true, length: { maximum: 255 }

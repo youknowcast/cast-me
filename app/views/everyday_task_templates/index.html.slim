@@ -1,0 +1,29 @@
+.container.mx-auto.p-4.max-w-md
+  .flex.justify-between.items-center.mb-6
+    h1.text-2xl.font-bold 毎日のタスク
+    = link_to new_everyday_task_template_path, class: 'btn btn-primary btn-sm' do
+      i.fas.fa-plus.mr-1
+      | 新規作成
+
+  - if @everyday_task_templates.any?
+    .space-y-4
+      - @everyday_task_templates.each do |template|
+        .card.bg-base-100.shadow-md
+          .card-body.p-4
+            .flex.justify-between.items-center
+              div
+                h2.card-title.text-lg = template.name
+                p.text-sm.text-gray-500 = "#{template.task_templates.count}個のタスク"
+              .flex.gap-2
+                = link_to template, class: 'btn btn-ghost btn-sm' do
+                  i.fas.fa-list
+                = link_to edit_everyday_task_template_path(template), class: 'btn btn-ghost btn-sm' do
+                  i.fas.fa-edit
+                = link_to template, method: :delete, data: { confirm: '削除しますか？' }, class: 'btn btn-ghost btn-sm text-error' do
+                  i.fas.fa-trash
+  - else
+    .text-center.py-12.bg-base-200.rounded-lg
+      p.text-gray-500 登録されているタスクセットはありません
+      .mt-4
+        = link_to new_everyday_task_template_path, class: 'btn btn-primary' do
+          | 最初のタスクセットを作成

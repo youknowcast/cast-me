@@ -22,6 +22,12 @@ Rails.application.routes.draw do
   end
 
   resources :regular_tasks, only: %i[index create]
+  resources :everyday_task_templates do
+    member do
+      post :bulk_add
+    end
+    resources :task_templates
+  end
 
   resources :plan_participants, only: [:update]
 
