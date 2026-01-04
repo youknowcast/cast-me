@@ -24,3 +24,49 @@
 .btn {
     border-radius: var(--rounded-btn);
 }
+
+/* タスク完了時の紙吹雪アニメーション */
+.confetti-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: var(--confetti-color, #fbbf24);
+    border-radius: 2px;
+    animation: confetti-fall 1.5s linear forwards;
+    animation-delay: var(--confetti-delay, 0s);
+    transform: rotate(var(--confetti-rotation, 0deg));
+    pointer-events: none;
+}
+
+@keyframes confetti-fall {
+    0% {
+        opacity: 1;
+        transform: translateY(0) rotate(0deg) scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: translateY(40px) rotate(360deg) scale(0.9);
+    }
+
+    85% {
+        opacity: 0.8;
+        transform: translateY(80px) rotate(600deg) scale(0.7);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(100px) rotate(720deg) scale(0.5);
+    }
+}
