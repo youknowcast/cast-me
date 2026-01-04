@@ -64,6 +64,9 @@ application.register("side-panel", SidePanelController)
 import SidePanelOpenerController from "./side_panel_opener_controller"
 application.register("side-panel-opener", SidePanelOpenerController)
 
+import TaskCompletionController from "./task_completion_controller"
+application.register("task-completion", TaskCompletionController)
+
 import TimepickerConnectorController from "./timepicker_connector_controller"
 application.register("timepicker-connector", TimepickerConnectorController)
 

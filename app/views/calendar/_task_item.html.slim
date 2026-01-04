@@ -1,14 +1,15 @@
 
 
 = turbo_frame_tag dom_id(task) do
-  .bg-orange-50.border-l-4.border-orange-400.p-3.rounded-r-lg[
+  .bg-orange-50.border-l-4.border-orange-400.p-3.rounded-r-lg.relative[
     class="#{task.completed ? 'opacity-60' : ''}"
+    data-controller="task-completion"
   ]
     .flex.items-start.justify-between
       .flex-1
         .flex.items-center.space-x-2
           = form_with model: task, url: toggle_task_path(task), method: :patch, data: { turbo: true } do |f|
-            = f.check_box :completed, class: "checkbox checkbox-sm checkbox-primary", onchange: "this.form.requestSubmit()"
+            = f.check_box :completed, class: "checkbox checkbox-sm checkbox-primary", data: { action: "change->task-completion#toggle", "task-completion-target": "checkbox" }
           button.text-left.font-medium.text-gray-800.hover:underline[
             class="#{task.completed ? 'line-through' : ''}"
             data-controller="side-panel-opener"
