@@ -47,23 +47,26 @@ jobs:
           ssh ubuntu@$DEPLOY_HOST << 'EOF'
           set -e
 
-          # Create backup directory
-          mkdir -p ~/backup
+          # Get container ID
+          CONTAINER_ID=$(docker ps -q -f name=castme-web)
 
-          # Copy database from Docker volume to host
-          docker cp $(docker ps -q -f name=castme-web):/rails/data/production.sqlite3 ~/backup/production.sqlite3
-
-          # Check database integrity
-          INTEGRITY=$(sqlite3 ~/backup/production.sqlite3 "PRAGMA integrity_check")
+          # Check database integrity inside container
+          echo "Checking database integrity..."
+          INTEGRITY=$(docker exec $CONTAINER_ID sqlite3 /rails/data/production.sqlite3 "PRAGMA integrity_check")
           echo "Integrity check result: $INTEGRITY"
 
           if [ "$INTEGRITY" != "ok" ]; then
             echo "ERROR: Database integrity check failed!"
-            rm -f ~/backup/production.sqlite3
             exit 1
           fi
 
           echo "Database integrity check passed."
+
+          # Create backup directory and copy database
+          mkdir -p ~/backup
+          docker cp $CONTAINER_ID:/rails/data/production.sqlite3 ~/backup/production.sqlite3
+
+          echo "Database extracted to ~/backup/production.sqlite3"
           EOF
 
       - name: Download backup file

@@ -50,6 +50,7 @@ FROM base
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y \
     libsqlite3-0 \
+    sqlite3 \
     libyaml-0-2 \
     libffi8 \
     curl \
