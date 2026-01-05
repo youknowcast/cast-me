@@ -2,6 +2,11 @@ Rails.application.routes.draw do
   # Health check endpoint for Kamal
   get 'up' => 'rails/health#show', as: :rails_health_check
 
+  # API endpoints
+  namespace :api do
+    post 'scheduled_notifications/trigger', to: 'scheduled_notifications#trigger'
+  end
+
   devise_for :users
   devise_scope :user do
     root to: 'devise/sessions#new'
@@ -36,6 +41,7 @@ Rails.application.routes.draw do
   # 設定
   resource :settings, only: %i[show update] do
     patch :update_avatar
+    patch :update_notifications
   end
 
   resources :moments

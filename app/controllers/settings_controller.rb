@@ -6,6 +6,7 @@ class SettingsController < ApplicationController
 
   def show
     @family = current_user.family
+    @notification_setting = current_user.notification_setting || current_user.build_notification_setting
   end
 
   def update
@@ -28,6 +29,16 @@ class SettingsController < ApplicationController
   rescue StandardError => e
     Rails.logger.error "Avatar update failed: #{e.message}"
     redirect_to settings_path, alert: "アバターの更新に失敗しました: #{e.message}"
+  end
+
+  def update_notifications
+    @notification_setting = current_user.notification_setting || current_user.build_notification_setting
+    if @notification_setting.update(notification_setting_params)
+      redirect_to settings_path, notice: '通知設定を更新しました'
+    else
+      @family = current_user.family
+      render :show, status: :unprocessable_entity
+    end
   end
 
   private
@@ -70,5 +81,12 @@ class SettingsController < ApplicationController
 
   def user_params
     params.require(:user).permit(:birth)
+  end
+
+  def notification_setting_params
+    params.require(:user_notification_setting).permit(
+      :family_calendar_reminder_enabled, :family_calendar_reminder_hour,
+      :family_task_progress_reminder_enabled, :family_task_progress_reminder_hour
+    )
   end
 end

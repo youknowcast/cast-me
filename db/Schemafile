@@ -169,3 +169,18 @@ create_table 'task_templates', force: :cascade do |t|
   t.index ['everyday_task_template_id'], name: 'index_task_templates_on_everyday_task_template_id'
   t.index ['user_id'], name: 'index_task_templates_on_user_id'
 end
+
+create_table 'user_notification_settings', force: :cascade do |t|
+  t.bigint 'user_id', null: false
+  t.boolean 'family_calendar_reminder_enabled', null: false, default: false
+  t.integer 'family_calendar_reminder_hour'
+  t.boolean 'family_task_progress_reminder_enabled', null: false, default: false
+  t.integer 'family_task_progress_reminder_hour'
+  t.timestamps
+
+  t.index ['user_id'], unique: true
+  t.index %w[family_calendar_reminder_enabled family_calendar_reminder_hour],
+          name: 'index_user_notif_settings_on_calendar_reminder'
+  t.index %w[family_task_progress_reminder_enabled family_task_progress_reminder_hour],
+          name: 'index_user_notif_settings_on_task_progress_reminder'
+end
