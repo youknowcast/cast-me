@@ -1,0 +1,98 @@
+name: Database Backup
+
+on:
+  schedule:
+    - cron: '0 15 * * *'  # 毎日 JST 00:00
+  workflow_dispatch:      # 手動トリガー
+
+concurrency:
+  group: database-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    name: Backup SQLite Database
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/castme-deployer
+          aws-region: us-west-2
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          echo "${{ secrets.KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Set timestamp
+        id: timestamp
+        run: |
+          echo "datetime=$(date -u +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
+          echo "year=$(date -u +'%Y')" >> $GITHUB_OUTPUT
+          echo "month=$(date -u +'%m')" >> $GITHUB_OUTPUT
+          echo "day=$(date -u +'%d')" >> $GITHUB_OUTPUT
+
+      - name: Extract DB from Docker volume and check integrity
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+        run: |
+          ssh ubuntu@$DEPLOY_HOST << 'EOF'
+          set -e
+
+          # Create backup directory
+          mkdir -p ~/backup
+
+          # Copy database from Docker volume to host
+          docker cp $(docker ps -q -f name=castme-web):/rails/data/production.sqlite3 ~/backup/production.sqlite3
+
+          # Check database integrity
+          INTEGRITY=$(sqlite3 ~/backup/production.sqlite3 "PRAGMA integrity_check")
+          echo "Integrity check result: $INTEGRITY"
+
+          if [ "$INTEGRITY" != "ok" ]; then
+            echo "ERROR: Database integrity check failed!"
+            rm -f ~/backup/production.sqlite3
+            exit 1
+          fi
+
+          echo "Database integrity check passed."
+          EOF
+
+      - name: Download backup file
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+        run: |
+          mkdir -p ./backup
+          scp ubuntu@$DEPLOY_HOST:~/backup/production.sqlite3 ./backup/production.sqlite3
+
+          # Clean up remote backup file
+          ssh ubuntu@$DEPLOY_HOST "rm -f ~/backup/production.sqlite3"
+
+      - name: Upload to S3
+        env:
+          S3_BUCKET: castme.daycrift.net-db-backups
+        run: |
+          DATETIME="${{ steps.timestamp.outputs.datetime }}"
+          YEAR="${{ steps.timestamp.outputs.year }}"
+          MONTH="${{ steps.timestamp.outputs.month }}"
+          DAY="${{ steps.timestamp.outputs.day }}"
+
+          # Upload with timestamp
+          aws s3 cp ./backup/production.sqlite3 \
+            "s3://${S3_BUCKET}/${YEAR}/${MONTH}/${DAY}/production-${DATETIME}.sqlite3"
+
+          # Upload as latest
+          aws s3 cp ./backup/production.sqlite3 \
+            "s3://${S3_BUCKET}/latest.sqlite3"
+
+          echo "✅ Backup uploaded successfully!"
+          echo "  - s3://${S3_BUCKET}/${YEAR}/${MONTH}/${DAY}/production-${DATETIME}.sqlite3"
+          echo "  - s3://${S3_BUCKET}/latest.sqlite3"
