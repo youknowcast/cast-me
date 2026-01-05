@@ -58,6 +58,7 @@ env:
     - SECRET_KEY_BASE
     - ONESIGNAL_APP_ID
     - ONESIGNAL_API_KEY
+    - SCHEDULED_NOTIFICATION_API_TOKEN
 
 # Asset bridging for zero-downtime deployments
 asset_path: /rails/public/assets
