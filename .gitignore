@@ -64,3 +64,6 @@ yarn-debug.log*
 
 # Kamal secrets
 .kamal/secrets
+
+# TypeScript build cache
+tsconfig.tsbuildinfo
