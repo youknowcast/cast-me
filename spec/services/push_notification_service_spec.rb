@@ -12,17 +12,18 @@ RSpec.describe PushNotificationService, type: :service do
         allow(ENV).to receive(:[]).and_call_original
         allow(ENV).to receive(:[]).with('ONESIGNAL_APP_ID').and_return(nil)
         allow(ENV).to receive(:[]).with('ONESIGNAL_API_KEY').and_return(nil)
+        allow(OneSignal::DefaultApi).to receive(:new)
       end
 
       it 'returns early without making API call' do
-        expect(OneSignal::DefaultApi).not_to receive(:new)
         described_class.send_to_user(user_id: user.id, title: 'Test', message: 'Test message')
+        expect(OneSignal::DefaultApi).not_to have_received(:new)
       end
     end
 
     context 'when OneSignal credentials are configured' do
       let(:api_instance) { instance_double(OneSignal::DefaultApi) }
-      let(:notification_result) { double('NotificationResult', id: 'notif-123') }
+      let(:notification_result) { instance_double(OneSignal::CreateNotificationSuccessResponse, id: 'notif-123') }
 
       before do
         allow(ENV).to receive(:[]).and_call_original
@@ -64,11 +65,12 @@ RSpec.describe PushNotificationService, type: :service do
         before do
           allow(api_instance).to receive(:create_notification)
             .and_raise(OneSignal::ApiError.new('API Error'))
+          allow(Rails.logger).to receive(:error)
         end
 
         it 'logs error and returns nil' do
-          expect(Rails.logger).to receive(:error).with(/PushNotificationService error/)
           result = described_class.send_to_user(user_id: user.id, title: 'Test', message: 'Test')
+          expect(Rails.logger).to have_received(:error).with(/PushNotificationService error/)
           expect(result).to be_nil
         end
       end
@@ -81,9 +83,9 @@ RSpec.describe PushNotificationService, type: :service do
       allow(ENV).to receive(:[]).with('ONESIGNAL_APP_ID').and_return(nil)
 
       # Should not raise when called with multiple user IDs
-      expect {
+      expect do
         described_class.send_to_users(user_ids: [1, 2, 3], title: 'Test', message: 'Test')
-      }.not_to raise_error
+      end.not_to raise_error
     end
   end
 end

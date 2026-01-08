@@ -15,8 +15,10 @@
 #
 # Indexes
 #
-#  index_user_notif_settings_on_calendar_reminder       (family_calendar_reminder_enabled,family_calendar_reminder_hour)
-#  index_user_notif_settings_on_task_progress_reminder  (family_task_progress_reminder_enabled,family_task_progress_reminder_hour)
+#  index_user_notif_settings_on_calendar_reminder       (family_calendar_reminder_enabled,
+#                                                        family_calendar_reminder_hour)
+#  index_user_notif_settings_on_task_progress_reminder  (family_task_progress_reminder_enabled,
+#                                                        family_task_progress_reminder_hour)
 #  index_user_notification_settings_on_user_id          (user_id) UNIQUE
 #
 class UserNotificationSetting < ApplicationRecord

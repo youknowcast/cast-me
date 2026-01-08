@@ -7,15 +7,19 @@ RSpec.describe FamilyTaskStatusNotificationService, type: :service do
   let(:user) { create(:user, family: family) }
 
   describe '.notify' do
+    before do
+      allow(PushNotificationService).to receive(:send_to_user)
+    end
+
     context 'with no tasks for today' do
       it 'sends notification with zero counts' do
-        expect(PushNotificationService).to receive(:send_to_user).with(
+        described_class.notify(user)
+
+        expect(PushNotificationService).to have_received(:send_to_user).with(
           user_id: user.id,
           title: '今日のタスク状況',
           message: '家族のタスク状況 済/未: 0 / 0 件'
         )
-
-        described_class.notify(user)
       end
     end
 
@@ -29,13 +33,13 @@ RSpec.describe FamilyTaskStatusNotificationService, type: :service do
       end
 
       it 'sends notification with correct counts' do
-        expect(PushNotificationService).to receive(:send_to_user).with(
+        described_class.notify(user)
+
+        expect(PushNotificationService).to have_received(:send_to_user).with(
           user_id: user.id,
           title: '今日のタスク状況',
           message: '家族のタスク状況 済/未: 2 / 1 件'
         )
-
-        described_class.notify(user)
       end
     end
 
@@ -48,13 +52,13 @@ RSpec.describe FamilyTaskStatusNotificationService, type: :service do
       end
 
       it 'only counts tasks for today' do
-        expect(PushNotificationService).to receive(:send_to_user).with(
+        described_class.notify(user)
+
+        expect(PushNotificationService).to have_received(:send_to_user).with(
           user_id: user.id,
           title: '今日のタスク状況',
           message: '家族のタスク状況 済/未: 0 / 1 件'
         )
-
-        described_class.notify(user)
       end
     end
 
@@ -69,13 +73,13 @@ RSpec.describe FamilyTaskStatusNotificationService, type: :service do
       end
 
       it 'counts all family tasks' do
-        expect(PushNotificationService).to receive(:send_to_user).with(
+        described_class.notify(user)
+
+        expect(PushNotificationService).to have_received(:send_to_user).with(
           user_id: user.id,
           title: '今日のタスク状況',
           message: '家族のタスク状況 済/未: 1 / 1 件'
         )
-
-        described_class.notify(user)
       end
     end
   end

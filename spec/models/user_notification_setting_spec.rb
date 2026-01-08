@@ -14,7 +14,7 @@ RSpec.describe UserNotificationSetting, type: :model do
   end
 
   describe 'validations' do
-    context 'user_id uniqueness' do
+    context 'with user_id uniqueness' do
       it 'enforces uniqueness of user_id' do
         create(:user_notification_setting, user: user)
         duplicate = build(:user_notification_setting, user: user)
@@ -23,7 +23,7 @@ RSpec.describe UserNotificationSetting, type: :model do
       end
     end
 
-    context 'hour range validation' do
+    context 'with hour range validation' do
       it 'allows calendar_reminder_hour in 0..23' do
         setting = build(:user_notification_setting, user: user, family_calendar_reminder_hour: 12)
         expect(setting).to be_valid
@@ -48,8 +48,8 @@ RSpec.describe UserNotificationSetting, type: :model do
     context 'when family_calendar_reminder_enabled is true' do
       it 'requires family_calendar_reminder_hour' do
         setting = build(:user_notification_setting, user: user,
-                        family_calendar_reminder_enabled: true,
-                        family_calendar_reminder_hour: nil)
+                                                    family_calendar_reminder_enabled: true,
+                                                    family_calendar_reminder_hour: nil)
         expect(setting).not_to be_valid
         expect(setting.errors[:family_calendar_reminder_hour]).to be_present
       end
@@ -58,8 +58,8 @@ RSpec.describe UserNotificationSetting, type: :model do
     context 'when family_task_progress_reminder_enabled is true' do
       it 'requires family_task_progress_reminder_hour' do
         setting = build(:user_notification_setting, user: user,
-                        family_task_progress_reminder_enabled: true,
-                        family_task_progress_reminder_hour: nil)
+                                                    family_task_progress_reminder_enabled: true,
+                                                    family_task_progress_reminder_hour: nil)
         expect(setting).not_to be_valid
         expect(setting.errors[:family_task_progress_reminder_hour]).to be_present
       end
@@ -68,10 +68,10 @@ RSpec.describe UserNotificationSetting, type: :model do
     context 'when notifications are disabled' do
       it 'allows nil hour values' do
         setting = build(:user_notification_setting, user: user,
-                        family_calendar_reminder_enabled: false,
-                        family_calendar_reminder_hour: nil,
-                        family_task_progress_reminder_enabled: false,
-                        family_task_progress_reminder_hour: nil)
+                                                    family_calendar_reminder_enabled: false,
+                                                    family_calendar_reminder_hour: nil,
+                                                    family_task_progress_reminder_enabled: false,
+                                                    family_task_progress_reminder_hour: nil)
         expect(setting).to be_valid
       end
     end
