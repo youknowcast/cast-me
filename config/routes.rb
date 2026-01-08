@@ -45,4 +45,12 @@ Rails.application.routes.draw do
   end
 
   resources :moments
+
+  # 週次サマリ
+  resource :weekly_summary, only: [:show]
+
+  # API エンドポイント
+  namespace :api do
+    resource :weekly_notifications, only: [:create]
+  end
 end

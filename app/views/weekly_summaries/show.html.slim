@@ -1,0 +1,46 @@
+.container.mx-auto.px-4.py-8
+  .flex.justify-between.items-center.mb-6
+    h1.text-3xl.font-bold.text-gray-800 📋 今週のタスクサマリ
+    span.text-gray-500
+      = "#{I18n.l(@week_start, format: :short)} 〜 #{I18n.l(@week_end, format: :short)}"
+
+  .space-y-6
+    - @users_summary.each do |summary|
+      .bg-white.rounded-lg.shadow-lg.p-6
+        .flex.items-center.gap-3.mb-4
+          - if summary[:user].avatar_data_url
+            img.w-10.h-10.rounded-full src=summary[:user].avatar_data_url
+          - else
+            .w-10.h-10.rounded-full.bg-gray-300.flex.items-center.justify-center
+              i.fas.fa-user.text-gray-500
+          h2.text-xl.font-semibold= summary[:user].display_name
+
+        .grid.grid-cols-1.md:grid-cols-2.gap-4
+          / 完了タスク
+          div
+            h3.text-green-600.font-semibold.mb-2
+              i.fas.fa-check-circle.mr-1
+              | 完了 (#{summary[:completed_tasks].count})
+            - if summary[:completed_tasks].any?
+              ul.space-y-1
+                - summary[:completed_tasks].ordered_by_priority.each do |task|
+                  li.flex.items-center.gap-2.text-gray-600.line-through
+                    span.text-xs.text-gray-400= I18n.l(task.date, format: :short)
+                    span= task.title
+            - else
+              p.text-gray-400.text-sm なし
+
+          / 未完了タスク
+          div
+            h3.text-red-600.font-semibold.mb-2
+              i.fas.fa-clock.mr-1
+              | 未完了 (#{summary[:pending_tasks].count})
+            - if summary[:pending_tasks].any?
+              ul.space-y-1
+                - summary[:pending_tasks].ordered_by_priority.each do |task|
+                  li.flex.items-center.gap-2.text-gray-700
+                    span.text-xs.text-gray-400= I18n.l(task.date, format: :short)
+                    span.font-medium= task.title
+                    span.text-xs class=task.priority_class = task.priority_text
+            - else
+              p.text-gray-400.text-sm なし
