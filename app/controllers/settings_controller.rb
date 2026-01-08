@@ -18,6 +18,8 @@ class SettingsController < ApplicationController
       redirect_to settings_path, notice: '設定を更新しました'
     else
       @family = current_user.family
+      @notification_setting = current_user.notification_setting || current_user.build_notification_setting
+      @hour_options = (0..23).map { |h| HourOption.new(h, "#{h}:00") }
       render :show, status: :unprocessable_entity
     end
   end
