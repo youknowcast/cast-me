@@ -59,6 +59,18 @@
 
       .divider.my-2
 
+      / 週間サマリー
+      .form-control
+        label.label
+          span.label-text 週間サマリー
+        = link_to weekly_summary_path, class: 'btn btn-outline btn-sm w-full justify-between' do
+          span
+            i.fas.fa-chart-bar.mr-2
+            | 今週のタスク達成状況を見る
+          i.fas.fa-chevron-right
+
+      .divider.my-2
+
       / 通知設定
       .form-control
         label.label
