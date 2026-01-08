@@ -104,3 +104,47 @@ kamal app logs
 # Run console
 kamal app exec -i 'bin/rails console'
 ```
+
+## Scheduled Notifications (Cron Jobs)
+
+### Overview
+定時プッシュ通知は **GitHub Actions** の cron スケジューラで実現しています。`rufus-scheduler` などの gem を使わず、外部からAPIを呼び出す方式を採用。
+
+### Architecture
+```
+GitHub Actions (cron: 毎時0分)
+    ↓ POST /api/scheduled_notifications/trigger
+Rails API
+    ↓ hour パラメータでフィルタ
+UserNotificationSetting (DB)
+    ↓ 該当ユーザーに通知
+FamilyCalendarNotificationService / FamilyTaskStatusNotificationService
+    ↓
+PushNotificationService → OneSignal API
+```
+
+### Key Files
+| File | Description |
+|------|-------------|
+| `.github/workflows/scheduled_notifications.yml` | GitHub Actions workflow (毎時実行) |
+| `app/controllers/api/scheduled_notifications_controller.rb` | API endpoint |
+| `app/models/user_notification_setting.rb` | ユーザーごとの通知設定 |
+| `app/services/push_notification_service.rb` | OneSignal API呼び出し一元化 |
+| `app/services/family_calendar_notification_service.rb` | カレンダ通知メッセージ生成 |
+| `app/services/family_task_status_notification_service.rb` | タスク進捗通知メッセージ生成 |
+
+### Environment Variables
+| Variable | Description |
+|----------|-------------|
+| `SCHEDULED_NOTIFICATION_API_TOKEN` | GitHub Actions から API を呼び出す際の認証トークン |
+| `ONESIGNAL_APP_ID` | OneSignal アプリID |
+| `ONESIGNAL_API_KEY` | OneSignal REST API キー |
+
+### Manual Trigger
+GitHub Actions UI から手動実行可能（`workflow_dispatch`）：
+- Actions → Scheduled Notifications → Run workflow → hour を指定
+
+### User Settings
+`/settings` ページで各ユーザーが設定可能：
+- 家族カレンダリマインダー（有効/時刻）
+- タスク進捗リマインダー（有効/時刻）

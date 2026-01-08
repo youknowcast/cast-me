@@ -56,3 +56,32 @@
             i.fas.fa-tasks.mr-2
             | 毎日のタスクセットを管理
           i.fas.fa-chevron-right
+
+      .divider.my-2
+
+      / 通知設定
+      .form-control
+        label.label
+          span.label-text 通知設定
+        = form_with model: @notification_setting, url: update_notifications_settings_path, method: :patch do |f|
+          .form-control.mb-4
+            label.label.cursor-pointer.justify-start.gap-4
+              = f.check_box :family_calendar_reminder_enabled, class: 'toggle toggle-primary'
+              span.label-text
+                i.fas.fa-calendar.mr-2
+                | 家族のカレンダを確認
+            .ml-14
+              = mobile_collection_select f, :family_calendar_reminder_hour, @hour_options, :value, :label, { label: '通知時間', prompt: '時間を選択' }
+
+          .form-control.mb-4
+            label.label.cursor-pointer.justify-start.gap-4
+              = f.check_box :family_task_progress_reminder_enabled, class: 'toggle toggle-primary'
+              span.label-text
+                i.fas.fa-tasks.mr-2
+                | タスク完了状況を通知
+            .ml-14
+              = mobile_collection_select f, :family_task_progress_reminder_hour, @hour_options, :value, :label, { label: '通知時間', prompt: '時間を選択' }
+
+          .flex.justify-end.mt-4
+            = f.submit '通知設定を保存', class: 'btn btn-primary btn-sm'
+

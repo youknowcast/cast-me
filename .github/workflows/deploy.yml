@@ -92,6 +92,7 @@ jobs:
           echo "SECRET_KEY_BASE=${{ secrets.SECRET_KEY_BASE }}" >> .kamal/secrets-common
           echo "ONESIGNAL_APP_ID=${{ secrets.ONESIGNAL_APP_ID }}" >> .kamal/secrets-common
           echo "ONESIGNAL_API_KEY=${{ secrets.ONESIGNAL_API_KEY }}" >> .kamal/secrets-common
+          echo "SCHEDULED_NOTIFICATION_API_TOKEN=${{ secrets.SCHEDULED_NOTIFICATION_API_TOKEN }}" >> .kamal/secrets-common
 
       - name: Set up SSH key
         run: |
