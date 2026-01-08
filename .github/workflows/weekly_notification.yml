@@ -1,0 +1,18 @@
+name: Weekly Task Summary Notification
+
+on:
+  schedule:
+    # 金曜日 21:00 JST = 12:00 UTC
+    - cron: '0 12 * * 5'
+  workflow_dispatch: # 手動実行も可能
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send weekly notification
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.WEEKLY_NOTIFICATION_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            https://${{ vars.APP_HOST }}/api/weekly_notifications
