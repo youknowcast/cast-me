@@ -2,7 +2,8 @@
 
 module Api
   class ScheduledNotificationsController < ApplicationController
-    skip_before_action :authenticate_user!
+    skip_forgery_protection
+    skip_before_action :authenticate_user!, raise: false
     before_action :verify_api_token
 
     # POST /api/scheduled_notifications/trigger
