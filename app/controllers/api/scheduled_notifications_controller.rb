@@ -2,9 +2,7 @@
 
 module Api
   class ScheduledNotificationsController < ApplicationController
-    skip_forgery_protection
-    skip_before_action :authenticate_user!, raise: false
-    before_action :verify_api_token
+    include Api::TokenAuthenticatable
 
     # POST /api/scheduled_notifications/trigger
     def trigger
@@ -24,14 +22,6 @@ module Api
 
       render json: { status: 'ok', calendar_count: calendar_settings.count, task_count: task_settings.count }
     end
-
-    private
-
-    def verify_api_token
-      expected = ENV.fetch('SCHEDULED_NOTIFICATION_API_TOKEN', nil)
-      provided = request.headers['X-Api-Token']
-      head :unauthorized unless expected.present? && ActiveSupport::SecurityUtils.secure_compare(expected,
-                                                                                                 provided.to_s)
-    end
   end
 end
+
