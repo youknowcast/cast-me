@@ -1,7 +1,8 @@
 # NOTE: only doing this in development as some production environments (Heroku)
 # NOTE: are sensitive to local FS writes, and besides -- it's just not proper
 # NOTE: to have a dev-mode tool do its thing in production.
-if Rails.env.development?
+# NOTE: Also check if annotate gem is available (temporarily disabled for Rails 8)
+if Rails.env.development? && Gem::Specification.find_all_by_name('annotate').any?
   require 'annotate'
   task set_annotation_options: :environment do
     # You can override any of these by setting an environment variable of the
