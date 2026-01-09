@@ -45,8 +45,6 @@ jobs:
           cache: 'yarn'
 
       - name: Install dependencies
-        env:
-          DISABLE_SPRING: 1
         run: |
           yarn install --frozen-lockfile
           bundle exec rails assets:precompile
@@ -54,7 +52,6 @@ jobs:
       - name: Apply database schema
         env:
           RAILS_ENV: test
-          DISABLE_SPRING: 1
         run: |
           mkdir -p data
           bundle exec rails db:create
@@ -63,5 +60,4 @@ jobs:
       - name: Run RSpec
         env:
           RAILS_ENV: test
-          DISABLE_SPRING: 1
         run: bundle exec rspec --format documentation
