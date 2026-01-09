@@ -43,6 +43,6 @@ class TaskTemplatesController < ApplicationController
   end
 
   def task_template_params
-    params.require(:task_template).permit(:user_id, :title, :description, :priority)
+    params.expect(task_template: %i[user_id title description priority])
   end
 end

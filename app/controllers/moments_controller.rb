@@ -67,6 +67,6 @@ class MomentsController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def moment_params
-    params.require(:moment).permit(:link, :file_path)
+    params.expect(moment: %i[link file_path])
   end
 end

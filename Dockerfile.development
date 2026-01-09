@@ -1,5 +1,5 @@
 # Development Dockerfile for local development with docker-compose
-FROM rubylang/ruby:3.3.7-focal
+FROM rubylang/ruby:3.4.1-focal
 
 ENV LANG ja_JP.UTF-8
 

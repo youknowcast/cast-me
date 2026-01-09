@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # Cache bust: 20241228-v2
-ARG RUBY_VERSION=3.3.7
+ARG RUBY_VERSION=3.4.1
 FROM ruby:$RUBY_VERSION AS base
 
 WORKDIR /rails

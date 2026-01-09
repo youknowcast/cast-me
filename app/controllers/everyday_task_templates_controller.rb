@@ -75,6 +75,6 @@ class EverydayTaskTemplatesController < ApplicationController
   end
 
   def everyday_task_template_params
-    params.require(:everyday_task_template).permit(:name)
+    params.expect(everyday_task_template: [:name])
   end
 end

@@ -87,13 +87,13 @@ class SettingsController < ApplicationController
   end
 
   def user_params
-    params.require(:user).permit(:birth)
+    params.expect(user: [:birth])
   end
 
   def notification_setting_params
-    params.require(:user_notification_setting).permit(
-      :family_calendar_reminder_enabled, :family_calendar_reminder_hour,
-      :family_task_progress_reminder_enabled, :family_task_progress_reminder_hour
+    params.expect(
+      user_notification_setting: %i[family_calendar_reminder_enabled family_calendar_reminder_hour
+                                    family_task_progress_reminder_enabled family_task_progress_reminder_hour]
     )
   end
 end

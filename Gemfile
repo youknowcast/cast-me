@@ -1,10 +1,10 @@
 source 'https://rubygems.org'
-git_source(:github) { |_repo| "https://github.com/#{repo}.git" }
+git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby file: '.ruby-version'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
-gem 'rails', '~> 7.0'
+gem 'rails', '~> 8.0'
 
 # Use Puma as the app server
 gem 'puma', '~> 6'
@@ -38,7 +38,7 @@ gem 'tailwindcss-rails', '~> 2.7.9'
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.4', require: false
 
-gem 'redis-rails'
+# gem 'redis-rails' # Removed: not in use
 
 # Ruby 3.3 では以下は標準ライブラリに含まれているため明示的な指定は不要
 # gem 'base64'
@@ -72,8 +72,8 @@ group :development do
   gem 'listen', '~> 3.3'
   gem 'rack-mini-profiler', '~> 2.0'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
-  gem 'annotate'
-  gem 'spring'
+  # gem 'annotate' # Temporarily disabled: incompatible with Rails 8 (activerecord < 8.0)
+  # gem 'spring' # Removed: not needed in Rails 8
 
   # Code linting
   gem 'rubocop', require: false

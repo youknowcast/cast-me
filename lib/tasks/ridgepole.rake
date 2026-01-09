@@ -8,7 +8,7 @@ namespace :ridgepole do
   task apply: :environment do
     ridgepole('--apply', "-E #{Rails.env}", "--file #{schema_file}")
     unless Rails.env.production?
-      Rake::Task['annotate_models'].invoke
+      Rake::Task['annotate_models'].invoke if Rake::Task.task_defined?('annotate_models')
 
       ridgepole('--apply', "-E #{ENV.fetch('RAILS_ENV', 'test')}", "--file #{schema_file}")
     end
