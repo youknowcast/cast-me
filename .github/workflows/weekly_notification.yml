@@ -13,6 +13,6 @@ jobs:
       - name: Send weekly notification
         run: |
           curl -X POST \
-            -H "Authorization: Bearer ${{ secrets.WEEKLY_NOTIFICATION_API_TOKEN }}" \
+            -H "X-Api-Token: ${{ secrets.SCHEDULED_NOTIFICATION_API_TOKEN }}" \
             -H "Content-Type: application/json" \
-            https://${{ vars.APP_HOST }}/api/weekly_notifications
+            "https://castme.daycrift.net/api/weekly_notifications"

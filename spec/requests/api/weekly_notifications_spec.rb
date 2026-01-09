@@ -5,28 +5,37 @@ require 'rails_helper'
 RSpec.describe 'Api::WeeklyNotifications', type: :request do
   let(:api_token) { 'test-api-token' }
 
+  around do |example|
+    original_token = ENV.fetch('SCHEDULED_NOTIFICATION_API_TOKEN', nil)
+    ENV['SCHEDULED_NOTIFICATION_API_TOKEN'] = api_token
+    example.run
+  ensure
+    if original_token.nil?
+      ENV.delete('SCHEDULED_NOTIFICATION_API_TOKEN')
+    else
+      ENV['SCHEDULED_NOTIFICATION_API_TOKEN'] = original_token
+    end
+  end
+
   before do
-    allow(ENV).to receive(:fetch).and_call_original
-    allow(ENV).to receive(:fetch).with('WEEKLY_NOTIFICATION_API_TOKEN', '').and_return(api_token)
+    host! 'localhost'
+    # Disable actual OneSignal calls
+    allow(ENV).to receive(:[]).and_call_original
+    allow(ENV).to receive(:[]).with('ONESIGNAL_APP_ID').and_return(nil)
+    allow(ENV).to receive(:[]).with('ONESIGNAL_API_KEY').and_return(nil)
   end
 
   describe 'POST /api/weekly_notifications' do
-    let(:headers) { { 'Authorization' => "Bearer #{api_token}" } }
+    let(:headers) { { 'X-Api-Token' => api_token } }
 
     context 'with valid token' do
-      before do
-        # Disable actual OneSignal calls
-        allow(ENV).to receive(:[]).and_call_original
-        allow(ENV).to receive(:[]).with('ONESIGNAL_APP_ID').and_return(nil)
-        allow(ENV).to receive(:[]).with('ONESIGNAL_API_KEY').and_return(nil)
-      end
-
       it 'returns success response' do
         post api_weekly_notifications_path, headers: headers
         expect(response).to have_http_status(:success)
       end
 
       it 'returns JSON with families_notified count' do
+        initial_count = Family.count
         create(:family)
         create(:family)
 
@@ -34,7 +43,7 @@ RSpec.describe 'Api::WeeklyNotifications', type: :request do
 
         json = response.parsed_body
         expect(json['success']).to be true
-        expect(json['families_notified']).to eq(2)
+        expect(json['families_notified']).to eq(initial_count + 2)
       end
 
       it 'calls WeeklyTaskSummaryNotificationService' do
@@ -45,7 +54,7 @@ RSpec.describe 'Api::WeeklyNotifications', type: :request do
     end
 
     context 'with invalid token' do
-      let(:invalid_headers) { { 'Authorization' => 'Bearer wrong-token' } }
+      let(:invalid_headers) { { 'X-Api-Token' => 'wrong-token' } }
 
       it 'returns unauthorized status' do
         post api_weekly_notifications_path, headers: invalid_headers
