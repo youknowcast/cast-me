@@ -151,7 +151,7 @@ class PlansController < ApplicationController
   end
 
   def plan_params
-    params.require(:plan).permit(:title, :description, :date, :start_time, :end_time, participant_ids: [])
+    params.expect(plan: [:title, :description, :date, :start_time, :end_time, { participant_ids: [] }])
   end
 
   def handle_participants

@@ -34,6 +34,6 @@ class RegularTasksController < ApplicationController
   private
 
   def regular_task_params
-    params.require(:regular_task).permit(:title)
+    params.expect(regular_task: [:title])
   end
 end

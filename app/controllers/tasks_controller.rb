@@ -161,7 +161,7 @@ class TasksController < ApplicationController
   end
 
   def task_params
-    params.require(:task).permit(:title, :description, :date, :priority, :user_id, :completed)
+    params.expect(task: %i[title description date priority user_id completed])
   end
 
   def register_or_increment_regular_task(title)
