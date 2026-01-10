@@ -75,3 +75,6 @@ application.register("timepicker", TimepickerController)
 
 import PullToRefreshController from "./pull_to_refresh_controller"
 application.register("pull-to-refresh", PullToRefreshController)
+
+import CallController from "./call_controller"
+application.register("call", CallController)

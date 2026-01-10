@@ -20,6 +20,7 @@ Rails.application.routes.draw do
 
   # 予定とタスクの管理
   resources :plans
+  resources :calls, only: [:create]
   resources :tasks do
     member do
       patch :toggle

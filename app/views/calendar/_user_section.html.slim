@@ -2,6 +2,8 @@
   h3.text-lg.font-bold.text-gray-800.mb-3.flex.items-center
     span.mr-2 = user_avatar_tag(target_user, size_class: 'w-5 h-5', icon_class: 'text-lg')
     = target_user.login_id
+    - unless target_user == current_user
+      = call_icon_button(target_user)
 
   / 予定セクション
   .mb-4
