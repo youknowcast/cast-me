@@ -8,7 +8,8 @@ class ArticlesController < ApplicationController
   def show
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.update('side-panel', partial: 'articles/show_panel', locals: { article: @article })
+        render turbo_stream: turbo_stream.update('side-panel', partial: 'articles/show_panel',
+                                                               locals: { article: @article })
       end
       format.html
     end
@@ -18,7 +19,8 @@ class ArticlesController < ApplicationController
     @article = Article.new
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.update('side-panel', partial: 'articles/new_panel', locals: { article: @article })
+        render turbo_stream: turbo_stream.update('side-panel', partial: 'articles/new_panel',
+                                                               locals: { article: @article })
       end
       format.html
     end
@@ -27,7 +29,8 @@ class ArticlesController < ApplicationController
   def edit
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.update('side-panel', partial: 'articles/edit_panel', locals: { article: @article })
+        render turbo_stream: turbo_stream.update('side-panel', partial: 'articles/edit_panel',
+                                                               locals: { article: @article })
       end
       format.html
     end
@@ -50,7 +53,10 @@ class ArticlesController < ApplicationController
     else
       respond_to do |format|
         format.turbo_stream do
-          render turbo_stream: turbo_stream.update('side-panel', partial: 'articles/new_panel', locals: { article: @article }), status: :unprocessable_entity
+          render turbo_stream: turbo_stream.update('side-panel',
+                                                   partial: 'articles/new_panel',
+                                                   locals: { article: @article }),
+                 status: :unprocessable_entity
         end
         format.html { render :new, status: :unprocessable_entity }
       end
@@ -71,7 +77,10 @@ class ArticlesController < ApplicationController
     else
       respond_to do |format|
         format.turbo_stream do
-          render turbo_stream: turbo_stream.update('side-panel', partial: 'articles/edit_panel', locals: { article: @article }), status: :unprocessable_entity
+          render turbo_stream: turbo_stream.update('side-panel',
+                                                   partial: 'articles/edit_panel',
+                                                   locals: { article: @article }),
+                 status: :unprocessable_entity
         end
         format.html { render :edit, status: :unprocessable_entity }
       end
@@ -98,6 +107,6 @@ class ArticlesController < ApplicationController
   end
 
   def article_params
-    params.require(:article).permit(:title, :description, :pinned, :tag_list)
+    params.expect(article: %i[title description pinned tag_list])
   end
 end

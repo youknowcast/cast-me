@@ -25,8 +25,8 @@ RSpec.describe Article, type: :model do
       pinned_article = create(:article, pinned: true, updated_at: 1.hour.ago)
       new_unpinned = create(:article, pinned: false, updated_at: 1.minute.ago)
       old_unpinned = create(:article, pinned: false, updated_at: 1.day.ago)
-      
-      expect(Article.by_priority).to eq([pinned_article, new_unpinned, old_unpinned])
+
+      expect(described_class.by_priority).to eq([pinned_article, new_unpinned, old_unpinned])
     end
   end
 end
