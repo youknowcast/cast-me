@@ -1,0 +1,26 @@
+.w-full.bg-white.min-h-screen
+  .sticky.top-0.z-20.bg-white.border-b.border-gray-100
+    .flex.items-center.justify-between.px-4.h-14
+      h1.text-lg.font-bold.text-gray-900 Family Wiki
+      = link_to new_article_path, class: "btn btn-sm btn-circle btn-ghost text-primary" do
+        i.fas.fa-plus.text-xl
+
+  .p-4.space-y-4.pb-24
+    - if @articles.empty?
+      .text-center.py-10.text-gray-500
+        i.fas.fa-book.text-4xl.mb-2
+        p まだ記事がありません
+    - else
+      - @articles.each do |article|
+        = link_to article_path(article), class: "block bg-white border border-gray-100 rounded-xl shadow-sm p-4 active:scale-[0.98] transition-transform" do
+          .flex.items-start.justify-between.mb-1
+            h2.font-bold.text-gray-900.line-clamp-1 = article.title
+            - if article.pinned?
+              i.fas.fa-thumbtack.text-red-400.text-sm
+          
+          - if article.tags.any?
+            .flex.flex-wrap.gap-1.mb-2
+              - article.tags.each do |tag|
+                span.text-xs.px-2.py-0.5.bg-gray-100.text-gray-600.rounded-full = tag.name
+          
+          p.text-sm.text-gray-500.line-clamp-2 = article.description

@@ -17,50 +17,29 @@ create_table 'families', force: :cascade do |t|
   t.timestamps
 end
 
-create_table 'family_wikis', force: :cascade do |t|
-  t.integer 'family_id', null: false
-end
 
-create_table 'family_wiki_versions', force: :cascade do |t|
-  t.integer 'family_id', null: false
-  t.integer 'family_wiki_id', null: false
-  t.integer 'version', null: false, default: 0
-
-  t.index %w[family_id family_wiki_id], name: :index_family_and_family_wiki_id, unique: true
-end
-
-create_table 'family_wiki_contents', force: :cascade do |t|
-  t.integer 'family_id', null: false
-  t.integer 'families_wiki_version_id', null: false, default: 0
-  t.text 'content', null: false
-  t.integer 'status', null: false, default: 0
-end
 
 create_table 'articles', force: :cascade do |t|
   t.bigint 'user_id', null: false
-  t.date 'date', null: false
-  t.integer 'sequence_number', null: false
-  t.integer 'display_order', null: false, default: 0
-  t.bigint 'article_template_version_id', null: false
   t.string 'title', null: false
   t.text 'description'
   t.timestamps
+  t.boolean 'pinned', null: false, default: false
 
-  t.index %w[user_id date sequence_number], name: 'index_articles_on_user_id_and_date_and_sequence_number', unique: true
+  t.index ['user_id'], name: 'index_articles_on_user_id'
 end
 
-create_table 'article_templates', force: :cascade do |t|
+create_table 'tags', force: :cascade do |t|
   t.string 'name', null: false
   t.timestamps
+  t.index ['name'], unique: true
 end
 
-create_table 'article_template_versions', force: :cascade do |t|
-  t.bigint 'article_template_id', null: false
-  t.integer 'version', null: false
+create_table 'article_tags', force: :cascade do |t|
+  t.bigint 'article_id', null: false
+  t.bigint 'tag_id', null: false
   t.timestamps
-
-  t.index %w[article_template_id version], name: 'index_article_template_versions_on_template_id_and_version',
-                                           unique: true
+  t.index %w[article_id tag_id], unique: true
 end
 
 # TODO: custom fields 考えるのは後回し
