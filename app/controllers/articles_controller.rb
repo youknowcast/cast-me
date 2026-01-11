@@ -6,37 +6,89 @@ class ArticlesController < ApplicationController
   end
 
   def show
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.update('side-panel', partial: 'articles/show_panel', locals: { article: @article })
+      end
+      format.html
+    end
   end
 
   def new
     @article = Article.new
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.update('side-panel', partial: 'articles/new_panel', locals: { article: @article })
+      end
+      format.html
+    end
   end
 
   def edit
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.update('side-panel', partial: 'articles/edit_panel', locals: { article: @article })
+      end
+      format.html
+    end
   end
 
   def create
     @article = Article.new(article_params)
-    @article.user = current_user # Assuming current_user exists (Devise)
+    @article.user = current_user
 
     if @article.save
-      redirect_to articles_path, notice: 'Article was successfully created.'
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: [
+            turbo_stream.update('articles-list', partial: 'articles/list', locals: { articles: Article.by_priority }),
+            turbo_stream.append('side-panel', "<div data-controller='side-panel-closer'></div>".html_safe)
+          ]
+        end
+        format.html { redirect_to articles_path, notice: 'Article was successfully created.' }
+      end
     else
-      render :new, status: :unprocessable_entity
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.update('side-panel', partial: 'articles/new_panel', locals: { article: @article }), status: :unprocessable_entity
+        end
+        format.html { render :new, status: :unprocessable_entity }
+      end
     end
   end
 
   def update
     if @article.update(article_params)
-      redirect_to article_path(@article), notice: 'Article was successfully updated.'
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: [
+            turbo_stream.update('articles-list', partial: 'articles/list', locals: { articles: Article.by_priority }),
+            turbo_stream.append('side-panel', "<div data-controller='side-panel-closer'></div>".html_safe)
+          ]
+        end
+        format.html { redirect_to articles_path, notice: 'Article was successfully updated.' }
+      end
     else
-      render :edit, status: :unprocessable_entity
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.update('side-panel', partial: 'articles/edit_panel', locals: { article: @article }), status: :unprocessable_entity
+        end
+        format.html { render :edit, status: :unprocessable_entity }
+      end
     end
   end
 
   def destroy
     @article.destroy
-    redirect_to articles_path, notice: 'Article was successfully destroyed.'
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: [
+          turbo_stream.update('articles-list', partial: 'articles/list', locals: { articles: Article.by_priority }),
+          turbo_stream.append('side-panel', "<div data-controller='side-panel-closer'></div>".html_safe)
+        ]
+      end
+      format.html { redirect_to articles_path, notice: 'Article was successfully destroyed.' }
+    end
   end
 
   private

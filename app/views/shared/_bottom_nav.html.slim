@@ -6,6 +6,9 @@
     = link_to calendar_path(date: @date), class: "#{'active' if family_scope?}", data: { calendar_sync_date: 'true' } do
       i.fas.fa-users.text-3xl
       span.btm-nav-label Family
+    = link_to articles_path, class: "#{'active' if controller_name == 'articles'}" do
+      i.fas.fa-book.text-3xl
+      span.btm-nav-label Wiki
     = link_to settings_path, class: "#{'active' if setting_scope?}" do
       i.fas.fa-cog.text-3xl
       span.btm-nav-label 設定
