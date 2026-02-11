@@ -1,0 +1,26 @@
+.side-panel-overlay[
+  data-controller="side-panel"
+  data-side-panel-target="overlay"
+  data-action="click->side-panel#closeBackground"
+  style="display: block; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999;"
+]
+  .side-panel-backdrop.opacity-0[
+    data-side-panel-target="backdrop"
+  ]
+
+  .side-panel.translate-x-full[
+    data-side-panel-target="panel"
+  ]
+    .side-panel-content
+      / ヘッダー
+      .side-panel-header
+        h3.text-lg.font-semibold.text-gray-900
+          = title
+        button.btn.btn-sm.btn-circle.btn-ghost[
+          data-action="click->side-panel#close"
+        ]
+          i.fas.fa-times
+
+      / コンテンツ
+      .side-panel-body
+        = yield

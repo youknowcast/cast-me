@@ -1,0 +1,26 @@
+= form_with(model: article, class: "space-y-6") do |f|
+  - if article.errors.any?
+    .bg-red-50.text-red-500.p-4.rounded-xl.text-sm
+      ul.list-disc.list-inside
+        - article.errors.full_messages.each do |msg|
+          li = msg
+
+  .form-control
+    = f.label :title, "タイトル", class: "label font-bold text-gray-700"
+    = f.text_field :title, class: "input input-bordered w-full focus:input-primary rounded-xl", placeholder: "記事のタイトル"
+
+  .form-control
+    = f.label :description, "本文", class: "label font-bold text-gray-700"
+    = f.text_area :description, rows: 10, class: "textarea textarea-bordered w-full text-base focus:textarea-primary rounded-xl", placeholder: "内容を入力..."
+
+  .form-control
+    = f.label :tag_list, "タグ (カンマ区切り)", class: "label font-bold text-gray-700"
+    = f.text_field :tag_list, class: "input input-bordered w-full focus:input-primary rounded-xl", placeholder: "例: 家事, ルール, 買い物"
+
+  .form-control
+    label.label.cursor-pointer.justify-start.gap-3
+      = f.check_box :pinned, class: "checkbox checkbox-primary"
+      span.label-text.font-bold 固定表示する
+
+  .pt-4
+    = f.submit "保存する", class: "btn btn-primary w-full rounded-xl text-lg text-white font-bold"
