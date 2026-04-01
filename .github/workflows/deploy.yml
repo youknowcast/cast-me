@@ -102,6 +102,13 @@ jobs:
           echo "${{ secrets.KNOWN_HOSTS }}" > ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
+      - name: Ensure Kamal proxy is up-to-date
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_DOMAIN: ${{ secrets.DEPLOY_DOMAIN }}
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+        run: kamal proxy reboot
+
       - name: Deploy with Kamal
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
