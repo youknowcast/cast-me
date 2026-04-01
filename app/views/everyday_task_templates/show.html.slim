@@ -26,7 +26,7 @@
               .flex.gap-2
                 = link_to edit_everyday_task_template_task_template_path(@everyday_task_template, template), class: 'btn btn-ghost btn-sm' do
                   i.fas.fa-edit
-                = link_to everyday_task_template_task_template_path(@everyday_task_template, template), method: :delete, data: { confirm: '削除しますか？' }, class: 'btn btn-ghost btn-sm text-error' do
+                = link_to everyday_task_template_task_template_path(@everyday_task_template, template), data: { turbo_method: :delete, turbo_confirm: '削除しますか？' }, class: 'btn btn-ghost btn-sm text-error' do
                   i.fas.fa-trash
   - else
     .text-center.py-12.bg-base-200.rounded-lg
