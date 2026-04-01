@@ -107,7 +107,7 @@ jobs:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_DOMAIN: ${{ secrets.DEPLOY_DOMAIN }}
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-        run: kamal proxy reboot
+        run: kamal proxy reboot --yes
 
       - name: Deploy with Kamal
         env:
