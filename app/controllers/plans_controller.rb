@@ -21,7 +21,6 @@ class PlansController < ApplicationController
       date: date,
       created_by: current_user
     )
-    # Myスコープの場合、自分自身をデフォルト参加者として設定
     @plan.participant_ids = [current_user.id] if my_scope?
 
     respond_to do |format|
@@ -31,7 +30,6 @@ class PlansController < ApplicationController
       format.html { render :new }
     end
   rescue Date::Error
-    # 無効な日付の場合は今日の日付を使用
     @plan = current_user.family.plans.build(
       date: Time.zone.today,
       created_by: current_user
@@ -67,7 +65,6 @@ class PlansController < ApplicationController
     end
 
     if @plan.save
-      handle_participants
       # 新規作成時は全ての参加者が「追加された」とみなす
       notify_new_participants(added_ids: @plan.participant_ids)
       set_calendar_data(@plan.date)
@@ -90,18 +87,15 @@ class PlansController < ApplicationController
   end
 
   def update
-    # 更新前の参加者IDを記録
     previous_participant_ids = @plan.participant_ids.dup
     @plan.last_edited_by = current_user
 
-    # 参加者チェック
     if participant_ids_from_params.empty?
       @plan.errors.add(:base, '参加者を1人以上選択してください')
       return render_form_with_errors
     end
 
     if @plan.update(plan_params)
-      handle_participants
       # 新規追加された参加者にのみ通知
       added_ids = @plan.participant_ids - previous_participant_ids
       notify_new_participants(added_ids: added_ids)
@@ -126,21 +120,25 @@ class PlansController < ApplicationController
 
   def destroy
     date = @plan.date
-    @plan.destroy
+    destroyed = @plan.destroy
     set_calendar_data(date)
 
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: [
-          turbo_stream.update('daily_details', partial: 'calendar/daily_view',
-                                               locals: { date: @date }),
-          turbo_stream.replace("calendar-cell-#{date}",
-                               partial: 'calendar/calendar_grid_cell',
-                               locals: { day: date, date: @date, plans: @family_plans, tasks: @family_tasks,
-                                         scope: current_scope, holidays: @holidays })
-        ]
+        if destroyed
+          render turbo_stream: [
+            turbo_stream.update('daily_details', partial: 'calendar/daily_view',
+                                                 locals: { date: @date }),
+            turbo_stream.replace("calendar-cell-#{date}",
+                                 partial: 'calendar/calendar_grid_cell',
+                                 locals: { day: date, date: @date, plans: @family_plans, tasks: @family_tasks,
+                                           scope: current_scope, holidays: @holidays })
+          ]
+        else
+          head :unprocessable_entity
+        end
       end
-      format.html { redirect_to calendar_path, notice: '予定を削除しました' }
+      format.html { redirect_to calendar_path, (destroyed ? { notice: '予定を削除しました' } : { alert: '予定を削除できませんでした' }) }
     end
   end
 
@@ -152,12 +150,6 @@ class PlansController < ApplicationController
 
   def plan_params
     params.expect(plan: [:title, :description, :date, :start_time, :end_time, { participant_ids: [] }])
-  end
-
-  def handle_participants
-    # participant_ids is already handled by Rails associations if permitted correctly,
-    # but verify if standard assignment works with has_many :through.
-    # It should work automatically with plan_params including participant_ids: [].
   end
 
   # 新規追加された参加者に通知を送信
