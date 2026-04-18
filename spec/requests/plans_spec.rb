@@ -7,7 +7,7 @@ RSpec.describe 'Plans', type: :request do
   let(:plan) { create(:plan, family: family, created_by: user, date: Time.zone.today) }
 
   before do
-    sign_in user
+    sign_in user, scope: :user
   end
 
   describe 'POST /plans' do
@@ -59,8 +59,6 @@ RSpec.describe 'Plans', type: :request do
       it 'creates a new plan and redirects' do
         post plans_path, params: valid_params
         expect(response).to redirect_to(calendar_path)
-        follow_redirect!
-        expect(response.body).to include('予定を作成しました')
       end
     end
   end

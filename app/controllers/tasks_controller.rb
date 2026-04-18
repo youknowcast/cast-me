@@ -4,9 +4,7 @@ class TasksController < ApplicationController
   before_action :authenticate_user!
   before_action :set_task, only: %i[show edit update destroy toggle]
 
-  def index
-    @tasks = current_user.tasks.for_date(params[:date]).ordered_by_priority
-  end
+  def index = @tasks = current_user.tasks.for_date(params[:date]).ordered_by_priority
 
   def show; end
 
@@ -58,7 +56,6 @@ class TasksController < ApplicationController
     @task = current_user.family.tasks.build(task_params)
 
     if @task.save
-      # 定型タスク登録が有効な場合
       if params[:register_regular_task] == 'true' && @task.title.present?
         register_or_increment_regular_task(@task.title)
       end
@@ -117,27 +114,30 @@ class TasksController < ApplicationController
 
   def destroy
     date = @task.date
-    @task.destroy
+    destroyed = @task.destroy
     set_calendar_data(date)
 
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: [
-          turbo_stream.update('daily_details', partial: 'calendar/daily_view',
-                                               locals: { date: @date }),
-          turbo_stream.replace("calendar-cell-#{date}",
-                               partial: 'calendar/calendar_grid_cell',
-                               locals: { day: date, date: @date, plans: @family_plans, tasks: @family_tasks,
-                                         scope: current_scope, holidays: @holidays })
-        ]
+        if destroyed
+          render turbo_stream: [
+            turbo_stream.update('daily_details', partial: 'calendar/daily_view',
+                                                 locals: { date: @date }),
+            turbo_stream.replace("calendar-cell-#{date}",
+                                 partial: 'calendar/calendar_grid_cell',
+                                 locals: { day: date, date: @date, plans: @family_plans, tasks: @family_tasks,
+                                           scope: current_scope, holidays: @holidays })
+          ]
+        else
+          head :unprocessable_entity
+        end
       end
-      format.html { redirect_to calendar_path, notice: 'タスクを削除しました' }
+      format.html { redirect_to calendar_path, (destroyed ? { notice: 'タスクを削除しました' } : { alert: 'タスクを削除できませんでした' }) }
     end
   end
 
   def toggle
     @task.update(completed: !@task.completed)
-
     set_calendar_data(@task.date)
     respond_to do |format|
       format.turbo_stream do
@@ -156,18 +156,14 @@ class TasksController < ApplicationController
 
   private
 
-  def set_task
-    @task = current_user.family.tasks.find(params[:id])
-  end
+  def set_task = @task = current_user.family.tasks.find(params[:id])
 
-  def task_params
-    params.expect(task: %i[title description date priority user_id completed])
-  end
+  def task_params = params.expect(task: %i[title description date priority user_id completed])
 
   def register_or_increment_regular_task(title)
     regular_task = current_user.family.regular_tasks.find_or_create_by!(title: title)
     regular_task.increment_usage_for!(current_user)
   rescue ActiveRecord::RecordInvalid
-    # タイトルが無効な場合は無視
+    nil
   end
 end
