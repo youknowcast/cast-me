@@ -6,7 +6,7 @@ RSpec.describe 'Tasks', type: :request do
   let(:task) { create(:task, family: family, user: user, date: Time.zone.today, completed: false) }
 
   before do
-    sign_in user
+    sign_in user, scope: :user
   end
 
   describe 'POST /tasks' do
@@ -60,14 +60,19 @@ RSpec.describe 'Tasks', type: :request do
     end
   end
 
-  describe 'DELETE /destroy' do
-    it 'destroys the task' do
+  describe 'DELETE /tasks/:id' do
+    it 'destroys the task in turbo_stream' do
       task # ensure task is created
       expect do
         delete task_path(task), as: :turbo_stream
       end.to change(Task, :count).by(-1)
       expect(response).to have_http_status(:ok)
       expect(response.body).to include("turbo-stream action=\"replace\" target=\"calendar-cell-#{task.date}\"")
+    end
+
+    it 'destroys the task and redirects in html' do
+      delete task_path(task)
+      expect(response).to redirect_to(calendar_path)
     end
   end
 
