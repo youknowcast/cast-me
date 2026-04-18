@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Branch to deploy
+        required: true
+        default: main
 
 concurrency:
   group: production-deploy
@@ -17,6 +23,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.branch || github.ref }}
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -58,6 +66,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.branch || github.ref }}
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
