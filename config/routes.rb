@@ -47,6 +47,8 @@ Rails.application.routes.draw do
 
   resources :moments
 
+  resources :articles
+
   # 週次サマリ
   resource :weekly_summary, only: [:show]
 

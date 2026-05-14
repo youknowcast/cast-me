@@ -42,6 +42,15 @@ export default class extends Controller {
     this.openSidePanel(`/tasks/${taskId}/edit?scope=${scope}`)
   }
 
+  // 汎用的なURLオープナー
+  openUrl(event: Event): void {
+    event.preventDefault()
+    const url = (event.currentTarget as HTMLElement).dataset.url || (event.currentTarget as HTMLAnchorElement).href
+    if (url) {
+      this.openSidePanel(url)
+    }
+  }
+
   private getScope(): string {
     const scope = (this.element as HTMLElement).dataset.scope
     if (!scope || scope === 'undefined' || scope === 'null') {

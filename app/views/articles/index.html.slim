@@ -1,0 +1,9 @@
+.w-full.bg-white.min-h-screen
+  .sticky.top-0.z-20.bg-white.border-b.border-gray-100
+    .flex.items-center.justify-between.px-4.h-14
+      h1.text-lg.font-bold.text-gray-900 Family Wiki
+      = link_to new_article_path, class: "btn btn-sm btn-circle btn-ghost text-primary", data: { controller: "side-panel-opener", action: "click->side-panel-opener#openUrl" } do
+        i.fas.fa-plus.text-xl
+
+  .p-4.space-y-4.pb-24#articles-list
+    = render "list", articles: @articles

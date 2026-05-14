@@ -1,0 +1,24 @@
+= render layout: "articles/side_panel_wrapper", locals: { title: article.title } do
+  .pb-24
+    - if article.pinned?
+      .mb-4
+        span.inline-flex.items-center.gap-1.px-3.py-1.bg-red-50.text-red-500.text-sm.font-medium.rounded-full
+          i.fas.fa-thumbtack.text-xs
+          | Pinned
+
+    - if article.tags.present?
+      .flex.flex-wrap.gap-2.mb-6
+        - article.tags.each do |tag|
+          span.px-3.py-1.bg-gray-100.text-gray-600.rounded-full.text-sm = tag.name
+
+    .prose.prose-slate.max-w-none
+      = simple_format(article.description)
+    
+    .mt-10.pt-6.border-t.border-gray-100.flex.justify-between.items-center
+      = link_to edit_article_path(article), class: "btn btn-primary btn-sm", data: { controller: "side-panel-opener", action: "click->side-panel-opener#openUrl" } do
+        i.fas.fa-pen.mr-2
+        | 編集する
+
+      = button_to article_path(article), method: :delete, form: { data: { turbo_confirm: "本当に削除しますか？" } }, class: "text-red-400 text-sm flex items-center gap-2 hover:text-red-500" do
+        i.fas.fa-trash-alt
+        | 削除
