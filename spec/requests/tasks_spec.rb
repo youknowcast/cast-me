@@ -3,6 +3,7 @@ require 'rails_helper'
 RSpec.describe 'Tasks', type: :request do
   let(:family) { create(:family) }
   let(:user) { create(:user, family: family) }
+  let(:other_user) { create(:user, family: family) }
   let(:task) { create(:task, family: family, user: user, date: Time.zone.today, completed: false) }
 
   before do
@@ -73,6 +74,15 @@ RSpec.describe 'Tasks', type: :request do
     it 'destroys the task and redirects in html' do
       delete task_path(task)
       expect(response).to redirect_to(calendar_path)
+    end
+
+    it 'keeps the my calendar scope in turbo_stream' do
+      other_task = create(:task, family: family, user: other_user, title: 'Other family task', date: task.date)
+
+      delete task_path(task), params: { scope: 'my', date: task.date }, as: :turbo_stream
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).not_to include(other_task.title)
     end
   end
 

@@ -40,6 +40,7 @@ export default class extends BaseActionSheetController {
 			form.method = 'POST'
 			form.action = this.deleteUrl
 			form.style.display = 'none'
+			form.dataset.turboStream = 'true'
 
 			// Add CSRF token
 			const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
@@ -58,8 +59,9 @@ export default class extends BaseActionSheetController {
 			methodInput.value = this.deleteMethod
 			form.appendChild(methodInput)
 
+			form.addEventListener('turbo:submit-end', () => form.remove(), { once: true })
 			document.body.appendChild(form)
-			form.submit()
+			form.requestSubmit()
 		}
 		return null // No event dispatch needed
 	}
