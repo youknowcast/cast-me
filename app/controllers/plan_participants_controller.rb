@@ -20,7 +20,7 @@ class PlanParticipantsController < ApplicationController
             turbo_stream.replace("calendar-cell-#{@date}",
                                  partial: 'calendar/calendar_grid_cell',
                                  locals: { day: @date, date: @date, plans: @family_plans, tasks: @family_tasks,
-                                           scope: current_scope })
+                                           scope: current_scope, holidays: @holidays })
           ]
         end
         format.html { redirect_to calendar_path(date: @date) }
