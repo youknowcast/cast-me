@@ -107,5 +107,16 @@ RSpec.describe 'Plans', type: :request do
       delete plan_path(plan)
       expect(response).to redirect_to(calendar_path)
     end
+
+    it 'keeps the my calendar scope in turbo_stream' do
+      plan.participants << user
+      other_plan = create(:plan, family: family, title: 'Other family plan', date: plan.date)
+      other_plan.participants << other_user
+
+      delete plan_path(plan), params: { scope: 'my', date: plan.date }, as: :turbo_stream
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).not_to include(other_plan.title)
+    end
   end
 end
