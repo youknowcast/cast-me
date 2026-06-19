@@ -192,11 +192,6 @@ end
 
 Rails.logger.debug { "✓ タスクを作成: #{tasks.count}件" }
 
-# 既存のMomentデータ
-Moment.create([
-                { description: 'hoge', file_path: 'foo/bar/baz', link: 'https://example.com/hoge' }
-              ])
-
 Rails.logger.debug '=== テストデータの作成が完了しました ==='
 Rails.logger.debug 'ログイン情報:'
 Rails.logger.debug '  ユーザーID: father, mother, child1, child2'
