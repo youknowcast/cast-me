@@ -1,0 +1,26 @@
+.min-h-full.flex.items-center.justify-center.bg-base-200.p-4
+  .card.w-full.max-w-sm.bg-base-100.shadow-xl
+    .card-body.gap-5
+      .text-center
+        h1.text-3xl.font-bold.text-primary CastMe
+        p.mt-2.text-sm.text-base-content/60 ログインしてください
+
+      = form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "space-y-4" }) do |f|
+        label.form-control.w-full
+          .label
+            span.label-text ログインID
+          = f.text_field :login_id, autofocus: true, autocomplete: "username", class: "input input-bordered w-full"
+
+        label.form-control.w-full
+          .label
+            span.label-text パスワード
+          = f.password_field :password, autocomplete: "current-password", class: "input input-bordered w-full"
+
+        - if devise_mapping.rememberable?
+          label.label.cursor-pointer.justify-start.gap-3
+            = f.check_box :remember_me, { checked: true, class: "checkbox checkbox-primary" }, "1", "0"
+            span.label-text ログイン状態を保持する
+
+        = f.submit "ログイン", class: "btn btn-primary w-full"
+
+      = render "devise/shared/links"
