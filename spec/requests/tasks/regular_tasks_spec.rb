@@ -38,4 +38,26 @@ RSpec.describe 'RegularTasks', type: :request do
       expect(titles).to eq(titles.sort)
     end
   end
+
+  describe 'POST /regular_tasks' do
+    it 'creates a regular task in the current family' do
+      expect do
+        post regular_tasks_path, params: { regular_task: { title: '洗濯' } }, as: :json
+      end.to change(family.regular_tasks, :count).by(1)
+
+      expect(response).to have_http_status(:created)
+      expect(response.parsed_body).to include('title' => '洗濯')
+    end
+
+    it 'returns validation errors without creating a duplicate' do
+      create(:regular_task, family: family, title: '洗濯')
+
+      expect do
+        post regular_tasks_path, params: { regular_task: { title: '洗濯' } }, as: :json
+      end.not_to change(RegularTask, :count)
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response.parsed_body['errors']).to be_present
+    end
+  end
 end

@@ -59,6 +59,16 @@ RSpec.describe 'Tasks', type: :request do
       task.reload
       expect(task.title).to eq('New Title')
     end
+
+    it 'does not update a task from another family' do
+      other_task = create(:task, title: 'Other family task')
+
+      expect do
+        patch task_path(other_task), params: { task: { title: 'Changed' } }, as: :turbo_stream
+      end.to raise_error(ActiveRecord::RecordNotFound)
+
+      expect(other_task.reload.title).to eq('Other family task')
+    end
   end
 
   describe 'DELETE /tasks/:id' do
@@ -84,6 +94,16 @@ RSpec.describe 'Tasks', type: :request do
       expect(response).to have_http_status(:ok)
       expect(response.body).not_to include(other_task.title)
     end
+
+    it 'does not destroy a task from another family' do
+      other_task = create(:task)
+
+      expect do
+        delete task_path(other_task), as: :turbo_stream
+      end.to raise_error(ActiveRecord::RecordNotFound)
+
+      expect(Task.exists?(other_task.id)).to be true
+    end
   end
 
   describe 'PATCH /toggle' do
@@ -94,6 +114,16 @@ RSpec.describe 'Tasks', type: :request do
       expect(task.completed).to be true
       expect(response.body).to include("turbo-stream action=\"replace\" target=\"task_#{task.id}\"")
       expect(response.body).to include("turbo-stream action=\"replace\" target=\"calendar-cell-#{task.date}\"")
+    end
+
+    it 'does not toggle a task from another family' do
+      other_task = create(:task, completed: false)
+
+      expect do
+        patch toggle_task_path(other_task), as: :turbo_stream
+      end.to raise_error(ActiveRecord::RecordNotFound)
+
+      expect(other_task.reload.completed).to be false
     end
   end
 end

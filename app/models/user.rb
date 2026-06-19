@@ -26,7 +26,6 @@ class User < ApplicationRecord
 
   belongs_to :family
 
-  has_many :articles, dependent: :destroy
   has_many :plans, dependent: :destroy
   has_many :tasks, dependent: :destroy
   has_many :plan_participants, dependent: :destroy

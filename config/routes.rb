@@ -45,8 +45,6 @@ Rails.application.routes.draw do
     patch :update_notifications
   end
 
-  resources :moments
-
   # 週次サマリ
   resource :weekly_summary, only: [:show]
 

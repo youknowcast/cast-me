@@ -17,6 +17,40 @@ RSpec.describe 'Calendars', type: :request do
     end
   end
 
+  describe 'GET /my' do
+    let!(:my_plan) { create(:plan, family: family, date: date, title: 'My Plan') }
+    let!(:other_plan) { create(:plan, family: family, date: date, title: 'Other Plan') }
+    let!(:my_task) { create(:task, family: family, user: user, date: date, title: 'My Task') }
+    let!(:other_task) { create(:task, family: family, user: other_user, date: date, title: 'Other Task') }
+
+    before do
+      create(:plan_participant, plan: my_plan, user: user, status: :joined)
+      create(:plan_participant, plan: other_plan, user: other_user, status: :joined)
+    end
+
+    it 'only assigns plans and tasks belonging to the current user' do
+      get my_calendar_path, params: { date: date }
+
+      expect(response).to have_http_status(:success)
+      expect(controller.instance_variable_get(:@family_plans)).to contain_exactly(my_plan)
+      expect(controller.instance_variable_get(:@family_tasks)).to contain_exactly(my_task)
+      expect(response.body).not_to include(other_plan.title, other_task.title)
+    end
+  end
+
+  describe 'GET /daily_view' do
+    it 'preserves the requested my scope in the turbo frame' do
+      my_task = create(:task, family: family, user: user, date: date, title: 'My Daily Task')
+      other_task = create(:task, family: family, user: other_user, date: date, title: 'Other Daily Task')
+
+      get calendar_daily_view_path, params: { date: date, scope: 'my' }
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include(my_task.title)
+      expect(response.body).not_to include(other_task.title)
+    end
+  end
+
   describe 'GET /monthly_list' do
     let!(:joined_plan) { create(:plan, family: family, date: date, title: 'Joined Plan') }
     let!(:declined_plan) { create(:plan, family: family, date: date, title: 'Declined Plan') }

@@ -88,6 +88,16 @@ RSpec.describe 'Plans', type: :request do
         patch plan_path(plan), params: { plan: { title: '' }, scope: 'family' }, as: :turbo_stream
         expect(response).to have_http_status(:unprocessable_entity)
       end
+
+      it 'does not update a plan from another family' do
+        other_plan = create(:plan, title: 'Other family plan')
+
+        expect do
+          patch plan_path(other_plan), params: update_params, as: :turbo_stream
+        end.to raise_error(ActiveRecord::RecordNotFound)
+
+        expect(other_plan.reload.title).to eq('Other family plan')
+      end
     end
   end
 
@@ -117,6 +127,16 @@ RSpec.describe 'Plans', type: :request do
 
       expect(response).to have_http_status(:ok)
       expect(response.body).not_to include(other_plan.title)
+    end
+
+    it 'does not destroy a plan from another family' do
+      other_plan = create(:plan)
+
+      expect do
+        delete plan_path(other_plan), as: :turbo_stream
+      end.to raise_error(ActiveRecord::RecordNotFound)
+
+      expect(Plan.exists?(other_plan.id)).to be true
     end
   end
 end
