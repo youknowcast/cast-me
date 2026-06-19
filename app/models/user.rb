@@ -10,6 +10,7 @@
 #  updated_at         :datetime         not null
 #  family_id          :bigint           not null
 #  login_id           :string           not null
+#  remember_created_at :datetime
 #
 # Indexes
 #
@@ -21,7 +22,7 @@ class User < ApplicationRecord
 
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
-  devise :database_authenticatable, :timeoutable
+  devise :database_authenticatable, :rememberable, :timeoutable
 
   belongs_to :family
 
