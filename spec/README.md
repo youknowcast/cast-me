@@ -7,7 +7,7 @@ Specs remain grouped by RSpec type first so Rails type inference continues to wo
 | Feature | Request specs | Model/helper specs | Service specs | Current coverage |
 |---|---|---|---|---|
 | Authentication | `requests/authentication/` | `models/accounts/` | - | Protected pages and mutation endpoints reject signed-out users |
-| Calendar and plans | `requests/calendar/` | `models/calendar/`, `helpers/calendar/` | `services/calendar/` | My/family filtering, monthly list, plan create/update/delete, participation updates, anniversaries and holidays |
+| Calendar and plans | `requests/calendar/` | `models/calendar/`, `helpers/calendar/` | `services/calendar/` | My/family filtering, monthly list, single/multi-date plan creation, update/delete, participation updates, anniversaries and holidays |
 | Tasks and templates | `requests/tasks/` | `models/tasks/` | - | Task create/update/delete/toggle, regular tasks, everyday templates and task templates |
 | Settings | `requests/settings/` | `models/accounts/user_notification_setting_spec.rb` | - | Birthday and notification settings, missing avatar upload |
 | Family communication | `requests/communication/` | - | `services/notifications/family_call_notification_service_spec.rb` | Family call authorization, defaults and notification payloads |

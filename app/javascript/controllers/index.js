@@ -34,6 +34,9 @@ application.register("hello", HelloController)
 import MobileDatepickerController from "./mobile_datepicker_controller"
 application.register("mobile-datepicker", MobileDatepickerController)
 
+import MultiDatepickerConnectorController from "./multi_datepicker_connector_controller"
+application.register("multi-datepicker-connector", MultiDatepickerConnectorController)
+
 import MobileSelectorController from "./mobile_selector_controller"
 application.register("mobile-selector", MobileSelectorController)
 

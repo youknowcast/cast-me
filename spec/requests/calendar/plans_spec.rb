@@ -53,6 +53,57 @@ RSpec.describe 'Plans', type: :request do
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.body).to include('参加者を1人以上選択してください')
       end
+
+      it 'creates an independent plan for each selected date', :aggregate_failures do
+        dates = [Time.zone.today, Time.zone.tomorrow, Time.zone.today + 1.week]
+        params = valid_params.deep_dup
+        params[:plan].delete(:date)
+        params[:plan][:dates] = dates.map(&:to_s)
+
+        expect do
+          post plans_path, params: params, as: :turbo_stream
+        end.to change(Plan, :count).by(3)
+
+        created_plans = Plan.order(:date).last(3)
+        expect(created_plans.map(&:date)).to eq(dates.sort)
+        expect(created_plans.map(&:title).uniq).to eq(['New Plan'])
+        expect(created_plans).to all(have_attributes(created_by: user, last_edited_by: user))
+        expect(created_plans.map { |plan| plan.participant_ids.sort }.uniq).to eq([[user.id, other_user.id].sort])
+        dates.each do |date|
+          expect(response.body).to include("target=\"calendar-cell-#{date}\"")
+        end
+      end
+
+      it 'creates only one plan for duplicate selected dates' do
+        params = valid_params.deep_dup
+        params[:plan].delete(:date)
+        params[:plan][:dates] = [Time.zone.today.to_s, Time.zone.today.to_s]
+
+        expect do
+          post plans_path, params: params, as: :turbo_stream
+        end.to change(Plan, :count).by(1)
+      end
+
+      it 'does not create plans when a selected date is invalid' do
+        params = valid_params.deep_dup
+        params[:plan].delete(:date)
+        params[:plan][:dates] = [Time.zone.today.to_s, 'invalid-date']
+
+        expect do
+          post plans_path, params: params, as: :turbo_stream
+        end.not_to change(Plan, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.body).to include('を1日以上選択してください')
+      end
+
+      it 'renders a multi-date selector for a new plan' do
+        get new_plan_path, params: { date: Time.zone.today, scope: 'family' }, as: :turbo_stream
+
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include('data-controller="multi-datepicker-connector"')
+        expect(response.body).to include('name="plan[dates][]"')
+      end
     end
 
     context 'with html' do
