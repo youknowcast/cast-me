@@ -7,7 +7,7 @@ Specs remain grouped by RSpec type first so Rails type inference continues to wo
 | Feature | Request specs | Model/helper specs | Service specs | Current coverage |
 |---|---|---|---|---|
 | Authentication | `requests/authentication/` | `models/accounts/` | - | Protected pages and mutation endpoints reject signed-out users |
-| Calendar and plans | `requests/calendar/` | `models/calendar/`, `helpers/calendar/` | `services/calendar/` | My/family filtering, monthly list, plan create/update/delete, participation updates, anniversaries and holidays |
+| Calendar and plans | `requests/calendar/` | `models/calendar/`, `helpers/calendar/` | `services/calendar/` | My/family filtering, monthly list, single/multi-date plan creation, update/delete, participation updates, anniversaries and holidays |
 | Tasks and templates | `requests/tasks/` | `models/tasks/` | - | Task create/update/delete/toggle, regular tasks, everyday templates and task templates |
 | Settings | `requests/settings/` | `models/accounts/user_notification_setting_spec.rb` | - | Birthday and notification settings, missing avatar upload |
 | Family communication | `requests/communication/` | - | `services/notifications/family_call_notification_service_spec.rb` | Family call authorization, defaults and notification payloads |
@@ -17,9 +17,15 @@ Specs remain grouped by RSpec type first so Rails type inference continues to wo
 
 Factories remain in `spec/factories/` because they are shared across features.
 
+Stimulus controller tests live in `spec/javascript/controllers/` and run with:
+
+```bash
+yarn test:js
+```
+
 ## Important remaining gaps
 
-1. Browser-level system specs for Turbo and Stimulus interactions are not present.
+1. Full-browser system specs for end-to-end Turbo interactions are not present; core date-picker behavior is covered in jsdom.
 2. Successful avatar resizing and image-processing failure branches are not covered.
 3. Plan notification behavior does not have a direct service spec.
 4. Mobile UI and call helper HTML generation are not covered directly.

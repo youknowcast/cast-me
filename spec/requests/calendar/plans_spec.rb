@@ -53,6 +53,96 @@ RSpec.describe 'Plans', type: :request do
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.body).to include('参加者を1人以上選択してください')
       end
+
+      it 'creates an independent plan for each selected date', :aggregate_failures do
+        dates = [Time.zone.today, Time.zone.tomorrow, Time.zone.today + 1.week]
+        params = valid_params.deep_dup
+        params[:plan].delete(:date)
+        params[:plan][:dates] = dates.map(&:to_s)
+
+        expect do
+          post plans_path, params: params, as: :turbo_stream
+        end.to change(Plan, :count).by(3)
+
+        created_plans = Plan.order(:date).last(3)
+        expect(created_plans.map(&:date)).to eq(dates.sort)
+        expect(created_plans.map(&:title).uniq).to eq(['New Plan'])
+        expect(created_plans).to all(have_attributes(created_by: user, last_edited_by: user))
+        expect(created_plans.map { |plan| plan.participant_ids.sort }.uniq).to eq([[user.id, other_user.id].sort])
+        dates.each do |date|
+          expect(response.body).to include("target=\"calendar-cell-#{date}\"")
+        end
+      end
+
+      it 'creates only one plan for duplicate selected dates' do
+        params = valid_params.deep_dup
+        params[:plan].delete(:date)
+        params[:plan][:dates] = [Time.zone.today.to_s, Time.zone.today.to_s]
+
+        expect do
+          post plans_path, params: params, as: :turbo_stream
+        end.to change(Plan, :count).by(1)
+      end
+
+      it 'does not create plans when a selected date is invalid' do
+        params = valid_params.deep_dup
+        params[:plan].delete(:date)
+        params[:plan][:dates] = [Time.zone.today.to_s, 'invalid-date']
+
+        expect do
+          post plans_path, params: params, as: :turbo_stream
+        end.not_to change(Plan, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.body).to include('を1日以上選択してください')
+      end
+
+      it 'notifies newly added participants only once for a multi-date submission' do
+        allow(PushNotificationService).to receive(:send_to_users)
+        params = valid_params.deep_dup
+        params[:plan].delete(:date)
+        params[:plan][:dates] = [Time.zone.today, Time.zone.tomorrow, Time.zone.today + 2.days].map(&:to_s)
+
+        post plans_path, params: params, as: :turbo_stream
+
+        expect(PushNotificationService).to have_received(:send_to_users).once.with(
+          user_ids: [other_user.id.to_s],
+          title: '新しい予定に追加されました',
+          message: include('ほか2件'),
+          url: nil
+        )
+      end
+
+      it 'shows a flash notice in the turbo_stream response' do
+        params = valid_params.deep_dup
+        params[:plan].delete(:date)
+        params[:plan][:dates] = [Time.zone.today, Time.zone.tomorrow].map(&:to_s)
+
+        post plans_path, params: params, as: :turbo_stream
+
+        expect(response.body).to include('turbo-stream action="replace" target="flash"')
+        expect(response.body).to include('予定を2件作成しました')
+      end
+
+      it 'accepts non-ISO date formats' do
+        params = valid_params.deep_dup
+        params[:plan].delete(:date)
+        params[:plan][:dates] = ['2026/06/28']
+
+        expect do
+          post plans_path, params: params, as: :turbo_stream
+        end.to change(Plan, :count).by(1)
+
+        expect(Plan.last.date).to eq(Date.new(2026, 6, 28))
+      end
+
+      it 'renders a multi-date selector for a new plan' do
+        get new_plan_path, params: { date: Time.zone.today, scope: 'family' }, as: :turbo_stream
+
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include('data-controller="multi-datepicker-connector"')
+        expect(response.body).to include('name="plan[dates][]"')
+      end
     end
 
     context 'with html' do

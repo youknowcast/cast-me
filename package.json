@@ -10,13 +10,16 @@
     "turbolinks": "^5.2.0"
   },
   "scripts": {
-    "build": "esbuild app/javascript/application.js --bundle --sourcemap --outdir=app/assets/builds --loader:.ts=ts"
+    "build": "esbuild app/javascript/application.js --bundle --sourcemap --outdir=app/assets/builds --loader:.ts=ts",
+    "test:js": "vitest run"
   },
   "version": "0.1.0",
   "devDependencies": {
+    "@types/node": "^20.0.0",
     "daisyui": "^4.12.14",
+    "jsdom": "25.0.1",
     "postcss": "^8.4.47",
     "typescript": "^5.0.0",
-    "@types/node": "^20.0.0"
+    "vitest": "2.1.9"
   }
 }

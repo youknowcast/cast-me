@@ -21,7 +21,32 @@ class PlanNotificationService
       Rails.logger.error("PlanNotificationService error: #{e.message}")
     end
 
+    # 複数日にまたがって作成された予定について、新規参加者に1度だけ通知する
+    #
+    # @param plans [Array<Plan>] 同時に作成された予定（参加者は共通の想定）
+    # @param added_user_ids [Array<Integer>] 新規追加された参加者のユーザーID
+    # @param excluded_user_id [Integer] 通知から除外するユーザーID（通常は作成者/編集者）
+    def notify_added_to_plans(plans:, added_user_ids:, excluded_user_id:)
+      target_user_ids = added_user_ids.map(&:to_s) - [excluded_user_id.to_s]
+      return if target_user_ids.empty? || plans.empty?
+
+      send_notification(
+        user_ids: target_user_ids,
+        title: '新しい予定に追加されました',
+        message: plans_message(plans),
+        url: nil
+      )
+    rescue StandardError => e
+      Rails.logger.error("PlanNotificationService error: #{e.message}")
+    end
+
     private
+
+    def plans_message(plans)
+      plan = plans.first
+      base = "「#{plan.title}」（#{I18n.l(plan.date, format: :short)}）"
+      plans.size > 1 ? "#{base} ほか#{plans.size - 1}件" : base
+    end
 
     def send_notification(user_ids:, title:, message:, url: nil)
       PushNotificationService.send_to_users(

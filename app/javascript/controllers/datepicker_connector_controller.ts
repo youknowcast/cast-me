@@ -6,13 +6,15 @@ export default class extends Controller {
 	declare readonly inputTarget: HTMLInputElement
 	declare readonly triggerTextTarget: HTMLElement
 
+	private confirmedHandler = this.onConfirmed.bind(this) as EventListener
+
 	connect() {
-		window.addEventListener('datepicker:confirmed', this.onConfirmed.bind(this) as any)
+		window.addEventListener('datepicker:confirmed', this.confirmedHandler)
 		this.updateTriggerText()
 	}
 
 	disconnect() {
-		window.removeEventListener('datepicker:confirmed', this.onConfirmed.bind(this) as any)
+		window.removeEventListener('datepicker:confirmed', this.confirmedHandler)
 	}
 
 	open() {
@@ -37,14 +39,9 @@ export default class extends Controller {
 	}
 
 	private updateTriggerText() {
+		// Value is YYYY-MM-DD; format by string substitution to avoid timezone-shifted Date parsing
 		if (this.inputTarget.value) {
-			const date = new Date(this.inputTarget.value)
-			if (!isNaN(date.getTime())) {
-				const year = date.getFullYear()
-				const month = String(date.getMonth() + 1).padStart(2, '0')
-				const day = String(date.getDate()).padStart(2, '0')
-				this.triggerTextTarget.textContent = `${year}/${month}/${day}`
-			}
+			this.triggerTextTarget.textContent = this.inputTarget.value.replace(/-/g, '/')
 		}
 	}
 }
