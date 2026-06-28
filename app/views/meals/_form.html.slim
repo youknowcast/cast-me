@@ -20,17 +20,32 @@
                 ul
                   - meal.errors.full_messages.each do |msg|
                     li = msg
+
             .form-control
               = f.label :meal_type, '食事区分', class: 'label'
               = f.select :meal_type, Meal.meal_type_options, {}, class: 'select select-bordered w-full'
+
+            .form-control
+              = f.label :user_id, '誰が', class: 'label'
+              = mobile_collection_select f, :user_id, current_user.family.users, :id, :login_id, { label: '誰が', include_blank: true, blank_value: '', blank_text: '家族みんな' }
+
+            .form-control data-controller="meal-food"
+              span.label-text 食べ物
+              = food_selector(current_user.family)
+              .flex.flex-wrap.gap-2.my-2 data-meal-food-target="chips"
+                - meal.foods.each do |food|
+                  span.badge.badge-lg.gap-1 data-food-name=food.name
+                    input type="hidden" name="meal[food_names][]" value=food.name
+                    span= food.name
+                    button type="button" data-action="meal-food#removeFood" ✕
+              .flex.items-center.gap-2
+                input.input.input-bordered.flex-1 type="text" placeholder="新しい食べ物" data-meal-food-target="input"
+                button.btn.btn-outline type="button" data-action="meal-food#addFromInput" 追加
+
             .form-control
               = f.label :date, '日付', class: 'label'
               = mobile_date_field f, :date
-            .form-control
-              span.label-text 食べ物
-              - meal.foods.each do |food|
-                input type="hidden" name="meal[food_names][]" value=food.name
-              input type="text" name="meal[food_names][]" class="input input-bordered w-full" placeholder="食べ物（複数可）"
+
           .side-panel-footer
             = link_to 'キャンセル', '#', class: 'btn btn-ghost', data: { action: 'click->side-panel#close' }
             = f.submit meal.persisted? ? '更新' : '記録', class: 'btn btn-primary'

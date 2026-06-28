@@ -85,4 +85,24 @@ RSpec.describe 'Meals', type: :request do
       expect(response).to have_http_status(:ok)
     end
   end
+
+  describe 'GET /meals/new' do
+    it 'renders the form with frequently used foods as quick buttons' do
+      create(:food, family: family, name: 'ラーメン', active: true)
+      get new_meal_path(date: Time.zone.today.to_s, scope: 'family'), as: :turbo_stream
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include('meal-food')
+      expect(response.body).to include('ラーメン')
+    end
+  end
+
+  describe 'GET /meals/:id/edit' do
+    it 'pre-fills chips with existing foods' do
+      meal = create(:meal, family: family, user: user, meal_type: 1)
+      create(:meal_food, meal: meal, food: create(:food, family: family, name: 'カレー'))
+      get edit_meal_path(meal, scope: 'family'), as: :turbo_stream
+      expect(response.body).to include('カレー')
+      expect(response.body).to include('meal[food_names][]')
+    end
+  end
 end
