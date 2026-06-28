@@ -122,3 +122,15 @@ create_table 'foods', force: :cascade do |t|
   t.index %w[family_id name], name: 'index_foods_on_family_id_and_name', unique: true
   t.index %w[family_id active], name: 'index_foods_on_family_id_and_active'
 end
+
+create_table 'meals', force: :cascade do |t|
+  t.bigint 'family_id', null: false
+  t.bigint 'user_id'
+  t.date 'date', null: false
+  t.integer 'meal_type', null: false # 0:朝 1:昼 2:夕 3:間食
+  t.timestamps
+
+  t.index %w[family_id date], name: 'index_meals_on_family_id_and_date'
+  t.index %w[user_id date], name: 'index_meals_on_user_id_and_date'
+  t.index %w[date meal_type], name: 'index_meals_on_date_and_meal_type'
+end
