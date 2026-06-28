@@ -134,3 +134,12 @@ create_table 'meals', force: :cascade do |t|
   t.index %w[user_id date], name: 'index_meals_on_user_id_and_date'
   t.index %w[date meal_type], name: 'index_meals_on_date_and_meal_type'
 end
+
+create_table 'meal_foods', force: :cascade do |t|
+  t.bigint 'meal_id', null: false
+  t.bigint 'food_id', null: false
+  t.timestamps
+
+  t.index %w[meal_id food_id], name: 'index_meal_foods_on_meal_id_and_food_id', unique: true
+  t.index ['food_id'], name: 'index_meal_foods_on_food_id'
+end

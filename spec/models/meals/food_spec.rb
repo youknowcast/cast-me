@@ -51,4 +51,24 @@ RSpec.describe Food, type: :model do
       expect(family.foods.ordered_by_name).to eq([a, b])
     end
   end
+
+  describe '.frequently_used' do
+    it 'excludes inactive foods and orders by name when usage is equal, respecting limit' do
+      a = create(:food, family: family, name: 'A', active: true)
+      b = create(:food, family: family, name: 'B', active: true)
+      create(:food, family: family, name: 'C', active: false)
+
+      expect(family.foods.frequently_used(2)).to eq([a, b])
+    end
+
+    it 'orders by usage count desc (derived from meal_foods)' do
+      a = create(:food, family: family, name: 'A')
+      b = create(:food, family: family, name: 'B')
+      create(:meal_food, meal: create(:meal, family: family), food: b)
+      create(:meal_food, meal: create(:meal, family: family), food: b)
+      create(:meal_food, meal: create(:meal, family: family), food: a)
+
+      expect(family.foods.frequently_used(2).map(&:name)).to eq(%w[B A])
+    end
+  end
 end
