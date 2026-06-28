@@ -1,0 +1,36 @@
+.side-panel-overlay[
+  data-controller="side-panel"
+  data-side-panel-target="overlay"
+  data-action="click->side-panel#closeBackground"
+  style="display: block; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999;"
+]
+  .side-panel-backdrop.opacity-0 data-side-panel-target="backdrop"
+  .side-panel.translate-x-full data-side-panel-target="panel"
+    .side-panel-content
+      .side-panel-header
+        h3.text-lg.font-semibold = meal.persisted? ? '食事を編集' : '食事を記録'
+        button.btn.btn-sm.btn-circle.btn-ghost data-action="click->side-panel#close"
+          i.fas.fa-times
+      .side-panel-body
+        = form_with model: meal do |f|
+          = hidden_field_tag :scope, scope
+          .space-y-6
+            - if meal.errors.any?
+              .alert.alert-error
+                ul
+                  - meal.errors.full_messages.each do |msg|
+                    li = msg
+            .form-control
+              = f.label :meal_type, '食事区分', class: 'label'
+              = f.select :meal_type, Meal.meal_type_options, {}, class: 'select select-bordered w-full'
+            .form-control
+              = f.label :date, '日付', class: 'label'
+              = mobile_date_field f, :date
+            .form-control
+              span.label-text 食べ物
+              - meal.foods.each do |food|
+                input type="hidden" name="meal[food_names][]" value=food.name
+              input type="text" name="meal[food_names][]" class="input input-bordered w-full" placeholder="食べ物（複数可）"
+          .side-panel-footer
+            = link_to 'キャンセル', '#', class: 'btn btn-ghost', data: { action: 'click->side-panel#close' }
+            = f.submit meal.persisted? ? '更新' : '記録', class: 'btn btn-primary'
