@@ -18,7 +18,7 @@ ENV PATH /app/bin:$BUNDLE_BIN:$PATH
 
 # Run only `bundle install` first for caching
 RUN mkdir -p /app
-COPY Gemfile Gemfile.lock .ruby-version /app/
+COPY Gemfile Gemfile.lock .tool-versions /app/
 WORKDIR /app
 RUN bundle config set jobs 4 && bundle install
 
