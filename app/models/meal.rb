@@ -20,6 +20,7 @@ class Meal < ApplicationRecord
 
   validates :date, presence: true
   validates :meal_type, presence: true, inclusion: { in: MEAL_TYPE_LABELS.keys }
+  validate :user_in_same_family
 
   scope :for_date, ->(date) { where(date: date) }
   scope :for_family, ->(family_id) { where(family_id: family_id) }
@@ -33,5 +34,14 @@ class Meal < ApplicationRecord
 
   def meal_type_text
     MEAL_TYPE_LABELS.fetch(meal_type, '未設定')
+  end
+
+  private
+
+  def user_in_same_family
+    return if user_id.blank? || family_id.blank?
+    return if user && user.family_id == family_id
+
+    errors.add(:user_id, 'は同じ家族のメンバーである必要があります')
   end
 end

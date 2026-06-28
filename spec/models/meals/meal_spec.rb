@@ -31,6 +31,18 @@ RSpec.describe Meal, type: :model do
     it 'is invalid with an out-of-range meal_type' do
       expect(build(:meal, family: family, meal_type: 4)).not_to be_valid
     end
+
+    it 'is valid when the user belongs to the same family' do
+      member = create(:user, family: family)
+      expect(build(:meal, family: family, user: member)).to be_valid
+    end
+
+    it 'is invalid when the user belongs to another family' do
+      stranger = create(:user)
+      meal = build(:meal, family: family, user: stranger)
+      expect(meal).not_to be_valid
+      expect(meal.errors[:user_id]).to be_present
+    end
   end
 
   describe '.visible_to_user' do

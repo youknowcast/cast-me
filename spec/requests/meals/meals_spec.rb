@@ -35,6 +35,17 @@ RSpec.describe 'Meals', type: :request do
       expect(Food.count).to eq(1)
     end
 
+    it 'does not create a meal attributed to a user from another family' do
+      stranger = create(:user)
+      expect do
+        post meals_path,
+             params: { meal: { date: Time.zone.today.to_s, meal_type: 1, user_id: stranger.id, food_names: ['ラーメン'] },
+                       scope: 'family' },
+             as: :turbo_stream
+      end.not_to change(Meal, :count)
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
     it 'rejects a meal with no foods' do
       expect do
         post meals_path,
