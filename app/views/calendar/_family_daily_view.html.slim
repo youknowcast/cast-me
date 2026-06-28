@@ -1,5 +1,6 @@
 .bg-white.rounded-lg.shadow-lg.p-6
   = render "calendar/header", date: date, scope: scope
+  = render "calendar/meal_section", date: date, meals: family_meals, scope: scope
 
   - target_users.each do |target_user|
     = render "calendar/user_section",
