@@ -59,6 +59,18 @@
 
       .divider.my-2
 
+      / 食べ物マスタの管理
+      .form-control
+        label.label
+          span.label-text 食べ物マスタの管理
+        = link_to foods_path, class: 'btn btn-outline btn-sm w-full justify-between' do
+          span
+            i.fas.fa-utensils.mr-2
+            | 食べ物マスタを管理
+          i.fas.fa-chevron-right
+
+      .divider.my-2
+
       / 週間サマリー
       .form-control
         label.label

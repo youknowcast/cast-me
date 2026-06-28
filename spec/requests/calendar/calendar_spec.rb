@@ -51,6 +51,32 @@ RSpec.describe 'Calendars', type: :request do
     end
   end
 
+  describe 'meals in daily view' do
+    let(:family) { create(:family) }
+    let(:me) { create(:user, family: family) }
+    let(:other) { create(:user, family: family) }
+
+    before { sign_in me, scope: :user }
+
+    it 'family scope shows all family meals for the date' do
+      ramen = create(:food, family: family, name: 'ラーメン')
+      meal = create(:meal, family: family, user: other, date: Time.zone.today, meal_type: 1)
+      create(:meal_food, meal: meal, food: ramen)
+
+      get calendar_path(date: Time.zone.today.to_s)
+      expect(response.body).to include('ラーメン')
+    end
+
+    it 'my scope hides other members-only meals' do
+      curry = create(:food, family: family, name: 'カレー')
+      meal = create(:meal, family: family, user: other, date: Time.zone.today, meal_type: 2)
+      create(:meal_food, meal: meal, food: curry)
+
+      get my_calendar_path(date: Time.zone.today.to_s)
+      expect(response.body).not_to include('カレー')
+    end
+  end
+
   describe 'GET /monthly_list' do
     let!(:joined_plan) { create(:plan, family: family, date: date, title: 'Joined Plan') }
     let!(:declined_plan) { create(:plan, family: family, date: date, title: 'Declined Plan') }

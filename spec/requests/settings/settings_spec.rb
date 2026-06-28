@@ -15,6 +15,12 @@ RSpec.describe 'Settings', type: :request do
       expect(response).to have_http_status(:success)
       expect(response.body).to include(user.login_id)
     end
+
+    it 'shows a link to the food master management' do
+      get settings_path
+      expect(response.body).to include(foods_path)
+      expect(response.body).to include('食べ物マスタ')
+    end
   end
 
   describe 'PATCH /settings' do
