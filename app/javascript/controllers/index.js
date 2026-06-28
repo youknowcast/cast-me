@@ -52,6 +52,9 @@ application.register("monthpicker", MonthpickerController)
 import PlanFormController from "./plan_form_controller"
 application.register("plan-form", PlanFormController)
 
+import MealFoodController from "./meal_food_controller"
+application.register("meal-food", MealFoodController)
+
 import RegularTaskController from "./regular_task_controller"
 application.register("regular-task", RegularTaskController)
 
