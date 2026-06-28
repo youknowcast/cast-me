@@ -6,13 +6,15 @@ export default class extends Controller {
 	declare readonly inputTarget: HTMLInputElement
 	declare readonly triggerTextTarget: HTMLElement
 
+	private confirmedHandler = this.onConfirmed.bind(this) as EventListener
+
 	connect() {
-		window.addEventListener('datepicker:confirmed', this.onConfirmed.bind(this) as any)
+		window.addEventListener('datepicker:confirmed', this.confirmedHandler)
 		this.updateTriggerText()
 	}
 
 	disconnect() {
-		window.removeEventListener('datepicker:confirmed', this.onConfirmed.bind(this) as any)
+		window.removeEventListener('datepicker:confirmed', this.confirmedHandler)
 	}
 
 	open() {

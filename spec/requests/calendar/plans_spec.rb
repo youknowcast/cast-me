@@ -105,7 +105,12 @@ RSpec.describe 'Plans', type: :request do
 
         post plans_path, params: params, as: :turbo_stream
 
-        expect(PushNotificationService).to have_received(:send_to_users).once
+        expect(PushNotificationService).to have_received(:send_to_users).once.with(
+          user_ids: [other_user.id.to_s],
+          title: '新しい予定に追加されました',
+          message: include('ほか2件'),
+          url: nil
+        )
       end
 
       it 'shows a flash notice in the turbo_stream response' do

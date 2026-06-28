@@ -15,6 +15,7 @@ export default class extends BaseActionSheetController {
 	private renderedMonths: string[] = [] // YYYY-MM
 	private isInitialRender = true
 	private isLoadingPast = false
+	private monthJumpHandler = this.onMonthJump.bind(this) as EventListener
 
 	get eventPrefix() {
 		return 'datepicker'
@@ -23,12 +24,12 @@ export default class extends BaseActionSheetController {
 	connect() {
 		console.log('[Datepicker] connected. Instance:', this)
 		super.connect()
-		window.addEventListener('monthpicker:confirmed', this.onMonthJump.bind(this) as any)
+		window.addEventListener('monthpicker:confirmed', this.monthJumpHandler)
 	}
 
 	disconnect() {
 		super.disconnect()
-		window.removeEventListener('monthpicker:confirmed', this.onMonthJump.bind(this) as any)
+		window.removeEventListener('monthpicker:confirmed', this.monthJumpHandler)
 	}
 
 	onOpen(detail: any) {

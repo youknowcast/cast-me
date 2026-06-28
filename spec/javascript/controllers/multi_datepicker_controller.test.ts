@@ -130,6 +130,25 @@ describe("multi-date plan picker", () => {
 		expect(count?.classList.contains("hidden")).toBe(true)
 	})
 
+	it("does not duplicate single-date confirmation listeners after reconnecting", async () => {
+		const connector = document.querySelector<HTMLElement>("[data-controller='datepicker-connector']")!
+		const input = connector.querySelector<HTMLInputElement>("[data-datepicker-connector-target='input']")!
+		let changeCount = 0
+		input.addEventListener("change", () => { changeCount += 1 })
+
+		connector.remove()
+		await flush()
+		document.body.prepend(connector)
+		await flush()
+
+		window.dispatchEvent(new CustomEvent("datepicker:confirmed", {
+			detail: { date: "2026-06-25", trigger: connector }
+		}))
+
+		expect(changeCount).toBe(1)
+		expect(input.value).toBe("2026-06-25")
+	})
+
 	it("does not duplicate confirmation listeners after reconnecting", async () => {
 		const connector = document.querySelector<HTMLElement>("[data-controller='multi-datepicker-connector']")!
 		const inputs = connector.querySelector<HTMLElement>("[data-multi-datepicker-connector-target='inputs']")!

@@ -41,6 +41,14 @@ RSpec.describe 'Calls', type: :request do
       expect(response.body).to include('呼び出しを送信しました')
     end
 
+    it 'shows the success notice in the turbo_stream response' do
+      post calls_path, params: { user_id: target_user.id }, as: :turbo_stream
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include('turbo-stream action="replace" target="flash"')
+      expect(response.body).to include('呼び出しを送信しました')
+    end
+
     context 'when target user is not in same family' do
       let(:other_family) { create(:family) }
       let(:other_user) { create(:user, family: other_family) }
