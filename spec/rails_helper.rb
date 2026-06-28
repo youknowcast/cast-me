@@ -1,6 +1,9 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 require 'spec_helper'
-ENV['RAILS_ENV'] ||= 'test'
+# Force the test environment. The dev container sets RAILS_ENV=development, and
+# `||=` would let specs boot in development (wrong DB, forgery protection on,
+# restricted hosts). Always run specs against the test environment.
+ENV['RAILS_ENV'] = 'test'
 require File.expand_path('../config/environment', __dir__)
 # Prevent database truncation if the environment is production
 abort('The Rails environment is running in production mode!') if Rails.env.production?
@@ -64,6 +67,12 @@ RSpec.configure do |config|
 
   config.include FactoryBot::Syntax::Methods
   config.include Devise::Test::IntegrationHelpers, type: :request
+
+  # Rails 8.1 loads routes lazily when eager_load is off, so Devise mappings are
+  # empty until the first request. Request specs call `sign_in` in a `before`
+  # block before any request, which would raise "Could not find a valid mapping".
+  # Load routes once up front so Devise mappings are registered.
+  config.before(:suite) { Rails.application.reload_routes_unless_loaded }
 end
 
 if defined?(Shoulda::Matchers)
