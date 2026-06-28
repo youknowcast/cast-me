@@ -9,7 +9,8 @@ RSpec.describe 'Meals', type: :request do
   describe 'POST /meals' do
     let(:params) do
       {
-        meal: { date: Time.zone.today.to_s, meal_type: 1, user_id: '', food_names: ['ラーメン', '餃子'] },
+        meal: { date: Time.zone.today.to_s, meal_type: 1, user_id: '',
+                food_names: %W[\u30E9\u30FC\u30E1\u30F3 \u9903\u5B50] },
         scope: 'family'
       }
     end
@@ -27,13 +28,15 @@ RSpec.describe 'Meals', type: :request do
     it 'reuses an existing food master' do
       create(:food, family: family, name: 'ラーメン')
       expect do
-        post meals_path, params: { meal: { date: Time.zone.today.to_s, meal_type: 1, food_names: ['ラーメン'] }, scope: 'family' }, as: :turbo_stream
+        post meals_path,
+             params: { meal: { date: Time.zone.today.to_s, meal_type: 1, food_names: ['ラーメン'] }, scope: 'family' }, as: :turbo_stream
       end.to change(Food, :count).by(0).and change(Meal, :count).by(1)
     end
 
     it 'rejects a meal with no foods' do
       expect do
-        post meals_path, params: { meal: { date: Time.zone.today.to_s, meal_type: 1, food_names: [] }, scope: 'family' }, as: :turbo_stream
+        post meals_path,
+             params: { meal: { date: Time.zone.today.to_s, meal_type: 1, food_names: [] }, scope: 'family' }, as: :turbo_stream
       end.not_to change(Meal, :count)
       expect(response).to have_http_status(:unprocessable_entity)
     end
@@ -47,7 +50,8 @@ RSpec.describe 'Meals', type: :request do
     end
 
     it 'replaces the foods' do
-      patch meal_path(meal), params: { meal: { date: meal.date.to_s, meal_type: 2, food_names: ['新しい'] }, scope: 'family' }, as: :turbo_stream
+      patch meal_path(meal),
+            params: { meal: { date: meal.date.to_s, meal_type: 2, food_names: ['新しい'] }, scope: 'family' }, as: :turbo_stream
       expect(response).to have_http_status(:ok)
       expect(meal.reload.foods.map(&:name)).to eq(['新しい'])
       expect(meal.meal_type).to eq(2)
@@ -55,8 +59,19 @@ RSpec.describe 'Meals', type: :request do
 
     it 'does not update a meal from another family' do
       other = create(:meal)
-      expect { patch meal_path(other), params: { meal: { date: other.date.to_s, meal_type: 1, food_names: ['x'] } }, as: :turbo_stream }
+      expect do
+        patch meal_path(other), params: { meal: { date: other.date.to_s, meal_type: 1, food_names: ['x'] } },
+                                as: :turbo_stream
+      end
         .to raise_error(ActiveRecord::RecordNotFound)
+    end
+
+    it 'rolls back foods when the update is invalid' do
+      patch meal_path(meal),
+            params: { meal: { date: meal.date.to_s, meal_type: 9, food_names: ['新しい'] }, scope: 'family' },
+            as: :turbo_stream
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(meal.reload.foods.map(&:name)).to eq(['古い'])
     end
   end
 
