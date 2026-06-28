@@ -33,7 +33,7 @@
           i.fas.fa-edit
         button.btn.btn-xs.btn-error[
           data-controller="delete-confirm-trigger"
-          data-delete-confirm-trigger-url-value=task_path(task)
+          data-delete-confirm-trigger-url-value=task_path(task, scope: current_scope, date: task.date)
           data-delete-confirm-trigger-message-value="このタスクを削除しますか？"
           data-action="click->delete-confirm-trigger#open"
         ]

@@ -1,0 +1,23 @@
+.mb-6.pb-4.border-b
+  .flex.items-center.justify-between.mb-3
+    h3.text-lg.font-bold.text-gray-800.flex.items-center
+      span.mr-2 🍴
+      | 今日何食べた？
+    button.btn.btn-sm.btn-primary[
+      data-controller="side-panel-opener"
+      data-action="click->side-panel-opener#openMealForm"
+      data-date=date.strftime("%Y-%m-%d")
+      data-scope=scope
+    ]
+      i.fas.fa-plus.mr-1
+      | 登録
+  - if meals.any?
+    .space-y-2
+      - meals.group_by(&:meal_type).sort_by(&:first).each do |_meal_type, type_meals|
+        .flex.gap-2
+          .w-10.shrink-0.text-sm.font-semibold.text-gray-500.pt-2= type_meals.first.meal_type_text
+          .flex-1.space-y-1
+            - type_meals.each do |meal|
+              = render 'calendar/meal_item', meal: meal, scope: scope
+  - else
+    .text-gray-400.text-sm 記録はありません

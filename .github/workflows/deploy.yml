@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   test:
-    name: Run RSpec Tests
+    name: Run Application Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -41,6 +41,9 @@ jobs:
         run: |
           yarn install --frozen-lockfile
           bundle exec rails assets:precompile
+
+      - name: Run JavaScript tests
+        run: yarn test:js
 
       - name: Apply database schema
         env:

@@ -23,6 +23,10 @@ module CalendarData
                                 .distinct
                                 .ordered_by_time
     @family_tasks = current_user.tasks.for_date(date).ordered_by_priority
+    @family_meals = current_user.family.meals.for_date(date)
+                                .visible_to_user(current_user.id)
+                                .includes(:user, :foods)
+                                .ordered_by_meal_type
   end
 
   def set_family_calendar_data(date)
@@ -31,6 +35,9 @@ module CalendarData
     @family_plans = current_user.family.plans.for_date(date).includes(:created_by, :participants,
                                                                       :plan_participants).ordered_by_time
     @family_tasks = current_user.family.tasks.for_date(date).includes(:user).ordered_by_priority
+    @family_meals = current_user.family.meals.for_date(date)
+                                .includes(:user, :foods)
+                                .ordered_by_meal_type
   end
 
   def set_target_users

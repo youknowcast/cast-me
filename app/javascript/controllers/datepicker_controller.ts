@@ -1,16 +1,21 @@
 import { BaseActionSheetController } from "../lib/base_action_sheet_controller"
 
 export default class extends BaseActionSheetController {
-	static targets = ["modal", "scrollArea", "loader", "headerTitle"]
+	static targets = ["modal", "scrollArea", "loader", "headerTitle", "selectedCount"]
 
 	declare readonly scrollAreaTarget: HTMLElement
 	declare readonly loaderTarget: HTMLElement
 	declare readonly headerTitleTarget: HTMLElement
+	declare readonly selectedCountTarget: HTMLElement
+	declare readonly hasSelectedCountTarget: boolean
 
 	private selectedDate: Date | null = null
+	private selectedDates: Date[] = []
+	private multiple = false
 	private renderedMonths: string[] = [] // YYYY-MM
 	private isInitialRender = true
 	private isLoadingPast = false
+	private monthJumpHandler = this.onMonthJump.bind(this) as EventListener
 
 	get eventPrefix() {
 		return 'datepicker'
@@ -19,17 +24,23 @@ export default class extends BaseActionSheetController {
 	connect() {
 		console.log('[Datepicker] connected. Instance:', this)
 		super.connect()
-		window.addEventListener('monthpicker:confirmed', this.onMonthJump.bind(this) as any)
+		window.addEventListener('monthpicker:confirmed', this.monthJumpHandler)
 	}
 
 	disconnect() {
 		super.disconnect()
-		window.removeEventListener('monthpicker:confirmed', this.onMonthJump.bind(this) as any)
+		window.removeEventListener('monthpicker:confirmed', this.monthJumpHandler)
 	}
 
 	onOpen(detail: any) {
-		const { date } = detail
-		this.selectedDate = date ? new Date(date) : new Date()
+		const { date, dates, multiple } = detail
+		this.multiple = multiple === true
+		this.selectedDates = this.multiple && Array.isArray(dates)
+			? dates.map((value: string) => this.parseDate(value)).filter((value: Date | null): value is Date => value !== null)
+			: []
+		this.selectedDate = this.selectedDates[0] || (date ? this.parseDate(date) : null) || new Date()
+		if (this.multiple && this.selectedDates.length === 0) this.selectedDates = [this.selectedDate]
+		this.updateSelectedCount()
 
 		console.log('[Datepicker] Open called, isInitialRender:', this.isInitialRender)
 
@@ -43,6 +54,9 @@ export default class extends BaseActionSheetController {
 	}
 
 	onConfirm() {
+		if (this.multiple && this.selectedDates.length > 0) {
+			return { dates: this.selectedDates.map(date => this.formatDate(date)) }
+		}
 		if (this.selectedDate) {
 			return { date: this.formatDate(this.selectedDate) }
 		}
@@ -228,11 +242,11 @@ export default class extends BaseActionSheetController {
 			}
 
 			const isToday = this.isSameDate(currentDate, today)
-			if (isToday && !this.isSameDate(currentDate, this.selectedDate)) {
+			if (isToday && !this.isDateSelected(currentDate)) {
 				dayEl.classList.add('ring-2', 'ring-blue-400', 'ring-inset')
 			}
 
-			if (this.isSameDate(currentDate, this.selectedDate)) {
+			if (this.isDateSelected(currentDate)) {
 				dayEl.classList.remove('text-gray-700', 'text-red-500', 'text-blue-500')
 				dayEl.classList.add('bg-blue-500', 'text-white', 'font-bold', 'shadow-md')
 			} else {
@@ -264,43 +278,68 @@ export default class extends BaseActionSheetController {
 	}
 
 	private selectDate(date: Date) {
-		this.selectedDate = date
+		if (this.multiple) {
+			const selectedIndex = this.selectedDates.findIndex(selected => this.isSameDate(selected, date))
+			if (selectedIndex >= 0 && this.selectedDates.length > 1) {
+				this.selectedDates.splice(selectedIndex, 1)
+				// Move the anchor to a still-selected date, never the one just removed
+				this.selectedDate = this.selectedDates[this.selectedDates.length - 1]
+			} else if (selectedIndex < 0) {
+				this.selectedDates.push(date)
+				this.selectedDate = date
+			}
+		} else {
+			this.selectedDate = date
+		}
+		this.updateSelectedCount()
 		this.updateHighlight()
 	}
 
 	private updateHighlight() {
+		const today = new Date()
+		const ringClasses = ['ring-2', 'ring-blue-400', 'ring-inset']
+
 		// Remove old selection
-		this.scrollAreaTarget.querySelectorAll('.bg-blue-500').forEach(el => {
+		this.scrollAreaTarget.querySelectorAll('[data-date]').forEach(el => {
 			el.classList.remove('bg-blue-500', 'text-white', 'font-bold', 'shadow-md')
-			// Restore original color
+			// Restore original color (parse as local time, matching renderMonth)
 			const dateStr = el.getAttribute('data-date')
-			if (dateStr) {
-				const d = new Date(dateStr)
-				const dow = d.getDay()
-				if (dow === 0) el.classList.add('text-red-500')
-				else if (dow === 6) el.classList.add('text-blue-500')
-				else el.classList.add('text-gray-700')
-			} else {
-				el.classList.add('text-gray-700')
-			}
+			const cellDate = dateStr ? this.parseDate(dateStr) : null
+			const dow = cellDate ? cellDate.getDay() : -1
+			if (dow === 0) el.classList.add('text-red-500')
+			else if (dow === 6) el.classList.add('text-blue-500')
+			else el.classList.add('text-gray-700')
 			el.classList.add('active:bg-gray-100')
+
+			// Restore the today ring for unselected today, matching renderMonth
+			if (cellDate && this.isSameDate(cellDate, today) && !this.isDateSelected(cellDate)) {
+				el.classList.add(...ringClasses)
+			} else {
+				el.classList.remove(...ringClasses)
+			}
 		})
 
-		if (!this.selectedDate) return
-		const year = this.selectedDate.getFullYear()
-		const month = this.selectedDate.getMonth() + 1
-		const day = this.selectedDate.getDate()
+		const dates = this.multiple ? this.selectedDates : [this.selectedDate].filter((date): date is Date => date !== null)
+		dates.forEach(date => {
+			const targetEl = this.scrollAreaTarget.querySelector(`[data-date="${this.formatDate(date)}"]`)
+			if (!targetEl) return
 
-		const monthId = `month-${year}-${month}`
-		const monthEl = document.getElementById(monthId)
-		if (monthEl) {
-			const buttons = Array.from(monthEl.querySelectorAll('button'))
-			const targetEl = buttons.find(btn => btn.textContent === day.toString())
-			if (targetEl) {
-				targetEl.classList.remove('text-gray-700', 'text-red-500', 'text-blue-500', 'active:bg-gray-100')
-				targetEl.classList.add('bg-blue-500', 'text-white', 'font-bold', 'shadow-md')
-			}
-		}
+			targetEl.classList.remove('text-gray-700', 'text-red-500', 'text-blue-500', 'active:bg-gray-100', ...ringClasses)
+			targetEl.classList.add('bg-blue-500', 'text-white', 'font-bold', 'shadow-md')
+		})
+	}
+
+	private isDateSelected(date: Date) {
+		return this.multiple
+			? this.selectedDates.some(selected => this.isSameDate(selected, date))
+			: this.isSameDate(date, this.selectedDate)
+	}
+
+	private updateSelectedCount() {
+		if (!this.hasSelectedCountTarget) return
+
+		this.selectedCountTarget.classList.toggle('hidden', !this.multiple)
+		this.selectedCountTarget.textContent = this.multiple ? `${this.selectedDates.length}日` : ''
 	}
 
 	private isSameDate(d1: Date, d2: Date | null) {
@@ -315,5 +354,13 @@ export default class extends BaseActionSheetController {
 		const m = String(date.getMonth() + 1).padStart(2, '0')
 		const d = String(date.getDate()).padStart(2, '0')
 		return `${y}-${m}-${d}`
+	}
+
+	private parseDate(value: string) {
+		const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+		if (!match) return null
+
+		const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
+		return this.formatDate(date) === value ? date : null
 	}
 }

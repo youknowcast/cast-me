@@ -41,8 +41,24 @@
         .text-error.text-sm.mt-1= plan.errors[:title].join(", ")
 
     .form-control
-      = f.label :date, "日付", class: "label"
-      = mobile_date_field f, :date
+      = f.label :date, plan.persisted? ? "日付" : "日付（複数選択可）", class: "label"
+      - if plan.persisted?
+        = mobile_date_field f, :date
+      - else
+        - selected_dates = @selected_dates.presence || [plan.date || Time.zone.today]
+        .space-y-2[
+          data-controller="multi-datepicker-connector"
+        ]
+          div data-multi-datepicker-connector-target="inputs"
+            - selected_dates.each do |date|
+              = hidden_field_tag 'plan[dates][]', date, id: nil
+          button.btn.btn-outline.w-full.justify-between.font-normal[
+            type="button"
+            data-action="multi-datepicker-connector#open"
+          ]
+            span data-multi-datepicker-connector-target="triggerText"
+            i.fas.fa-calendar-alt.text-gray-400
+          p.text-xs.text-gray-500.break-words data-multi-datepicker-connector-target="datesText"
       - if plan.errors[:date].any?
         .text-error.text-sm.mt-1= plan.errors[:date].join(", ")
 

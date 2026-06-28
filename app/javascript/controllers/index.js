@@ -34,6 +34,9 @@ application.register("hello", HelloController)
 import MobileDatepickerController from "./mobile_datepicker_controller"
 application.register("mobile-datepicker", MobileDatepickerController)
 
+import MultiDatepickerConnectorController from "./multi_datepicker_connector_controller"
+application.register("multi-datepicker-connector", MultiDatepickerConnectorController)
+
 import MobileSelectorController from "./mobile_selector_controller"
 application.register("mobile-selector", MobileSelectorController)
 
@@ -48,6 +51,9 @@ application.register("monthpicker", MonthpickerController)
 
 import PlanFormController from "./plan_form_controller"
 application.register("plan-form", PlanFormController)
+
+import MealFoodController from "./meal_food_controller"
+application.register("meal-food", MealFoodController)
 
 import RegularTaskController from "./regular_task_controller"
 application.register("regular-task", RegularTaskController)

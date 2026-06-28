@@ -1,5 +1,6 @@
 class PlansController < ApplicationController
   include CalendarData
+  include MultiDatePlanCreation
 
   before_action :authenticate_user!
   before_action :set_plan, only: %i[show edit update destroy]
@@ -21,6 +22,7 @@ class PlansController < ApplicationController
       date: date,
       created_by: current_user
     )
+    @selected_dates = [date]
     @plan.participant_ids = [current_user.id] if my_scope?
 
     respond_to do |format|
@@ -34,6 +36,7 @@ class PlansController < ApplicationController
       date: Time.zone.today,
       created_by: current_user
     )
+    @selected_dates = [Time.zone.today]
     @plan.participant_ids = [current_user.id] if my_scope?
 
     respond_to do |format|
@@ -54,9 +57,13 @@ class PlansController < ApplicationController
   end
 
   def create
-    @plan = current_user.family.plans.build(plan_params)
-    @plan.created_by = current_user
-    @plan.last_edited_by = current_user
+    @selected_dates = selected_dates_from_params
+    @plan = build_plan(@selected_dates.first)
+
+    if @selected_dates.empty?
+      @plan.errors.add(:date, 'を1日以上選択してください')
+      return render_form_with_errors
+    end
 
     # 参加者チェック
     if participant_ids_from_params.empty?
@@ -64,26 +71,16 @@ class PlansController < ApplicationController
       return render_form_with_errors
     end
 
-    if @plan.save
-      # 新規作成時は全ての参加者が「追加された」とみなす
-      notify_new_participants(added_ids: @plan.participant_ids)
-      set_calendar_data(@plan.date)
-      respond_to do |format|
-        format.turbo_stream do
-          render turbo_stream: [
-            turbo_stream.update('daily_details', partial: 'calendar/daily_view', locals: { date: @date }),
-            turbo_stream.replace("calendar-cell-#{@plan.date}",
-                                 partial: 'calendar/calendar_grid_cell',
-                                 locals: { day: @plan.date, date: @date, plans: @family_plans, tasks: @family_tasks,
-                                           scope: current_scope, holidays: @holidays }),
-            turbo_stream.append('side-panel', "<div data-controller='side-panel-closer'></div>".html_safe)
-          ]
-        end
-        format.html { redirect_to calendar_path, notice: '予定を作成しました' }
-      end
-    else
-      render_form_with_errors
-    end
+    created_plans = create_plans_for_selected_dates
+    notify_created_plan_participants(created_plans)
+    render_create_success(created_plans)
+  rescue ActiveRecord::RecordInvalid => e
+    @plan = e.record
+    @plan.errors.add(:base, '予定を作成できませんでした') unless @plan.errors.any?
+    render_form_with_errors
+  rescue ActiveRecord::RecordNotSaved
+    @plan.errors.add(:base, '予定を作成できませんでした')
+    render_form_with_errors
   end
 
   def update
@@ -92,13 +89,14 @@ class PlansController < ApplicationController
 
     if participant_ids_from_params.empty?
       @plan.errors.add(:base, '参加者を1人以上選択してください')
-      return render_form_with_errors
+      render_form_with_errors
+      return
     end
 
     if @plan.update(plan_params)
       # 新規追加された参加者にのみ通知
       added_ids = @plan.participant_ids - previous_participant_ids
-      notify_new_participants(added_ids: added_ids)
+      notify_new_participants(plan: @plan, added_ids: added_ids)
       set_calendar_data(@plan.date)
       respond_to do |format|
         format.turbo_stream do
@@ -153,11 +151,11 @@ class PlansController < ApplicationController
   end
 
   # 新規追加された参加者に通知を送信
-  def notify_new_participants(added_ids:)
+  def notify_new_participants(plan:, added_ids:)
     return if added_ids.empty?
 
     PlanNotificationService.notify_new_participants(
-      plan: @plan,
+      plan: plan,
       added_user_ids: added_ids,
       excluded_user_id: current_user.id # 自分自身には通知しない
     )

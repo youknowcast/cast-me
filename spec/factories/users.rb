@@ -10,6 +10,7 @@
 #  updated_at         :datetime         not null
 #  family_id          :bigint           not null
 #  login_id           :string           not null
+#  remember_created_at :datetime
 #
 # Indexes
 #

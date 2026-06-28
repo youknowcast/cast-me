@@ -26,7 +26,7 @@ jobs:
         run: bundle exec rubocop --format github
 
   test:
-    name: RSpec Tests
+    name: Application Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -48,6 +48,9 @@ jobs:
         run: |
           yarn install --frozen-lockfile
           bundle exec rails assets:precompile
+
+      - name: Run JavaScript tests
+        run: yarn test:js
 
       - name: Apply database schema
         env:

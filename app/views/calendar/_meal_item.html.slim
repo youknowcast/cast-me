@@ -1,0 +1,23 @@
+.flex.items-center.justify-between.bg-green-50.border-l-4.border-green-400.p-2.rounded-r-lg
+  .flex-1
+    span.font-medium.text-gray-800= meal.foods.map(&:name).join('・')
+    span.ml-2.text-xs.text-gray-500
+      - if meal.user
+        = meal.user.display_name
+      - else
+        | 家族
+  .flex.space-x-1
+    button.btn.btn-xs.btn-ghost[
+      data-controller="side-panel-opener"
+      data-action="click->side-panel-opener#openMealEdit"
+      data-meal-id=meal.id
+      data-scope=scope
+    ]
+      i.fas.fa-edit
+    button.btn.btn-xs.btn-ghost.text-error[
+      data-controller="delete-confirm-trigger"
+      data-delete-confirm-trigger-url-value=meal_path(meal, scope: scope, date: meal.date)
+      data-delete-confirm-trigger-message-value="この食事記録を削除しますか？"
+      data-action="click->delete-confirm-trigger#open"
+    ]
+      i.fas.fa-trash

@@ -1,12 +1,12 @@
 # AGENTS.md - Context & Summary for AI Agents
 
 ## Project Overview
-**CastMe** is a Ruby on Rails application focused on personal/family organization. It provides features for calendar management, task tracking, planning, and capturing moments. The application is built to be responsive and interactive using modern Rails techniques (Hotwire).
+**CastMe** is a Ruby on Rails application focused on personal/family organization. It provides features for calendar management, task tracking, and planning. The application is built to be responsive and interactive using modern Rails techniques (Hotwire).
 
 ## Tech Stack
 ### Backend
 -   **Framework**: Ruby on Rails 7.0
--   **Language**: Ruby (version specified in `.ruby-version`)
+-   **Language**: Ruby (version specified in `.tool-versions`)
 -   **Database**: SQLite (configured for Development, Test, and Production in `config/database.yml`)
     -   *ORM*: Active Record
 
