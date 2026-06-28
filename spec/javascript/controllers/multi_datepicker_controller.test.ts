@@ -56,6 +56,53 @@ describe("multi-date plan picker", () => {
 		expect(day("2026-06-21").classList.contains("bg-blue-500")).toBe(true)
 	})
 
+	it("restores weekday colors using local time when re-highlighting", async () => {
+		click("#open-multiple")
+		await flush()
+
+		// 2026-06-21 is a Sunday; adding another date triggers a full re-highlight pass.
+		day("2026-06-22").click()
+
+		expect(day("2026-06-21").classList.contains("text-red-500")).toBe(true)
+		expect(day("2026-06-21").classList.contains("text-blue-500")).toBe(false)
+	})
+
+	it("restores the today ring when today is deselected in multi mode", async () => {
+		vi.setSystemTime(new Date(2026, 5, 20)) // today = 2026-06-20 (the initially selected date)
+
+		click("#open-multiple")
+		await flush()
+
+		// Today starts selected, so it has no ring while highlighted.
+		expect(day("2026-06-20").classList.contains("ring-2")).toBe(false)
+
+		day("2026-06-22").click() // add a second date so today can be deselected
+		day("2026-06-20").click() // deselect today
+
+		expect(day("2026-06-20").classList.contains("bg-blue-500")).toBe(false)
+		expect(day("2026-06-20").classList.contains("ring-2")).toBe(true)
+	})
+
+	it("does not anchor the month picker to a deselected date", async () => {
+		const captured: string[] = []
+		const handler = (event: Event) => captured.push((event as CustomEvent).detail.date)
+		window.addEventListener("monthpicker:open", handler)
+
+		try {
+			click("#open-multiple")
+			await flush()
+
+			day("2026-07-15").click() // add a date in another month (becomes the anchor)
+			day("2026-07-15").click() // deselect it
+
+			click("#open-month")
+
+			expect(captured.at(-1)).toBe("2026-06-20")
+		} finally {
+			window.removeEventListener("monthpicker:open", handler)
+		}
+	})
+
 	it("writes every confirmed date to plan hidden inputs", async () => {
 		click("#open-multiple")
 		await flush()
@@ -148,6 +195,7 @@ const html = `
 			<div data-datepicker-target="loader"></div>
 			<div data-datepicker-target="scrollArea"></div>
 			<button id="confirm-date" data-action="datepicker#confirm" type="button">確定</button>
+			<button id="open-month" data-action="datepicker#openMonthPicker" type="button">月選択</button>
 		</dialog>
 	</div>
 `

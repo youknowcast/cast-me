@@ -7,7 +7,7 @@ module MultiDatePlanCreation
     raw_dates = Array(params.dig(:plan, :dates)).compact_blank
     raw_dates = [params.dig(:plan, :date)] if raw_dates.empty? && params.dig(:plan, :date).present?
 
-    raw_dates.map { |date| Date.iso8601(date.to_s) }.uniq
+    raw_dates.map { |date| Date.parse(date.to_s) }.uniq
   rescue Date::Error
     []
   end
@@ -27,19 +27,34 @@ module MultiDatePlanCreation
     plans
   end
 
+  # 同時作成された予定の新規参加者へ、まとめて1度だけ通知する
+  def notify_created_plan_participants(created_plans)
+    PlanNotificationService.notify_added_to_plans(
+      plans: created_plans,
+      added_user_ids: created_plans.first.participant_ids,
+      excluded_user_id: current_user.id
+    )
+  end
+
   def render_create_success(created_plans)
     primary_date = created_plans.first.date
     notice = created_plans.one? ? '予定を作成しました' : "予定を#{created_plans.size}件作成しました"
 
     respond_to do |format|
-      format.turbo_stream { render turbo_stream: create_turbo_streams(created_plans, primary_date) }
+      format.turbo_stream do
+        flash.now[:notice] = notice
+        render turbo_stream: create_turbo_streams(created_plans, primary_date)
+      end
       format.html { redirect_to calendar_path, notice: notice }
     end
   end
 
   def create_turbo_streams(created_plans, primary_date)
     set_calendar_data(primary_date)
-    streams = [turbo_stream.update('daily_details', partial: 'calendar/daily_view', locals: { date: @date })]
+    streams = [
+      turbo_stream.replace('flash', partial: 'shared/flash'),
+      turbo_stream.update('daily_details', partial: 'calendar/daily_view', locals: { date: @date })
+    ]
 
     created_plans.each do |plan|
       set_calendar_data(plan.date)

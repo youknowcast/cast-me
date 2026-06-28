@@ -97,6 +97,40 @@ RSpec.describe 'Plans', type: :request do
         expect(response.body).to include('を1日以上選択してください')
       end
 
+      it 'notifies newly added participants only once for a multi-date submission' do
+        allow(PushNotificationService).to receive(:send_to_users)
+        params = valid_params.deep_dup
+        params[:plan].delete(:date)
+        params[:plan][:dates] = [Time.zone.today, Time.zone.tomorrow, Time.zone.today + 2.days].map(&:to_s)
+
+        post plans_path, params: params, as: :turbo_stream
+
+        expect(PushNotificationService).to have_received(:send_to_users).once
+      end
+
+      it 'shows a flash notice in the turbo_stream response' do
+        params = valid_params.deep_dup
+        params[:plan].delete(:date)
+        params[:plan][:dates] = [Time.zone.today, Time.zone.tomorrow].map(&:to_s)
+
+        post plans_path, params: params, as: :turbo_stream
+
+        expect(response.body).to include('turbo-stream action="replace" target="flash"')
+        expect(response.body).to include('予定を2件作成しました')
+      end
+
+      it 'accepts non-ISO date formats' do
+        params = valid_params.deep_dup
+        params[:plan].delete(:date)
+        params[:plan][:dates] = ['2026/06/28']
+
+        expect do
+          post plans_path, params: params, as: :turbo_stream
+        end.to change(Plan, :count).by(1)
+
+        expect(Plan.last.date).to eq(Date.new(2026, 6, 28))
+      end
+
       it 'renders a multi-date selector for a new plan' do
         get new_plan_path, params: { date: Time.zone.today, scope: 'family' }, as: :turbo_stream
 

@@ -281,33 +281,41 @@ export default class extends BaseActionSheetController {
 			const selectedIndex = this.selectedDates.findIndex(selected => this.isSameDate(selected, date))
 			if (selectedIndex >= 0 && this.selectedDates.length > 1) {
 				this.selectedDates.splice(selectedIndex, 1)
+				// Move the anchor to a still-selected date, never the one just removed
+				this.selectedDate = this.selectedDates[this.selectedDates.length - 1]
 			} else if (selectedIndex < 0) {
 				this.selectedDates.push(date)
+				this.selectedDate = date
 			}
 		} else {
 			this.selectedDate = date
 		}
-		this.selectedDate = date
 		this.updateSelectedCount()
 		this.updateHighlight()
 	}
 
 	private updateHighlight() {
+		const today = new Date()
+		const ringClasses = ['ring-2', 'ring-blue-400', 'ring-inset']
+
 		// Remove old selection
 		this.scrollAreaTarget.querySelectorAll('[data-date]').forEach(el => {
 			el.classList.remove('bg-blue-500', 'text-white', 'font-bold', 'shadow-md')
-			// Restore original color
+			// Restore original color (parse as local time, matching renderMonth)
 			const dateStr = el.getAttribute('data-date')
-			if (dateStr) {
-				const d = new Date(dateStr)
-				const dow = d.getDay()
-				if (dow === 0) el.classList.add('text-red-500')
-				else if (dow === 6) el.classList.add('text-blue-500')
-				else el.classList.add('text-gray-700')
-			} else {
-				el.classList.add('text-gray-700')
-			}
+			const cellDate = dateStr ? this.parseDate(dateStr) : null
+			const dow = cellDate ? cellDate.getDay() : -1
+			if (dow === 0) el.classList.add('text-red-500')
+			else if (dow === 6) el.classList.add('text-blue-500')
+			else el.classList.add('text-gray-700')
 			el.classList.add('active:bg-gray-100')
+
+			// Restore the today ring for unselected today, matching renderMonth
+			if (cellDate && this.isSameDate(cellDate, today) && !this.isDateSelected(cellDate)) {
+				el.classList.add(...ringClasses)
+			} else {
+				el.classList.remove(...ringClasses)
+			}
 		})
 
 		const dates = this.multiple ? this.selectedDates : [this.selectedDate].filter((date): date is Date => date !== null)
@@ -315,7 +323,7 @@ export default class extends BaseActionSheetController {
 			const targetEl = this.scrollAreaTarget.querySelector(`[data-date="${this.formatDate(date)}"]`)
 			if (!targetEl) return
 
-			targetEl.classList.remove('text-gray-700', 'text-red-500', 'text-blue-500', 'active:bg-gray-100')
+			targetEl.classList.remove('text-gray-700', 'text-red-500', 'text-blue-500', 'active:bg-gray-100', ...ringClasses)
 			targetEl.classList.add('bg-blue-500', 'text-white', 'font-bold', 'shadow-md')
 		})
 	}

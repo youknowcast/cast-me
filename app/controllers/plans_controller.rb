@@ -72,7 +72,7 @@ class PlansController < ApplicationController
     end
 
     created_plans = create_plans_for_selected_dates
-    created_plans.each { |plan| notify_new_participants(plan: plan, added_ids: plan.participant_ids) }
+    notify_created_plan_participants(created_plans)
     render_create_success(created_plans)
   rescue ActiveRecord::RecordInvalid => e
     @plan = e.record
