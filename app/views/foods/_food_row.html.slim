@@ -1,0 +1,6 @@
+= form_with model: food, url: food_path(food), method: :patch, class: 'flex items-center gap-2' do |f|
+  = f.text_field :name, class: "input input-bordered input-sm flex-1 #{'opacity-50' unless food.active}"
+  label.cursor-pointer.label.gap-1
+    span.label-text.text-xs= food.active ? '表示' : '非表示'
+    = f.check_box :active, class: 'toggle toggle-sm toggle-primary'
+  = f.submit '保存', class: 'btn btn-sm btn-outline'

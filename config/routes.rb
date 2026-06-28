@@ -28,6 +28,8 @@ Rails.application.routes.draw do
   end
 
   resources :regular_tasks, only: %i[index create]
+  resources :foods, only: %i[index create update]
+  resources :meals, only: %i[new create edit update destroy]
   resources :everyday_task_templates do
     member do
       post :bulk_add
