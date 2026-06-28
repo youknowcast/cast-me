@@ -6,7 +6,7 @@
 ## Tech Stack
 ### Backend
 -   **Framework**: Ruby on Rails 7.0
--   **Language**: Ruby (version specified in `.ruby-version`)
+-   **Language**: Ruby (version specified in `.tool-versions`)
 -   **Database**: SQLite (configured for Development, Test, and Production in `config/database.yml`)
     -   *ORM*: Active Record
 
