@@ -112,3 +112,13 @@ create_table 'user_notification_settings', force: :cascade do |t|
   t.index %w[family_task_progress_reminder_enabled family_task_progress_reminder_hour],
           name: 'index_user_notif_settings_on_task_progress_reminder'
 end
+
+create_table 'foods', force: :cascade do |t|
+  t.bigint 'family_id', null: false
+  t.string 'name', null: false, limit: 255
+  t.boolean 'active', null: false, default: true
+  t.timestamps
+
+  t.index %w[family_id name], name: 'index_foods_on_family_id_and_name', unique: true
+  t.index %w[family_id active], name: 'index_foods_on_family_id_and_active'
+end

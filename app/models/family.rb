@@ -13,6 +13,8 @@ class Family < ApplicationRecord
   has_many :tasks, dependent: :destroy
   has_many :regular_tasks, dependent: :destroy
   has_many :everyday_task_templates, dependent: :destroy
+  has_many :foods, dependent: :destroy
+  has_many :meals, dependent: :destroy
 
   validates :name, presence: true, length: { maximum: 100 }
 end
