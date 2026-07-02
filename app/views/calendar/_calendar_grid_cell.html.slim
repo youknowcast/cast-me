@@ -2,8 +2,8 @@
 - holiday_name = holidays&.[](day.to_s)
 - is_current_month = day.month == date.month
 - is_today = day == Date.today
-- has_alert = day_has_unfinished_tasks?(day, current_user)
-- anniversaries = anniversaries_on(day, current_user.family.users)
+- has_alert = local_assigns.fetch(:has_alert) { day_has_unfinished_tasks?(day, current_user) }
+- anniversaries = local_assigns.fetch(:anniversaries) { anniversaries_on(day, current_user.family.users) }
 
 = link_to calendar_daily_view_path(date: day, scope: scope),
           id: "calendar-cell-#{day}",
