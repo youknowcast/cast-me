@@ -9,29 +9,7 @@ class TasksController < ApplicationController
   def show; end
 
   def new
-    date = if params[:date].present?
-             Date.parse(params[:date])
-           else
-             Time.zone.today
-           end
-
-    @task = current_user.family.tasks.build(
-      date: date,
-      user_id: current_user.id
-    )
-
-    respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: turbo_stream.update('side-panel', partial: 'form',
-                                                               locals: { task: @task, scope: current_scope })
-      end
-      format.html { render :new }
-    end
-  rescue Date::Error
-    @task = current_user.family.tasks.build(
-      date: Time.zone.today,
-      user_id: current_user.id
-    )
+    @task = current_user.family.tasks.build(date: parse_date(params[:date]), user_id: current_user.id)
 
     respond_to do |format|
       format.turbo_stream do
