@@ -34,12 +34,11 @@
           - %w[日 月 火 水 木 金 土].each do |day|
             div.font-bold.text-center.text-gray-600.p-2= day
 
+        - month = calendar_month_data(@weeks.flatten, scope: "family")
         - @weeks.each do |week|
           .grid.grid-cols-7.gap-1
             - week.each do |day|
-              - day_plans = current_user.family.plans.for_date(day)
-              - day_tasks = current_user.tasks.for_date(day)
-              = render "calendar_grid_cell", day: day, date: @date, plans: day_plans, tasks: day_tasks, scope: "family", holidays: @holidays
+              = render "calendar_grid_cell", day: day, date: @date, plans: (month[:plans_by_date][day] || []), tasks: (month[:tasks_by_date][day] || []), scope: "family", holidays: @holidays, has_alert: month[:unfinished_dates].include?(day), anniversaries: anniversaries_on(day, month[:family_users])
 
         / User Filter Select Box
         .mt-4

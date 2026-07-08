@@ -9,29 +9,7 @@ class TasksController < ApplicationController
   def show; end
 
   def new
-    date = if params[:date].present?
-             Date.parse(params[:date])
-           else
-             Time.zone.today
-           end
-
-    @task = current_user.family.tasks.build(
-      date: date,
-      user_id: current_user.id
-    )
-
-    respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: turbo_stream.update('side-panel', partial: 'form',
-                                                               locals: { task: @task, scope: current_scope })
-      end
-      format.html { render :new }
-    end
-  rescue Date::Error
-    @task = current_user.family.tasks.build(
-      date: Time.zone.today,
-      user_id: current_user.id
-    )
+    @task = current_user.family.tasks.build(date: parse_date(params[:date]), user_id: current_user.id)
 
     respond_to do |format|
       format.turbo_stream do
@@ -64,11 +42,8 @@ class TasksController < ApplicationController
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
-            turbo_stream.update('daily_details', partial: 'calendar/daily_view', locals: { date: @date }),
-            turbo_stream.replace("calendar-cell-#{@task.date}",
-                                 partial: 'calendar/calendar_grid_cell',
-                                 locals: { day: @task.date, date: @date, plans: @family_plans, tasks: @family_tasks,
-                                           scope: current_scope, holidays: @holidays }),
+            daily_view_stream,
+            grid_cell_stream(@task.date),
             turbo_stream.update('side-panel', '')
           ]
         end
@@ -91,11 +66,8 @@ class TasksController < ApplicationController
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
-            turbo_stream.update('daily_details', partial: 'calendar/daily_view', locals: { date: @date }),
-            turbo_stream.replace("calendar-cell-#{@task.date}",
-                                 partial: 'calendar/calendar_grid_cell',
-                                 locals: { day: @task.date, date: @date, plans: @family_plans, tasks: @family_tasks,
-                                           scope: current_scope, holidays: @holidays }),
+            daily_view_stream,
+            grid_cell_stream(@task.date),
             turbo_stream.update('side-panel', '')
           ]
         end
@@ -120,14 +92,7 @@ class TasksController < ApplicationController
     respond_to do |format|
       format.turbo_stream do
         if destroyed
-          render turbo_stream: [
-            turbo_stream.update('daily_details', partial: 'calendar/daily_view',
-                                                 locals: { date: @date }),
-            turbo_stream.replace("calendar-cell-#{date}",
-                                 partial: 'calendar/calendar_grid_cell',
-                                 locals: { day: date, date: @date, plans: @family_plans, tasks: @family_tasks,
-                                           scope: current_scope, holidays: @holidays })
-          ]
+          render turbo_stream: [daily_view_stream, grid_cell_stream(date)]
         else
           head :unprocessable_entity
         end
@@ -144,10 +109,7 @@ class TasksController < ApplicationController
         render turbo_stream: [
           turbo_stream.replace(helpers.dom_id(@task), partial: 'calendar/task_item',
                                                       locals: { task: @task }),
-          turbo_stream.replace("calendar-cell-#{@task.date}",
-                               partial: 'calendar/calendar_grid_cell',
-                               locals: { day: @task.date, date: @date, plans: @family_plans, tasks: @family_tasks,
-                                         scope: current_scope, holidays: @holidays })
+          grid_cell_stream(@task.date)
         ]
       end
       format.html { redirect_to calendar_path }
@@ -155,6 +117,19 @@ class TasksController < ApplicationController
   end
 
   private
+
+  # 選択中の日付の詳細ビューを更新する turbo_stream
+  def daily_view_stream
+    turbo_stream.update('daily_details', partial: 'calendar/daily_view', locals: { date: @date })
+  end
+
+  # 指定日のカレンダーセルを差し替える turbo_stream
+  def grid_cell_stream(day)
+    turbo_stream.replace("calendar-cell-#{day}",
+                         partial: 'calendar/calendar_grid_cell',
+                         locals: { day: day, date: @date, plans: @family_plans, tasks: @family_tasks,
+                                   scope: current_scope, holidays: @holidays })
+  end
 
   def set_task = @task = current_user.family.tasks.find(params[:id])
 

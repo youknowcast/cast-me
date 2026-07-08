@@ -79,13 +79,7 @@ class MealsController < ApplicationController
   end
 
   def default_meal_attributes
-    { date: parsed_date, user_id: my_scope? ? current_user.id : nil }
-  end
-
-  def parsed_date
-    params[:date].present? ? Date.parse(params[:date]) : Time.zone.today
-  rescue Date::Error
-    Time.zone.today
+    { date: parse_date(params[:date]), user_id: my_scope? ? current_user.id : nil }
   end
 
   def render_form

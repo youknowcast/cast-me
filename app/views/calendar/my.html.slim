@@ -33,12 +33,11 @@
           - %w[日 月 火 水 木 金 土].each do |day|
             div.font-bold.text-center.text-gray-600.p-2= day
 
+        - month = calendar_month_data(@weeks.flatten, scope: "my")
         - @weeks.each do |week|
           .grid.grid-cols-7.gap-1
             - week.each do |day|
-              - day_plans = current_user.family.plans.for_date(day).left_joins(:plan_participants).where(plan_participants: { user_id: current_user.id, status: [:joined, :pending] }).distinct
-              - day_tasks = current_user.tasks.for_date(day)
-              = render "calendar_grid_cell", day: day, date: @date, plans: day_plans, tasks: day_tasks, scope: "my", holidays: @holidays
+              = render "calendar_grid_cell", day: day, date: @date, plans: (month[:plans_by_date][day] || []), tasks: (month[:tasks_by_date][day] || []), scope: "my", holidays: @holidays, has_alert: month[:unfinished_dates].include?(day), anniversaries: anniversaries_on(day, month[:family_users])
 
     / 当日情報部分
     .lg:col-span-1
