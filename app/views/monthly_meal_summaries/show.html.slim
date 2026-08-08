@@ -1,0 +1,33 @@
+.container.mx-auto.px-4.py-8
+  .flex.justify-between.items-center.mb-6
+    h1.text-3xl.font-bold.text-gray-800 🍽 今月の食事
+    = link_to calendar_path(date: @month_start), class: 'btn btn-ghost btn-sm' do
+      i.fas.fa-calendar-days.mr-1
+      | カレンダーへ
+
+  .flex.justify-center.items-center.gap-4.mb-6
+    = link_to monthly_meal_summary_path(month: @prev_month), class: 'btn btn-ghost btn-sm' do
+      i.fas.fa-chevron-left.mr-1
+      | 前月
+    span.text-lg.font-semibold = @month_start.strftime('%Y年%m月')
+    = link_to monthly_meal_summary_path(month: @next_month), class: 'btn btn-ghost btn-sm' do
+      | 翌月
+      i.fas.fa-chevron-right.ml-1
+
+  .space-y-2
+    - (@month_start..@month_end).each do |date|
+      - meals = @meals_by_date[date] || []
+      - wday_class = date.sunday? ? 'text-red-500' : (date.saturday? ? 'text-blue-500' : 'text-gray-700')
+      .bg-white.rounded-lg.shadow.p-3 class=(meals.empty? ? 'opacity-50' : '')
+        .flex.items-start.gap-3
+          .w-16.shrink-0 class=wday_class
+            span.font-semibold = date.strftime('%-m/%-d')
+            span.text-xs.ml-1 = %w[日 月 火 水 木 金 土][date.wday]
+          - if meals.any?
+            .flex-1.space-y-1
+              - meals.each do |meal|
+                .flex.items-center.gap-2
+                  span.badge.badge-outline.badge-sm.shrink-0 = meal.meal_type_text
+                  span.text-sm = meal.foods.map(&:name).join(', ')
+          - else
+            span.text-sm.text-gray-400 記録なし
