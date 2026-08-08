@@ -23,6 +23,8 @@
       title="月間予定リスト"
     ]
       i.fas.fa-list-ul.text-xl
+    = link_to monthly_meal_summary_path(month: @date.strftime('%Y-%m')), class: 'btn btn-ghost btn-circle ml-2', title: '月間食事一覧' do
+      i.fas.fa-utensils.text-xl
 
 
 
