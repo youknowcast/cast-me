@@ -68,6 +68,19 @@ RSpec.describe 'MonthlyMealSummaries', type: :request do
 
         expect(response.body).to include('朝')
       end
+
+      it 'links to prev/next months across a year boundary' do
+        get monthly_meal_summary_path(month: '2026-01')
+
+        expect(response.body).to include(monthly_meal_summary_path(month: '2025-12'))
+        expect(response.body).to include(monthly_meal_summary_path(month: '2026-02'))
+      end
+
+      it 'shows a placeholder row for days without records' do
+        get monthly_meal_summary_path
+
+        expect(response.body).to include('記録なし')
+      end
     end
   end
 end
