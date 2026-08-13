@@ -43,24 +43,12 @@
 /* daisyUI 5 で削除されたクラスの互換定義。
    フォームまわり (form-control / label-text) は全画面で使われており、
    fieldset ベースの新レイアウトへ一気に書き換えると見た目が変わるため、
-   daisyUI 4 と同じ CSS をここで定義して既存マークアップを維持する。 */
+   daisyUI 4 と同じ CSS をここで定義して既存マークアップを維持する。
+   ここに置けるのは daisyUI 5 に同名クラスが存在しないものだけ。 */
 @layer components {
   .form-control {
     display: flex;
     flex-direction: column;
-  }
-
-  /* daisyUI 5 の .label は input group 用に再定義され、padding が無くなり
-     文字色も 60% に薄くなる。本アプリでは v4 の「フォーム項目の見出し行」
-     としてしか使っていないため、v4 の定義で上書きする
-     (daisyUI 本体の .label と同じ layer に出るので詳細度を上げている)。 */
-  .label.label {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.5rem 0.25rem;
-    color: var(--color-base-content);
-    user-select: none;
   }
 
   .label-text {
@@ -68,13 +56,38 @@
     line-height: 1.25rem;
     color: var(--color-base-content);
   }
+
+  /* daisyUI 5 の .label が指定していないプロパティはこちらに置く。
+     components に置くことで、markup 側の justify-start などの
+     ユーティリティが引き続き勝てる。 */
+  .label {
+    justify-content: space-between;
+    padding: 0.5rem 0.25rem;
+    user-select: none;
+  }
 }
 
-@layer components {
+/* daisyUI 5 が今も出力しているクラス (.label / .dock) の上書き。
+   daisyUI 5 はこれらを components ではなく utilities レイヤーに出力するため、
+   components 側で詳細度を上げても (.label.label のように) カスケードレイヤーの
+   優先順位で必ず負ける。daisyUI と競合する宣言だけを utilities に、
+   プラグインより後ろに置く。 */
+@layer utilities {
+  /* daisyUI 5 の .label は input group 用に再定義され、display が inline-flex に、
+     文字色が 60% に薄くなる。本アプリでは v4 の「フォーム項目の見出し行」
+     としてしか使っていないため v4 の定義に戻す。
+     inline-flex のままだと、flex コンテナ直下ではない .label
+     (ログイン画面の「ログイン状態を保持する」など) が横幅を縮め、
+     行の余白部分をタップしてもチェックボックスが反応しなくなる。 */
+  .label {
+    display: flex;
+    color: var(--color-base-content);
+  }
+
   /* daisyUI 5 で btm-nav は dock にリネームされた。
-     daisyUI 本体の .dock も同じ @layer components に出力され、
-     後勝ちで height を上書きしてしまうため .dock.dock で詳細度を上げている。 */
-  .dock.dock {
+     daisyUI 側の .dock が height: calc(4rem + safe-area) と padding: .5rem を
+     指定するため、モバイル下部ナビ用の高さをここで上書きする。 */
+  .dock {
     height: calc(5.5rem + env(safe-area-inset-bottom));
     padding-top: 0.75rem;
     padding-bottom: env(safe-area-inset-bottom);
