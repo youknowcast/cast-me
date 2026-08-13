@@ -5,14 +5,14 @@
 
 ## Tech Stack
 ### Backend
--   **Framework**: Ruby on Rails 7.0
+-   **Framework**: Ruby on Rails 8.1
 -   **Language**: Ruby (version specified in `.tool-versions`)
 -   **Database**: SQLite (configured for Development, Test, and Production in `config/database.yml`)
     -   *ORM*: Active Record
 
 ### Frontend
 -   **Templating**: Slim (`.slim`) files instead of standard ERB.
--   **CSS Framework**: Tailwind CSS (via `tailwindcss-rails`) + DaisyUI.
+-   **CSS Framework**: Tailwind CSS v4 (via `tailwindcss-rails`) + daisyUI 5.
 -   **Interactivity**: Hotwire (Turbo + Stimulus).
 -   **Scripting**: TypeScript (compiled via `esbuild`).
 -   **Icons**: Likely FontAwesome or Heroicons (inferred from usage patterns generally, to be verified in views).
@@ -56,6 +56,7 @@
 ## Key Configuration Files
 -   `Procfile.dev`: Runs Rails and `yarn build --watch` for JS.
 -   `package.json`: Build script uses `esbuild` targeting `app/javascript/application.js`.
+-   `app/assets/tailwind/application.css`: Tailwind v4 のエントリポイント。v4 は CSS ファースト設定なので `tailwind.config.js` は存在せず、プラグイン (`@plugin`) / スキャン対象 (`@source`) / テーマ (`@theme`) をすべてこのファイルに書く。daisyUI 5 で削除された `form-control` / `label` / `label-text` の互換定義もここにある。
 -   `db/Schemafile`: Database schema managed via **Ridgepole**.
 -   `config/routes.rb`: definition of available endpoints.
 

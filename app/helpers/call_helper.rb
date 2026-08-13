@@ -43,7 +43,7 @@ module CallHelper
                     safe_join([
                                 f.label(:message, 'メッセージ', class: 'label'),
                                 f.text_area(:message, value: 'これを見たら連絡して',
-                                                      class: 'textarea textarea-bordered', rows: 2)
+                                                      class: 'textarea', rows: 2)
                               ])
                   end,
                   content_tag(:div, class: 'modal-action') do

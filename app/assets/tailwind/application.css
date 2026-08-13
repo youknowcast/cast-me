@@ -1,0 +1,82 @@
+/* source(none) で v4 の自動ソース検出を切り、下の @source だけを走査対象にする。
+   自動検出は .gitignore を見て node_modules を除外するが、Docker ビルドでは
+   .dockerignore が .git / .gitignore を除外するため node_modules まで走査され、
+   CSS が 3 倍近くに膨らんでしまう (ローカル 125KB / コンテナ 369KB)。 */
+@import "tailwindcss" source(none);
+@import "./side_panel.css";
+
+/* Tailwind v4 は CSS ファーストの設定になったため、旧 config/tailwind.config.js
+   の内容をここに移している。@tailwindcss/forms と @tailwindcss/typography は
+   tailwindcss-rails 同梱の standalone CLI にバンドルされている。
+   container-queries は v4 でコアに取り込まれたためプラグイン指定は不要。 */
+@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/typography";
+@plugin "daisyui" {
+  themes: cupcake --default;
+  root: ":root";
+  logs: false;
+}
+
+@source "../../views/**/*.{erb,haml,html,slim}";
+@source "../../helpers/**/*.rb";
+@source "../../javascript/**/*.{js,ts}";
+@source "../../stylesheets/**/*.css";
+@source "../../../public/*.html";
+
+@theme {
+  --font-sans: "Inter var", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+/* Tailwind v3 では border 系ユーティリティの既定色が gray-200 だったが、
+   v4 では currentColor に変わったため、既存の見た目を維持する互換指定 */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+/* daisyUI 5 で削除されたクラスの互換定義。
+   フォームまわり (form-control / label-text) は全画面で使われており、
+   fieldset ベースの新レイアウトへ一気に書き換えると見た目が変わるため、
+   daisyUI 4 と同じ CSS をここで定義して既存マークアップを維持する。 */
+@layer components {
+  .form-control {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* daisyUI 5 の .label は input group 用に再定義され、padding が無くなり
+     文字色も 60% に薄くなる。本アプリでは v4 の「フォーム項目の見出し行」
+     としてしか使っていないため、v4 の定義で上書きする
+     (daisyUI 本体の .label と同じ layer に出るので詳細度を上げている)。 */
+  .label.label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.25rem;
+    color: var(--color-base-content);
+    user-select: none;
+  }
+
+  .label-text {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: var(--color-base-content);
+  }
+}
+
+@layer components {
+  /* daisyUI 5 で btm-nav は dock にリネームされた。
+     daisyUI 本体の .dock も同じ @layer components に出力され、
+     後勝ちで height を上書きしてしまうため .dock.dock で詳細度を上げている。 */
+  .dock.dock {
+    height: calc(5.5rem + env(safe-area-inset-bottom));
+    padding-top: 0.75rem;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

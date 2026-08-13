@@ -14,7 +14,7 @@
               - @food.errors.full_messages.each do |msg|
                 li = msg
         .flex.items-center.gap-2
-          = f.text_field :name, class: 'input input-bordered flex-1', placeholder: '食べ物の名前'
+          = f.text_field :name, class: 'input flex-1', placeholder: '食べ物の名前'
           = f.submit '追加', class: 'btn btn-primary'
 
   .card.bg-base-100.shadow-xl

@@ -28,7 +28,7 @@ gem 'turbo-rails'
 
 gem 'kaminari'
 gem 'slim-rails'
-gem 'tailwindcss-rails', '~> 2.7.9'
+gem 'tailwindcss-rails', '~> 4.6'
 
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.4', require: false

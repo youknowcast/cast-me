@@ -18,7 +18,7 @@
     - (@month_start..@month_end).each do |date|
       - meals = @meals_by_date[date] || []
       - wday_class = date.sunday? ? 'text-red-500' : (date.saturday? ? 'text-blue-500' : 'text-gray-700')
-      .bg-white.rounded-lg.shadow.p-3 class=(meals.empty? ? 'opacity-50' : '')
+      .bg-white.rounded-lg.shadow-sm.p-3 class=(meals.empty? ? 'opacity-50' : '')
         .flex.items-start.gap-3
           .w-16.shrink-0 class=wday_class
             span.font-semibold = date.strftime('%-m/%-d')
