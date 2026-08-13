@@ -133,7 +133,7 @@ class PlansController < ApplicationController
                                            scope: current_scope, holidays: @holidays })
           ]
         else
-          head :unprocessable_entity
+          head :unprocessable_content
         end
       end
       format.html { redirect_to calendar_path, (destroyed ? { notice: '予定を削除しました' } : { alert: '予定を削除できませんでした' }) }
@@ -143,7 +143,7 @@ class PlansController < ApplicationController
   private
 
   def set_plan
-    @plan = current_user.family.plans.find(params[:id])
+    @plan = current_user.family.plans.find(params.expect(:id))
   end
 
   def plan_params
@@ -169,9 +169,9 @@ class PlansController < ApplicationController
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: turbo_stream.update('plan-form-container', partial: 'form_body', locals: { plan: @plan }),
-               status: :unprocessable_entity
+               status: :unprocessable_content
       end
-      format.html { render @plan.persisted? ? :edit : :new, status: :unprocessable_entity }
+      format.html { render @plan.persisted? ? :edit : :new, status: :unprocessable_content }
     end
   end
 end

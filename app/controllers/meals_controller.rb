@@ -43,7 +43,7 @@ class MealsController < ApplicationController
   private
 
   def set_meal
-    @meal = current_user.family.meals.find(params[:id])
+    @meal = current_user.family.meals.find(params.expect(:id))
   end
 
   def meal_params
@@ -97,9 +97,9 @@ class MealsController < ApplicationController
       format.turbo_stream do
         render turbo_stream: turbo_stream.update('side-panel', partial: 'meals/form',
                                                                locals: { meal: @meal, scope: current_scope }),
-               status: :unprocessable_entity
+               status: :unprocessable_content
       end
-      format.html { render(@meal.persisted? ? :edit : :new, status: :unprocessable_entity) }
+      format.html { render(@meal.persisted? ? :edit : :new, status: :unprocessable_content) }
     end
   end
 

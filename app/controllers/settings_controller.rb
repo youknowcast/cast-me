@@ -20,7 +20,7 @@ class SettingsController < ApplicationController
       @family = current_user.family
       @notification_setting = current_user.notification_setting || current_user.build_notification_setting
       @hour_options = (0..23).map { |h| HourOption.new(h, "#{h}:00") }
-      render :show, status: :unprocessable_entity
+      render :show, status: :unprocessable_content
     end
   end
 
@@ -44,7 +44,7 @@ class SettingsController < ApplicationController
     else
       @family = current_user.family
       @hour_options = (0..23).map { |h| HourOption.new(h, "#{h}:00") }
-      render :show, status: :unprocessable_entity
+      render :show, status: :unprocessable_content
     end
   end
 

@@ -94,7 +94,7 @@ class TasksController < ApplicationController
         if destroyed
           render turbo_stream: [daily_view_stream, grid_cell_stream(date)]
         else
-          head :unprocessable_entity
+          head :unprocessable_content
         end
       end
       format.html { redirect_to calendar_path, (destroyed ? { notice: 'タスクを削除しました' } : { alert: 'タスクを削除できませんでした' }) }
@@ -131,7 +131,7 @@ class TasksController < ApplicationController
                                    scope: current_scope, holidays: @holidays })
   end
 
-  def set_task = @task = current_user.family.tasks.find(params[:id])
+  def set_task = @task = current_user.family.tasks.find(params.expect(:id))
 
   def task_params = params.expect(task: %i[title description date priority user_id completed])
 
