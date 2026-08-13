@@ -43,7 +43,7 @@ class MealsController < ApplicationController
   private
 
   def set_meal
-    @meal = current_user.family.meals.find(params[:id])
+    @meal = current_user.family.meals.find(params.expect(:id))
   end
 
   def meal_params
@@ -79,13 +79,7 @@ class MealsController < ApplicationController
   end
 
   def default_meal_attributes
-    { date: parsed_date, user_id: my_scope? ? current_user.id : nil }
-  end
-
-  def parsed_date
-    params[:date].present? ? Date.parse(params[:date]) : Time.zone.today
-  rescue Date::Error
-    Time.zone.today
+    { date: parse_date(params[:date]), user_id: my_scope? ? current_user.id : nil }
   end
 
   def render_form
@@ -103,9 +97,9 @@ class MealsController < ApplicationController
       format.turbo_stream do
         render turbo_stream: turbo_stream.update('side-panel', partial: 'meals/form',
                                                                locals: { meal: @meal, scope: current_scope }),
-               status: :unprocessable_entity
+               status: :unprocessable_content
       end
-      format.html { render(@meal.persisted? ? :edit : :new, status: :unprocessable_entity) }
+      format.html { render(@meal.persisted? ? :edit : :new, status: :unprocessable_content) }
     end
   end
 

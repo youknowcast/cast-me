@@ -88,16 +88,6 @@ module ApplicationHelper
   end
 
   # ============================================
-  # ビジネスロジック
-  # ============================================
-
-  def day_has_unfinished_tasks?(date, user)
-    return false if date >= Time.zone.today
-
-    user.tasks.for_date(date).pending.exists?
-  end
-
-  # ============================================
   # アプリケーション固有のUIコンポーネント
   # ============================================
 

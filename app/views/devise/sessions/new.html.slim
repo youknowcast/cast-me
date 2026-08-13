@@ -9,12 +9,12 @@
         label.form-control.w-full
           .label
             span.label-text ログインID
-          = f.text_field :login_id, autofocus: true, autocomplete: "username", class: "input input-bordered w-full"
+          = f.text_field :login_id, autofocus: true, autocomplete: "username", class: "input w-full"
 
         label.form-control.w-full
           .label
             span.label-text パスワード
-          = f.password_field :password, autocomplete: "current-password", class: "input input-bordered w-full"
+          = f.password_field :password, autocomplete: "current-password", class: "input w-full"
 
         - if devise_mapping.rememberable?
           label.label.cursor-pointer.justify-start.gap-3

@@ -1,7 +1,9 @@
 # Development Dockerfile for local development with docker-compose
-FROM rubylang/ruby:3.4.1-focal
+# rubylang/ruby は focal (Ubuntu 20.04, EOL) ベースだったため公式 ruby イメージへ移行
+ARG RUBY_VERSION=3.4.10
+FROM ruby:${RUBY_VERSION}
 
-ENV LANG ja_JP.UTF-8
+ENV LANG=ja_JP.UTF-8
 
 RUN apt-get update -qq && \
   DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential libffi-dev libyaml-dev git curl libsqlite3-dev imagemagick && \
@@ -10,11 +12,11 @@ RUN apt-get update -qq && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
   truncate -s 0 /var/log/*log
 
-ENV GEM_HOME /bundle
-ENV BUNDLE_PATH ${GEM_HOME}
-ENV BUNDLE_APP_CONFIG ${BUNDLE_PATH}
-ENV BUNDLE_BIN ${BUNDLE_PATH}/bin
-ENV PATH /app/bin:$BUNDLE_BIN:$PATH
+ENV GEM_HOME=/bundle
+ENV BUNDLE_PATH=${GEM_HOME}
+ENV BUNDLE_APP_CONFIG=${BUNDLE_PATH}
+ENV BUNDLE_BIN=${BUNDLE_PATH}/bin
+ENV PATH=/app/bin:$BUNDLE_BIN:$PATH
 
 # Run only `bundle install` first for caching
 RUN mkdir -p /app

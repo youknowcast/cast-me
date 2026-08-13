@@ -32,7 +32,7 @@ module MobileUiHelper
   #     ...
   #   end
   #
-  def action_sheet_modal(id:, title:, controller:, target: 'modal', close_action: 'close', cancel_text: 'キャンセル', &block)
+  def action_sheet_modal(id:, title:, controller:, target: 'modal', close_action: 'close', cancel_text: 'キャンセル', &)
     content_tag(:dialog, id: id, class: 'modal modal-bottom sm:modal-middle',
                          data: { "#{controller}-target": target }) do
       content_tag(:div, class: 'modal-box p-0 max-h-[70vh] flex flex-col') do
@@ -45,7 +45,7 @@ module MobileUiHelper
         # Content
         concat(
           content_tag(:div, class: 'overflow-y-auto') do
-            capture(&block)
+            capture(&)
           end
         )
         # Footer
@@ -183,7 +183,7 @@ module MobileUiHelper
 
   private
 
-  def mobile_selector_internal(name, value, collection, value_method, text_method, options, html_options, &block)
+  def mobile_selector_internal(name, value, collection, value_method, text_method, options, html_options, &)
     selected_item = collection.find { |i| i.send(value_method).to_s == value.to_s }
     label_text = selected_item ? selected_item.send(text_method) : (options[:prompt] || '選択してください')
     id = "mobile_selector_#{name}_#{SecureRandom.hex(4)}"
@@ -200,7 +200,7 @@ module MobileUiHelper
                                            data: { 'mobile-selector-target': 'input' }.merge(html_options[:data] || {}))
 
       trigger_content = if block_given?
-                          capture(&block)
+                          capture(&)
                         else
                           content_tag(:button, type: 'button',
                                                class: 'btn btn-outline w-full justify-between font-normal',

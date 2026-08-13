@@ -2,7 +2,7 @@
 
 class CallsController < ApplicationController
   def create
-    @target_user = current_user.family.users.find(params[:user_id])
+    @target_user = current_user.family.users.find(params.expect(:user_id))
     message = params[:message].presence || 'これを見たら連絡して'
 
     FamilyCallNotificationService.notify(
@@ -12,7 +12,7 @@ class CallsController < ApplicationController
     )
 
     respond_to do |format|
-      format.html { redirect_back fallback_location: calendar_path, notice: '呼び出しを送信しました' }
+      format.html { redirect_back_or_to(calendar_path, notice: '呼び出しを送信しました') }
       format.turbo_stream do
         flash.now[:notice] = '呼び出しを送信しました'
         render turbo_stream: turbo_stream.replace('flash', partial: 'shared/flash')

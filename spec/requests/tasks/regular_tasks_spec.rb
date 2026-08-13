@@ -20,21 +20,21 @@ RSpec.describe 'RegularTasks', type: :request do
       expect(response).to have_http_status(:success)
       json = response.parsed_body
       expect(json.size).to eq(2)
-      expect(json.map { |t| t['title'] }).to contain_exactly('買い物', '掃除')
+      expect(json.pluck('title')).to contain_exactly('買い物', '掃除')
     end
 
     it 'does not include regular tasks from other families' do
       get regular_tasks_path, as: :json
 
       json = response.parsed_body
-      expect(json.map { |t| t['title'] }).not_to include('他の家族のタスク')
+      expect(json.pluck('title')).not_to include('他の家族のタスク')
     end
 
     it 'returns tasks ordered by title' do
       get regular_tasks_path, as: :json
 
       json = response.parsed_body
-      titles = json.map { |t| t['title'] }
+      titles = json.pluck('title')
       expect(titles).to eq(titles.sort)
     end
   end

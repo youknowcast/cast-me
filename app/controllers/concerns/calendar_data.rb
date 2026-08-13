@@ -42,7 +42,7 @@ module CalendarData
 
   def set_target_users
     @target_users = if params[:filter_user_id].present? && params[:filter_user_id] != 'all'
-                      [User.find(params[:filter_user_id])]
+                      [User.find(params.expect(:filter_user_id))]
                     else
                       current_user.family.users
                     end

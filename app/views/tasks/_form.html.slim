@@ -42,7 +42,7 @@
               = regular_task_selector(current_user, all_regular_tasks)
               / タイトル入力 + 登録アイコン
               .flex.items-center.gap-2
-                = f.text_field :title, class: "input input-bordered flex-1", placeholder: "タスクのタイトル", data: { regular_task_target: "titleInput" }
+                = f.text_field :title, class: "input flex-1", placeholder: "タスクのタイトル", data: { regular_task_target: "titleInput" }
                 button.btn.btn-ghost.btn-circle.text-gray-400 type="button" data-action="regular-task#toggleRegister" data-regular-task-target="registerIcon" title="定型タスクとして登録"
                   i.fas.fa-bookmark
               = hidden_field_tag :register_regular_task, "false", data: { regular_task_target: "registerInput" }
@@ -57,7 +57,7 @@
 
             .form-control
               = f.label :description, "詳細", class: "label"
-              = f.text_area :description, rows: 4, class: "textarea textarea-bordered w-full", placeholder: "タスクの詳細を入力してください"
+              = f.text_area :description, rows: 4, class: "textarea w-full", placeholder: "タスクの詳細を入力してください"
               - if task.errors[:description].any?
                 .text-error.text-sm.mt-1= task.errors[:description].join(", ")
 

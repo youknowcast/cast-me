@@ -2,12 +2,9 @@
   "name": "cast-me",
   "private": true,
   "dependencies": {
-    "@hotwired/stimulus": "^3.0.1",
-    "@hotwired/turbo-rails": "^7.1.1",
-    "@rails/activestorage": "^6.0.0",
-    "@rails/ujs": "^6.0.0",
-    "esbuild": "^0.14.36",
-    "turbolinks": "^5.2.0"
+    "@hotwired/stimulus": "^3.2.2",
+    "@hotwired/turbo-rails": "^8.0.23",
+    "esbuild": "^0.28.2"
   },
   "scripts": {
     "build": "esbuild app/javascript/application.js --bundle --sourcemap --outdir=app/assets/builds --loader:.ts=ts",
@@ -15,11 +12,12 @@
   },
   "version": "0.1.0",
   "devDependencies": {
-    "@types/node": "^20.0.0",
-    "daisyui": "^4.12.14",
-    "jsdom": "25.0.1",
-    "postcss": "^8.4.47",
-    "typescript": "^5.0.0",
-    "vitest": "2.1.9"
+    "@types/node": "^24.0.0",
+    "daisyui": "^5.7.16",
+    "jsdom": "^30.0.1",
+    "postcss": "^8.5.26",
+    "typescript": "^5.9.3",
+    "vite": "^8.2.1",
+    "vitest": "^4.1.10"
   }
 }
