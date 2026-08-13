@@ -15,6 +15,11 @@ RSpec.describe 'Calendars', type: :request do
       get '/calendar'
       expect(response).to have_http_status(:success)
     end
+
+    it 'links to the monthly meal summary for the displayed month' do
+      get '/calendar', params: { date: '2026-08-15' }
+      expect(response.body).to include(monthly_meal_summary_path(month: '2026-08'))
+    end
   end
 
   describe 'GET /my' do
