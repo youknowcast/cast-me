@@ -33,5 +33,9 @@ module CastMe
     # config.eager_load_paths << Rails.root.join("extras")
 
     config.i18n.default_locale = :ja
+
+    # Active Storage の variant は使っていないため image_processing gem を入れていない
+    # (アバターのリサイズは SettingsController が sips / convert を直接呼んでいる)
+    config.active_storage.variant_processor = :disabled
   end
 end
