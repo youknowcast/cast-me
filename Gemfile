@@ -16,8 +16,8 @@ gem 'propshaft'
 # Use Active Model has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
-# Use Active Storage variant
-gem 'image_processing', '~> 1.2'
+# gem 'image_processing' # Removed: Active Storage の variant は未使用で、
+# アバターのリサイズは SettingsController が sips / convert を直接呼んでいる
 
 gem 'devise'
 
@@ -28,7 +28,7 @@ gem 'turbo-rails'
 
 gem 'kaminari'
 gem 'slim-rails'
-gem 'tailwindcss-rails', '~> 2.7.9'
+gem 'tailwindcss-rails', '~> 4.6'
 
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.4', require: false
@@ -53,7 +53,7 @@ gem 'sqlite3'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'byebug', platforms: %i[mri mingw x64_mingw]
+  gem 'byebug', platforms: %i[mri windows]
 
   gem 'dotenv-rails'
   gem 'factory_bot_rails'
@@ -65,7 +65,7 @@ group :development do
   # Display performance information such as SQL time and flame graphs for each request in your browser.
   # Can be configured to work on production as well see: https://github.com/MiniProfiler/rack-mini-profiler/blob/master/README.md
   gem 'listen', '~> 3.3'
-  gem 'rack-mini-profiler', '~> 2.0'
+  gem 'rack-mini-profiler', '~> 4.0'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   # gem 'annotate' # Temporarily disabled: incompatible with Rails 8 (activerecord < 8.0)
   # gem 'spring' # Removed: not needed in Rails 8
@@ -87,9 +87,9 @@ group :test do
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
+gem 'tzinfo-data', platforms: %i[windows jruby]
 
 gem 'jsbundling-rails', '~> 1.0'
 
 # Push notifications
-gem 'onesignal', '~> 2.2'
+gem 'onesignal', '~> 5.11'

@@ -7,13 +7,13 @@
       .form-control.mb-4
         label.label
           span.label-text Family
-        .input.input-bordered.bg-base-200.flex.items-center = @family.name
+        .input.bg-base-200.flex.items-center = @family.name
 
       / Login ID
       .form-control.mb-4
         label.label
           span.label-text Login ID
-        .input.input-bordered.bg-base-200.flex.items-center = current_user.login_id
+        .input.bg-base-200.flex.items-center = current_user.login_id
 
       / Birthday (Editable)
       = form_with model: current_user, url: settings_path, method: :patch, local: true do |f|

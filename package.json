@@ -13,7 +13,7 @@
   "version": "0.1.0",
   "devDependencies": {
     "@types/node": "^24.0.0",
-    "daisyui": "^4.12.24",
+    "daisyui": "^5.7.16",
     "jsdom": "^30.0.1",
     "postcss": "^8.5.26",
     "typescript": "^5.9.3",
