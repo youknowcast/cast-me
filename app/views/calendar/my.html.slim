@@ -3,25 +3,28 @@
   data-calendar-interaction-date-value=@date.to_s
   data-calendar-interaction-scope-value="my"
 ]
-  .flex.justify-between.items-center.mb-6
-    h1.text-3xl.font-bold.text-gray-800 マイ・カレンダー
+  .flex.flex-col.gap-3.mb-6.sm:flex-row.sm:items-center.sm:justify-between
+    .flex.items-center.gap-2
+      = image_tag "/icon-192x192.png", alt: "", class: "w-9 h-9 shrink-0 rounded-lg shadow-sm"
+      h1.text-3xl.font-bold.text-gray-800.whitespace-nowrap マイ・カレンダー
 
-    button.btn.btn-ghost.text-lg.font-semibold[
-      data-controller="monthpicker-connector"
-      data-monthpicker-connector-date-value=@date.to_s
-      data-monthpicker-connector-base-url-value=my_calendar_path
-      data-action="click->monthpicker-connector#open"
-    ]
-      span data-monthpicker-connector-target="triggerText"
-        = @date.strftime("%Y年%m月")
-      i.fas.fa-caret-down.ml-2.text-sm
-    button.btn.btn-ghost.btn-circle.ml-2[
-      data-controller="side-panel-opener"
-      data-action="click->side-panel-opener#openMonthlyList"
-      data-date=@date.to_s
-      title="月間予定リスト"
-    ]
-      i.fas.fa-list-ul.text-xl
+    .flex.items-center
+      button.btn.btn-ghost.text-lg.font-semibold[
+        data-controller="monthpicker-connector"
+        data-monthpicker-connector-date-value=@date.to_s
+        data-monthpicker-connector-base-url-value=my_calendar_path
+        data-action="click->monthpicker-connector#open"
+      ]
+        span data-monthpicker-connector-target="triggerText"
+          = @date.strftime("%Y年%m月")
+        i.fas.fa-caret-down.ml-2.text-sm
+      button.btn.btn-ghost.btn-circle.ml-2[
+        data-controller="side-panel-opener"
+        data-action="click->side-panel-opener#openMonthlyList"
+        data-date=@date.to_s
+        title="月間予定リスト"
+      ]
+        i.fas.fa-list-ul.text-xl
 
 
 
