@@ -24,7 +24,5 @@ module CalendarHelper
     }
   end
 
-  def anniversaries_on(day, users)
-    AnniversaryService.anniversaries_on(day, users)
-  end
+  delegate :anniversaries_on, to: :AnniversaryService
 end

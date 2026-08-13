@@ -15,7 +15,7 @@ class TaskTemplatesController < ApplicationController
     if @task_template.save
       redirect_to everyday_task_template_path(@everyday_task_template), notice: 'タスクTemplateを追加しました'
     else
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 
@@ -23,7 +23,7 @@ class TaskTemplatesController < ApplicationController
     if @task_template.update(task_template_params)
       redirect_to everyday_task_template_path(@everyday_task_template), notice: 'タスクTemplateを更新しました'
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 
@@ -37,11 +37,12 @@ class TaskTemplatesController < ApplicationController
   private
 
   def set_everyday_task_template
-    @everyday_task_template = current_user.family.everyday_task_templates.find(params[:everyday_task_template_id])
+    templates = current_user.family.everyday_task_templates
+    @everyday_task_template = templates.find(params.expect(:everyday_task_template_id))
   end
 
   def set_task_template
-    @task_template = @everyday_task_template.task_templates.find(params[:id])
+    @task_template = @everyday_task_template.task_templates.find(params.expect(:id))
   end
 
   def task_template_params

@@ -7,13 +7,12 @@ ruby file: '.tool-versions'
 gem 'rails', '~> 8.0'
 
 # Use Puma as the app server
-gem 'puma', '~> 6'
+gem 'puma', '~> 8.0'
 # Asset pipeline - Propshaft is simpler and supports modern CSS
 gem 'propshaft'
 # Transpile app-like JavaScript. Read more: https://github.com/rails/webpacker
 # gem 'webpacker', '~> 5.0'
-# Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
-gem 'turbolinks', '~> 5'
+# gem 'turbolinks' # Removed: superseded by turbo-rails, and no longer referenced anywhere
 # Use Active Model has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
@@ -81,10 +80,10 @@ group :test do
   gem 'rspec-rails'
   # Adds support for Capybara system testing and selenium driver
   gem 'capybara', '>= 3.26'
+  # Driver binaries are resolved by Selenium Manager (built into selenium-webdriver >= 4.11),
+  # so the webdrivers gem is no longer needed — it also pinned selenium-webdriver < 4.11.
   gem 'selenium-webdriver'
-  # Easy installation and use of web drivers to run system tests with browsers
   gem 'shoulda-matchers'
-  gem 'webdrivers', '~> 5.3.0'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem

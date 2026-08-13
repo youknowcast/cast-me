@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # Cache bust: 20241228-v2
-ARG RUBY_VERSION=3.4.1
+ARG RUBY_VERSION=3.4.10
 FROM ruby:$RUBY_VERSION AS base
 
 WORKDIR /rails
@@ -19,14 +19,25 @@ RUN apt-get update -qq && \
     build-essential \
     git \
     curl \
+    xz-utils \
     pkg-config \
     libffi-dev \
     libyaml-dev \
-    libsqlite3-dev \
-    nodejs \
-    npm && \
-    npm install -g yarn && \
+    libsqlite3-dev && \
     rm -rf /var/lib/apt/lists/*
+
+# Install Node from the official tarball so the version matches .tool-versions
+# (Debian's `nodejs` package lags several major versions behind).
+ARG NODE_VERSION=24.19.0
+ARG TARGETARCH=amd64
+RUN case "$TARGETARCH" in \
+      amd64) NODE_ARCH=x64 ;; \
+      arm64) NODE_ARCH=arm64 ;; \
+      *) echo "unsupported arch: $TARGETARCH" >&2; exit 1 ;; \
+    esac && \
+    curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.xz" \
+      | tar -xJ -C /usr/local --strip-components=1 --no-same-owner && \
+    npm install -g yarn
 
 # Install gems
 COPY Gemfile Gemfile.lock .tool-versions ./

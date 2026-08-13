@@ -22,7 +22,7 @@ class EverydayTaskTemplatesController < ApplicationController
     if @everyday_task_template.save
       redirect_to everyday_task_templates_path, notice: '毎日のタスクセットを作成しました'
     else
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 
@@ -30,7 +30,7 @@ class EverydayTaskTemplatesController < ApplicationController
     if @everyday_task_template.update(everyday_task_template_params)
       redirect_to everyday_task_templates_path, notice: '毎日のタスクセットを更新しました'
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 
@@ -59,20 +59,20 @@ class EverydayTaskTemplatesController < ApplicationController
 
     respond_to do |format|
       format.json { render json: { message: 'タスクを一括登録しました' }, status: :ok }
-      format.html { redirect_back fallback_location: calendar_path(date: date), notice: 'タスクを一括登録しました' }
+      format.html { redirect_back_or_to(calendar_path(date: date), notice: 'タスクを一括登録しました') }
     end
   rescue StandardError => e
     Rails.logger.error "Bulk Add Failed: #{e.message}"
     respond_to do |format|
-      format.json { render json: { error: '一括登録に失敗しました' }, status: :unprocessable_entity }
-      format.html { redirect_back fallback_location: calendar_path(date: date), alert: '一括登録に失敗しました' }
+      format.json { render json: { error: '一括登録に失敗しました' }, status: :unprocessable_content }
+      format.html { redirect_back_or_to(calendar_path(date: date), alert: '一括登録に失敗しました') }
     end
   end
 
   private
 
   def set_everyday_task_template
-    @everyday_task_template = current_user.family.everyday_task_templates.find(params[:id])
+    @everyday_task_template = current_user.family.everyday_task_templates.find(params.expect(:id))
   end
 
   def everyday_task_template_params

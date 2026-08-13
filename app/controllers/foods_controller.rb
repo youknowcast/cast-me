@@ -13,7 +13,7 @@ class FoodsController < ApplicationController
       redirect_to foods_path, notice: '食べ物を追加しました'
     else
       @foods = current_user.family.foods.ordered_by_name
-      render :index, status: :unprocessable_entity
+      render :index, status: :unprocessable_content
     end
   end
 
@@ -22,14 +22,14 @@ class FoodsController < ApplicationController
       redirect_to foods_path, notice: '食べ物を更新しました'
     else
       @foods = current_user.family.foods.ordered_by_name
-      render :index, status: :unprocessable_entity
+      render :index, status: :unprocessable_content
     end
   end
 
   private
 
   def set_food
-    @food = current_user.family.foods.find(params[:id])
+    @food = current_user.family.foods.find(params.expect(:id))
   end
 
   def food_params

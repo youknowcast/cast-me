@@ -1,12 +1,12 @@
 # RuboCop Configuration
 # https://docs.rubocop.org/rubocop/
 
-require:
+plugins:
   - rubocop-rails
   - rubocop-rspec
 
 AllCops:
-  TargetRubyVersion: 3.3
+  TargetRubyVersion: 3.4
   NewCops: enable
   Exclude:
     - 'bin/**/*'
@@ -66,6 +66,11 @@ Style/StringLiterals:
 
 Style/StringLiteralsInInterpolation:
   EnforcedStyle: single_quotes
+
+Style/OneClassPerFile:
+  Exclude:
+    # Ridgepole へのモンキーパッチ。パッチ本体と対象クラスの再オープンを 1 ファイルにまとめている
+    - 'config/ridgepole.rb'
 
 Style/SymbolArray:
   EnforcedStyle: percent
