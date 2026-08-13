@@ -37,5 +37,10 @@ RSpec.describe 'TaskTemplates', type: :request do
       end.to change(TaskTemplate, :count).by(-1)
       expect(response).to redirect_to(everyday_task_template_path(everyday_task_template))
     end
+
+    it 'redirects with 303 See Other so Turbo does not replay DELETE against the redirect target' do
+      delete everyday_task_template_task_template_path(everyday_task_template, task_template)
+      expect(response).to have_http_status(:see_other)
+    end
   end
 end

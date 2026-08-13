@@ -36,7 +36,8 @@ class EverydayTaskTemplatesController < ApplicationController
 
   def destroy
     @everyday_task_template.destroy
-    redirect_to everyday_task_templates_path, notice: '毎日のタスクセットを削除しました'
+    # 303 でないと Turbo の fetch がリダイレクト先 (index) へ DELETE を再送しエラー画面になる
+    redirect_to everyday_task_templates_path, notice: '毎日のタスクセットを削除しました', status: :see_other
   end
 
   def bulk_add

@@ -29,7 +29,9 @@ class TaskTemplatesController < ApplicationController
 
   def destroy
     @task_template.destroy
-    redirect_to everyday_task_template_path(@everyday_task_template), notice: 'タスクTemplateを削除しました'
+    # 303 でないと Turbo の fetch がリダイレクト先へ DELETE を再送し、親のセットまで消える
+    redirect_to everyday_task_template_path(@everyday_task_template),
+                notice: 'タスクTemplateを削除しました', status: :see_other
   end
 
   private
