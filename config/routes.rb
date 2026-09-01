@@ -50,6 +50,9 @@ Rails.application.routes.draw do
   # 週次サマリ
   resource :weekly_summary, only: [:show]
 
+  # 一日のふりかえり
+  resource :daily_review, only: [:show]
+
   # 月間食事一覧
   resource :monthly_meal_summary, only: [:show]
 
