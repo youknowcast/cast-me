@@ -386,7 +386,7 @@ DEPENDENCIES
   propshaft
   puma (~> 8.0)
   rack-mini-profiler (~> 4.0)
-  rails (~> 8.0)
+  rails (~> 8.1)
   ridgepole
   rspec-rails
   rubocop
