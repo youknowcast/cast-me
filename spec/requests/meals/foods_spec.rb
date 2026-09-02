@@ -30,7 +30,7 @@ RSpec.describe 'Foods', type: :request do
       expect do
         post foods_path, params: { food: { name: '重複' } }
       end.not_to change(Food, :count)
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
     end
   end
 

@@ -56,7 +56,7 @@ RSpec.describe 'RegularTasks', type: :request do
         post regular_tasks_path, params: { regular_task: { title: '洗濯' } }, as: :json
       end.not_to change(RegularTask, :count)
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
       expect(response.parsed_body['errors']).to be_present
     end
   end
