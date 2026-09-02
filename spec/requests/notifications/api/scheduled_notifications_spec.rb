@@ -104,6 +104,30 @@ RSpec.describe 'Api::ScheduledNotifications', type: :request do
         end
       end
 
+      context 'with daily review notification' do
+        before do
+          allow(DailyReviewNotificationService).to receive(:notify_all)
+        end
+
+        it 'triggers daily review notifications at hour 19' do
+          post '/api/scheduled_notifications/trigger',
+               params: { hour: 19 },
+               headers: headers,
+               as: :json
+
+          expect(DailyReviewNotificationService).to have_received(:notify_all)
+        end
+
+        it 'does not trigger daily review notifications at other hours' do
+          post '/api/scheduled_notifications/trigger',
+               params: { hour: 18 },
+               headers: headers,
+               as: :json
+
+          expect(DailyReviewNotificationService).not_to have_received(:notify_all)
+        end
+      end
+
       context 'with users having both reminders at different hours' do
         before do
           create(:user_notification_setting,

@@ -46,6 +46,12 @@ RSpec.describe 'Meals', type: :request do
       expect(response).to have_http_status(:unprocessable_entity)
     end
 
+    it 'redirects to the daily review page when return_to is daily_review' do
+      post meals_path, params: params.merge(return_to: 'daily_review'), as: :turbo_stream
+      expect(response).to redirect_to(daily_review_path)
+      expect(response).to have_http_status(:see_other)
+    end
+
     it 'rejects a meal with no foods' do
       expect do
         post meals_path,
@@ -70,6 +76,14 @@ RSpec.describe 'Meals', type: :request do
       expect(response).to have_http_status(:ok)
       expect(meal.reload.foods.map(&:name)).to eq(['新しい'])
       expect(meal.meal_type).to eq(2)
+    end
+
+    it 'redirects to the daily review page when return_to is daily_review' do
+      patch meal_path(meal),
+            params: { meal: { date: meal.date.to_s, meal_type: 2, food_names: ['新しい'] },
+                      scope: 'my', return_to: 'daily_review' }, as: :turbo_stream
+      expect(response).to redirect_to(daily_review_path)
+      expect(response).to have_http_status(:see_other)
     end
 
     it 'does not update a meal from another family' do
@@ -99,6 +113,14 @@ RSpec.describe 'Meals', type: :request do
       end.to change(Meal, :count).by(-1)
       expect(response).to have_http_status(:ok)
     end
+
+    it 'redirects to the daily review page when return_to is daily_review' do
+      meal = create(:meal, family: family, user: user)
+      create(:meal_food, meal: meal, food: create(:food, family: family))
+      delete meal_path(meal, return_to: 'daily_review'), as: :turbo_stream
+      expect(response).to redirect_to(daily_review_path)
+      expect(response).to have_http_status(:see_other)
+    end
   end
 
   describe 'GET /meals/new' do
@@ -108,6 +130,11 @@ RSpec.describe 'Meals', type: :request do
       expect(response).to have_http_status(:ok)
       expect(response.body).to include('meal-food')
       expect(response.body).to include('ラーメン')
+    end
+
+    it 'carries return_to into the form' do
+      get new_meal_path(date: Time.zone.today.to_s, scope: 'my', return_to: 'daily_review'), as: :turbo_stream
+      expect(response.body).to include('name="return_to" id="return_to" value="daily_review"')
     end
   end
 

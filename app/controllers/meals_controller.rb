@@ -30,6 +30,8 @@ class MealsController < ApplicationController
   def destroy
     date = @meal.date
     @meal.destroy
+    return render_daily_review_return('食事を削除しました') if daily_review_return?
+
     set_calendar_data(date)
     respond_to do |format|
       format.turbo_stream do
@@ -85,8 +87,7 @@ class MealsController < ApplicationController
   def render_form
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.update('side-panel', partial: 'meals/form',
-                                                               locals: { meal: @meal, scope: current_scope })
+        render turbo_stream: turbo_stream.update('side-panel', partial: 'meals/form', locals: form_locals)
       end
       format.html { render(@meal.persisted? ? :edit : :new) }
     end
@@ -95,15 +96,24 @@ class MealsController < ApplicationController
   def render_form_with_errors
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.update('side-panel', partial: 'meals/form',
-                                                               locals: { meal: @meal, scope: current_scope }),
+        render turbo_stream: turbo_stream.update('side-panel', partial: 'meals/form', locals: form_locals),
                status: :unprocessable_content
       end
       format.html { render(@meal.persisted? ? :edit : :new, status: :unprocessable_content) }
     end
   end
 
+  def form_locals = { meal: @meal, scope: current_scope, return_to: params[:return_to] }
+
+  def daily_review_return? = params[:return_to] == 'daily_review'
+
+  def render_daily_review_return(notice)
+    redirect_to daily_review_path, notice: notice, status: :see_other
+  end
+
   def render_saved(notice)
+    return render_daily_review_return(notice) if daily_review_return?
+
     set_calendar_data(@meal.date)
     respond_to do |format|
       format.turbo_stream do

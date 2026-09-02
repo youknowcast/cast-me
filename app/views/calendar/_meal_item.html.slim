@@ -12,11 +12,12 @@
       data-action="click->side-panel-opener#openMealEdit"
       data-meal-id=meal.id
       data-scope=scope
+      data-return-to=local_assigns[:return_to]
     ]
       i.fas.fa-edit
     button.btn.btn-xs.btn-ghost.text-error[
       data-controller="delete-confirm-trigger"
-      data-delete-confirm-trigger-url-value=meal_path(meal, scope: scope, date: meal.date)
+      data-delete-confirm-trigger-url-value=meal_path(meal, scope: scope, date: meal.date, return_to: local_assigns[:return_to])
       data-delete-confirm-trigger-message-value="この食事記録を削除しますか？"
       data-action="click->delete-confirm-trigger#open"
     ]

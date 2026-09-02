@@ -1,0 +1,53 @@
+.container.mx-auto.px-4.py-8.max-w-2xl
+  .flex.justify-between.items-center.mb-6
+    h1.text-2xl.font-bold.text-gray-800 🌙 一日のふりかえり
+    span.text-gray-500= I18n.l(Date.current, format: :short)
+
+  .space-y-6
+    .bg-white.rounded-lg.shadow-lg.p-6
+      h2.text-lg.font-bold.text-gray-800.mb-3.flex.items-center
+        span.mr-2 ✅
+        | 今日のタスク
+      - if @tasks.any?
+        .space-y-2
+          - @tasks.each do |task|
+            = render 'calendar/task_item', task: task
+      - else
+        p.text-gray-400.text-sm タスクはありません
+
+    .bg-white.rounded-lg.shadow-lg.p-6
+      .flex.items-center.justify-between.mb-3
+        h2.text-lg.font-bold.text-gray-800.flex.items-center
+          span.mr-2 🍴
+          | 今日何食べた？
+        button.btn.btn-sm.btn-primary[
+          data-controller="side-panel-opener"
+          data-action="click->side-panel-opener#openMealForm"
+          data-date=Date.current.strftime("%Y-%m-%d")
+          data-scope="my"
+          data-return-to="daily_review"
+        ]
+          i.fas.fa-plus.mr-1
+          | 登録
+      - if @meals.any?
+        .space-y-2
+          - @meals.group_by(&:meal_type).sort_by(&:first).each do |_meal_type, type_meals|
+            .flex.gap-2
+              .w-10.shrink-0.text-sm.font-semibold.text-gray-500.pt-2= type_meals.first.meal_type_text
+              .flex-1.space-y-1
+                - type_meals.each do |meal|
+                  = render 'calendar/meal_item', meal: meal, scope: 'my', return_to: 'daily_review'
+      - else
+        .text-gray-400.text-sm 記録はありません
+
+    .bg-white.rounded-lg.shadow-lg.p-6
+      h2.text-lg.font-bold.text-gray-800.mb-3.flex.items-center
+        span.mr-2 📖
+        | 料理ノート
+      a.btn.btn-outline.btn-block[
+        href="https://apps.apple.com/jp/app/id1636414129"
+        target="_blank"
+        rel="noopener"
+      ]
+        i.fas.fa-arrow-up-right-from-square.mr-2
+        | 料理ノートアプリで記録する

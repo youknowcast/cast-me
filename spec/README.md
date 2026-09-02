@@ -12,6 +12,7 @@ Specs remain grouped by RSpec type first so Rails type inference continues to wo
 | Settings | `requests/settings/` | `models/accounts/user_notification_setting_spec.rb` | - | Birthday and notification settings, missing avatar upload |
 | Family communication | `requests/communication/` | - | `services/notifications/family_call_notification_service_spec.rb` | Family call authorization, defaults and notification payloads |
 | Weekly summary | `requests/weekly_summary/` | - | `services/notifications/weekly_task_summary_notification_service_spec.rb` | Family task aggregation, date boundaries and signed-out access |
+| Daily review | `requests/daily_review/` | - | `services/notifications/daily_review_notification_service_spec.rb` | Today's own tasks and meals, meal form return flow, recipe app link, notification payload |
 | Scheduled notifications | `requests/notifications/api/` | `models/accounts/user_notification_setting_spec.rb` | `services/notifications/` | API token validation, schedule matching, message generation and OneSignal requests |
 | Shared presentation | - | `helpers/shared/` | - | URL linkification and escaping |
 

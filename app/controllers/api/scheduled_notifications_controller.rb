@@ -4,6 +4,8 @@ module Api
   class ScheduledNotificationsController < ApplicationController
     include Api::TokenAuthenticatable
 
+    DAILY_REVIEW_HOUR = 19
+
     # POST /api/scheduled_notifications/trigger
     def trigger
       hour = params[:hour].to_i
@@ -19,6 +21,8 @@ module Api
                       .where(family_task_progress_reminder_enabled: true, family_task_progress_reminder_hour: hour)
                       .includes(:user)
       task_settings.find_each { |s| FamilyTaskStatusNotificationService.notify(s.user) }
+
+      DailyReviewNotificationService.notify_all if hour == DAILY_REVIEW_HOUR
 
       render json: { status: 'ok', calendar_count: calendar_settings.count, task_count: task_settings.count }
     end

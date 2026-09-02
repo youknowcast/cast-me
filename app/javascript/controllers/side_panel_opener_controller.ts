@@ -45,13 +45,18 @@ export default class extends Controller {
   openMealForm(): void {
     const date = (this.element as HTMLElement).dataset.date
     const scope = this.getScope()
-    this.openSidePanel(`/meals/new?date=${date}&scope=${scope}`)
+    this.openSidePanel(`/meals/new?date=${date}&scope=${scope}${this.returnToQuery()}`)
   }
 
   openMealEdit(): void {
     const mealId = (this.element as HTMLElement).dataset.mealId
     const scope = this.getScope()
-    this.openSidePanel(`/meals/${mealId}/edit?scope=${scope}`)
+    this.openSidePanel(`/meals/${mealId}/edit?scope=${scope}${this.returnToQuery()}`)
+  }
+
+  private returnToQuery(): string {
+    const returnTo = (this.element as HTMLElement).dataset.returnTo
+    return returnTo ? `&return_to=${returnTo}` : ''
   }
 
   private getScope(): string {
