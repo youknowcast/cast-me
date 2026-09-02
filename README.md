@@ -12,7 +12,7 @@
 
 ## 技術スタック
 
-- Ruby 3.3 / Rails 7.0
+- Ruby 4.0 / Rails 8.1
 - SQLite
 - Hotwire (Turbo + Stimulus)
 - Tailwind CSS + DaisyUI
