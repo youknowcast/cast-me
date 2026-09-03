@@ -65,7 +65,7 @@ group :development do
   # Display performance information such as SQL time and flame graphs for each request in your browser.
   # Can be configured to work on production as well see: https://github.com/MiniProfiler/rack-mini-profiler/blob/master/README.md
   gem 'listen', '~> 3.3'
-  gem 'rack-mini-profiler', '~> 4.0'
+  gem 'rack-mini-profiler', '~> 5.0'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   # gem 'annotate' # Temporarily disabled: incompatible with Rails 8 (activerecord < 8.0)
   # gem 'spring' # Removed: not needed in Rails 8
