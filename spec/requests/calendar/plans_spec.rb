@@ -39,7 +39,7 @@ RSpec.describe 'Plans', type: :request do
 
       it 'returns error when params are invalid' do
         post plans_path, params: { plan: { title: '' }, scope: 'family' }, as: :turbo_stream
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(response.body).to include('turbo-stream action="update" target="plan-form-container"')
       end
 
@@ -50,7 +50,7 @@ RSpec.describe 'Plans', type: :request do
                scope: 'family'
              },
              as: :turbo_stream
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(response.body).to include('参加者を1人以上選択してください')
       end
 
@@ -93,7 +93,7 @@ RSpec.describe 'Plans', type: :request do
           post plans_path, params: params, as: :turbo_stream
         end.not_to change(Plan, :count)
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(response.body).to include('を1日以上選択してください')
       end
 
@@ -176,7 +176,7 @@ RSpec.describe 'Plans', type: :request do
 
       it 'returns error when params are invalid' do
         patch plan_path(plan), params: { plan: { title: '' }, scope: 'family' }, as: :turbo_stream
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
 
       it 'does not update a plan from another family' do

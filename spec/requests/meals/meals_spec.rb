@@ -43,7 +43,7 @@ RSpec.describe 'Meals', type: :request do
                        scope: 'family' },
              as: :turbo_stream
       end.not_to change(Meal, :count)
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
     end
 
     it 'redirects to the daily review page when return_to is daily_review' do
@@ -58,7 +58,7 @@ RSpec.describe 'Meals', type: :request do
              params: { meal: { date: Time.zone.today.to_s, meal_type: 1, food_names: [] },
                        scope: 'family' }, as: :turbo_stream
       end.not_to change(Meal, :count)
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
     end
   end
 
@@ -99,7 +99,7 @@ RSpec.describe 'Meals', type: :request do
       patch meal_path(meal),
             params: { meal: { date: meal.date.to_s, meal_type: 9, food_names: ['新しい'] }, scope: 'family' },
             as: :turbo_stream
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
       expect(meal.reload.foods.map(&:name)).to eq(['古い'])
     end
   end

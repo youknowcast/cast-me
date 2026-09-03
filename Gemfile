@@ -4,7 +4,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby file: '.tool-versions'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
-gem 'rails', '~> 8.0'
+gem 'rails', '~> 8.1'
 
 # Use Puma as the app server
 gem 'puma', '~> 8.0'

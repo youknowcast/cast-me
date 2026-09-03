@@ -38,7 +38,7 @@ RSpec.describe 'Settings', type: :request do
     context 'with invalid parameters' do
       it 'does not update the user and returns unprocessable entity' do
         patch settings_path, params: { user: { birth: 1.day.from_now } }
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(user.reload.birth).to be_nil
       end
     end
@@ -95,7 +95,7 @@ RSpec.describe 'Settings', type: :request do
         patch update_notifications_settings_path, params: invalid_params
       end.not_to change(UserNotificationSetting, :count)
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
     end
   end
 end
