@@ -27,7 +27,10 @@ jobs:
           for number in $PR_NUMBERS; do
             author=$(gh pr view "$number" --repo "$REPO" --json author --jq '.author.login')
             labels=$(gh pr view "$number" --repo "$REPO" --json labels --jq '.labels[].name')
-            if [ "$author" = "dependabot[bot]" ] && printf '%s\n' "$labels" | grep -qx "automerge"; then
+            if [ "$author" != "app/dependabot" ] && [ "$author" != "dependabot[bot]" ]; then
+              continue
+            fi
+            if printf '%s\n' "$labels" | grep -qx "automerge"; then
               gh pr merge "$number" --repo "$REPO" --squash
             fi
           done
