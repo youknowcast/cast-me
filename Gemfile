@@ -92,4 +92,4 @@ gem 'tzinfo-data', platforms: %i[windows jruby]
 gem 'jsbundling-rails', '~> 1.0'
 
 # Push notifications
-gem 'onesignal', '~> 5.11'
+gem 'onesignal', '~> 5.16'
