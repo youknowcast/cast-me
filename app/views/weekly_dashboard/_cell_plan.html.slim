@@ -1,0 +1,10 @@
+.bg-blue-50.border-l-4.border-blue-400.p-2.rounded-r-lg
+  button.text-left.font-medium.text-gray-800.hover:underline.w-full[
+    data-controller="side-panel-opener"
+    data-action="click->side-panel-opener#openPlanEdit"
+    data-plan-id=plan.id
+    data-return-to="weekly"
+  ]
+    - if plan.start_time.present?
+      span.text-xs.text-gray-500.mr-1 = plan.start_time.strftime('%H:%M')
+    = plan.title

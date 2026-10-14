@@ -31,9 +31,31 @@ export default class extends Controller {
     this.openSidePanel(`/calendar/monthly_list?date=${date}`)
   }
 
+  openWeeklyCell(): void {
+    const el = this.element as HTMLElement
+    const userId = el.dataset.userId
+    const date = el.dataset.date
+    this.openSidePanel(`/weekly/cell?user_id=${userId}&date=${date}`)
+  }
+
+  openWeeklyPlanForm(): void {
+    const el = this.element as HTMLElement
+    const date = el.dataset.date
+    const userId = el.dataset.userId
+    this.openSidePanel(`/plans/new?date=${date}&scope=family&return_to=weekly&participant_ids[]=${userId}`)
+  }
+
+  openMemoForm(): void {
+    const date = (this.element as HTMLElement).dataset.date
+    this.openSidePanel(`/weekly/memo?date=${date}`)
+  }
+
   openPlanEdit(): void {
-    const planId = (this.element as HTMLElement).dataset.planId
-    this.openSidePanel(`/plans/${planId}/edit`)
+    const el = this.element as HTMLElement
+    const planId = el.dataset.planId
+    const returnTo = el.dataset.returnTo
+    const query = returnTo ? `?return_to=${returnTo}` : ''
+    this.openSidePanel(`/plans/${planId}/edit${query}`)
   }
 
   openTaskEdit(): void {

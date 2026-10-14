@@ -1,6 +1,7 @@
 class PlansController < ApplicationController
   include CalendarData
   include MultiDatePlanCreation
+  include WeeklyCellStreams
 
   before_action :authenticate_user!
   before_action :set_plan, only: %i[show edit update destroy]
@@ -23,28 +24,18 @@ class PlansController < ApplicationController
       created_by: current_user
     )
     @selected_dates = [date]
-    @plan.participant_ids = [current_user.id] if my_scope?
+    @plan.participant_ids = preset_participant_ids
 
-    respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: turbo_stream.update('side-panel', partial: 'form', locals: { plan: @plan })
-      end
-      format.html { render :new }
-    end
+    render_new_form
   rescue Date::Error
     @plan = current_user.family.plans.build(
       date: Time.zone.today,
       created_by: current_user
     )
     @selected_dates = [Time.zone.today]
-    @plan.participant_ids = [current_user.id] if my_scope?
+    @plan.participant_ids = preset_participant_ids
 
-    respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: turbo_stream.update('side-panel', partial: 'form', locals: { plan: @plan })
-      end
-      format.html { render :new }
-    end
+    render_new_form
   end
 
   def edit
@@ -97,17 +88,13 @@ class PlansController < ApplicationController
       # 新規追加された参加者にのみ通知
       added_ids = @plan.participant_ids - previous_participant_ids
       notify_new_participants(plan: @plan, added_ids: added_ids)
-      set_calendar_data(@plan.date)
       respond_to do |format|
         format.turbo_stream do
-          render turbo_stream: [
-            turbo_stream.update('daily_details', partial: 'calendar/daily_view', locals: { date: @date }),
-            turbo_stream.replace("calendar-cell-#{@plan.date}",
-                                 partial: 'calendar/calendar_grid_cell',
-                                 locals: { day: @plan.date, date: @date, plans: @family_plans, tasks: @family_tasks,
-                                           scope: current_scope, holidays: @holidays }),
-            turbo_stream.append('side-panel', "<div data-controller='side-panel-closer'></div>".html_safe)
-          ]
+          if params[:return_to] == 'weekly'
+            render turbo_stream: weekly_update_streams_for(@plan, previous_participant_ids | @plan.participant_ids)
+          else
+            render turbo_stream: calendar_update_streams(@plan)
+          end
         end
         format.html { redirect_to calendar_path, notice: '予定を更新しました' }
       end
@@ -163,6 +150,21 @@ class PlansController < ApplicationController
 
   def participant_ids_from_params
     params.dig(:plan, :participant_ids)&.reject(&:blank?) || []
+  end
+
+  def preset_participant_ids
+    return Array(params[:participant_ids]).compact_blank if params[:participant_ids].present?
+
+    my_scope? ? [current_user.id] : []
+  end
+
+  def render_new_form
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.update('side-panel', partial: 'form', locals: { plan: @plan })
+      end
+      format.html { render :new }
+    end
   end
 
   def render_form_with_errors

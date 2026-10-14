@@ -67,3 +67,6 @@ yarn-debug.log*
 
 # TypeScript build cache
 tsconfig.tsbuildinfo
+
+# superpowers brainstorming visual companion
+.superpowers/

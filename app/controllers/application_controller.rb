@@ -1,6 +1,6 @@
 class ApplicationController < ActionController::Base
   before_action :set_calendar_date
-  helper_method :current_scope, :my_scope?, :family_scope?, :setting_scope?
+  helper_method :current_scope, :my_scope?, :family_scope?, :setting_scope?, :weekly_scope?
 
   def current_scope
     @current_scope ||= if controller_name.in?(%w[settings everyday_task_templates task_templates])
@@ -26,6 +26,8 @@ class ApplicationController < ActionController::Base
   def setting_scope?
     controller_name.in?(%w[settings everyday_task_templates task_templates])
   end
+
+  def weekly_scope? = controller_name == 'weekly_dashboard'
 
   def set_calendar_date
     @date = parse_date(params[:date])

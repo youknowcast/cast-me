@@ -1,0 +1,32 @@
+.side-panel-overlay[
+  data-controller="side-panel"
+  data-side-panel-target="overlay"
+  data-action="click->side-panel#closeBackground"
+  style="display: block; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999;"
+]
+  .side-panel-backdrop.opacity-0[data-side-panel-target="backdrop"]
+  .side-panel.translate-x-full[data-side-panel-target="panel"]
+    .side-panel-content
+      .side-panel-header
+        h3.text-lg.font-semibold.text-gray-900
+          = "#{date.strftime('%-m/%-d')} #{member.display_name}"
+        button.btn.btn-sm.btn-circle.btn-ghost[data-action="click->side-panel#close"]
+          i.fas.fa-times
+
+      .side-panel-body
+        - if plans.any?
+          .space-y-2
+            - plans.each do |plan|
+              = render 'weekly_dashboard/cell_plan', plan: plan
+        - else
+          p.text-sm.text-gray-400 予定はありません
+
+      .side-panel-footer
+        button.btn.btn-primary[
+          data-controller="side-panel-opener"
+          data-action="click->side-panel-opener#openWeeklyPlanForm"
+          data-date=date.to_s
+          data-user-id=member.id
+        ]
+          i.fas.fa-plus.mr-1
+          | 予定を追加
