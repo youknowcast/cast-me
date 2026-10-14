@@ -15,7 +15,10 @@
 - コマンドはすべて開発コンテナ内で実行する。ワンショット実行（サーバー起動不要）を基本とする。
   - テスト: `docker compose run --rm --no-deps app bundle exec rspec <path>`
   - Lint: `docker compose run --rm --no-deps app bundle exec rubocop -A <path>`
-  - スキーマ適用（Ridgepole, dev+test 両方）: `docker compose run --rm --no-deps app bundle exec rake ridgepole:apply`
+  - スキーマ適用（Ridgepole）:
+    - dev: `docker compose run --rm --no-deps app bundle exec rake ridgepole:apply`
+    - test: `docker compose run --rm --no-deps -e RAILS_ENV=test app bundle exec rake ridgepole:apply`
+      （compose が `RAILS_ENV=development` を設定するため、rake タスクの test 適用は環境変数の上書きが必要）
 - ビューは必ず Slim（`.slim`）。ERB は作らない。
 - コードコメントは書かない。意図は命名と構造で示す。
 - 各タスクの最後に必ず対象ファイルへ `rubocop -A` を掛け、新しい offense が出ていないことを確認する。
