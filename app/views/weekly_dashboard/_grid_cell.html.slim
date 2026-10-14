@@ -1,0 +1,12 @@
+button.w-full.h-full.text-left.min-h-16.border-b.border-l.border-base-300.p-1.text-xs.hover:bg-base-200[
+  data-controller="side-panel-opener"
+  data-action="click->side-panel-opener#openWeeklyCell"
+  data-user-id=member.id
+  data-date=day.to_s
+  class=('bg-primary/5' if day == Date.current)
+]
+  - plans.each do |plan|
+    .truncate
+      - if plan.start_time.present?
+        span.text-gray-400 = plan.start_time.strftime('%H:%M')
+      span.ml-1 = plan.title

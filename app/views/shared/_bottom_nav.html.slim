@@ -3,9 +3,12 @@
     = link_to my_calendar_path(date: @date), class: "#{'dock-active' if my_scope?}", data: { calendar_sync_date: 'true' } do
       = user_avatar_tag(current_user)
       span.dock-label = current_user.display_name
-    = link_to calendar_path(date: @date), class: "#{'dock-active' if family_scope?}", data: { calendar_sync_date: 'true' } do
+    = link_to calendar_path(date: @date), class: "#{'dock-active' if family_scope? && !weekly_scope?}", data: { calendar_sync_date: 'true' } do
       i.fas.fa-users.text-3xl
       span.dock-label Family
+    = link_to weekly_dashboard_path(date: @date), class: "#{'dock-active' if weekly_scope?}" do
+      i.fas.fa-calendar-week.text-3xl
+      span.dock-label 週
     = link_to settings_path, class: "#{'dock-active' if setting_scope?}" do
       i.fas.fa-cog.text-3xl
       span.dock-label 設定
