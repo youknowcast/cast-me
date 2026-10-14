@@ -45,6 +45,11 @@ export default class extends Controller {
     this.openSidePanel(`/plans/new?date=${date}&scope=family&participant_ids[]=${userId}`)
   }
 
+  openMemoForm(): void {
+    const date = (this.element as HTMLElement).dataset.date
+    this.openSidePanel(`/weekly/memo?date=${date}`)
+  }
+
   openPlanEdit(): void {
     const planId = (this.element as HTMLElement).dataset.planId
     this.openSidePanel(`/plans/${planId}/edit`)

@@ -92,6 +92,56 @@ RSpec.describe 'WeeklyDashboard', type: :request do
     end
   end
 
+  describe 'day memo' do
+    let(:date) { week_start }
+    let(:turbo_headers) { { 'Accept' => 'text/vnd.turbo-stream.html' } }
+
+    describe 'GET /weekly/memo' do
+      it 'renders the memo form in the side panel' do
+        get weekly_memo_path(date: date.to_s), headers: turbo_headers
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include('side-panel')
+        expect(response.body).to include('家族メモ')
+      end
+
+      it 'returns 400 for an invalid date' do
+        get weekly_memo_path(date: 'not-a-date'), headers: turbo_headers
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+
+    describe 'PATCH /weekly/memo' do
+      it 'creates a memo for the family on that date' do
+        patch weekly_memo_path, params: { date: date.to_s, body: '牛乳買う' }, headers: turbo_headers
+        expect(response).to have_http_status(:success)
+        expect(family.day_memos.find_by(date: date).body).to eq('牛乳買う')
+      end
+
+      it 'updates an existing memo' do
+        create(:day_memo, family: family, date: date, body: '旧メモ')
+        patch weekly_memo_path, params: { date: date.to_s, body: '新メモ' }, headers: turbo_headers
+        expect(family.day_memos.find_by(date: date).body).to eq('新メモ')
+      end
+
+      it 'replaces the memo cell in the response' do
+        patch weekly_memo_path, params: { date: date.to_s, body: '牛乳買う' }, headers: turbo_headers
+        expect(response.body).to include("weekly-memo-#{date}")
+      end
+
+      it 'rejects a body longer than 1000 characters' do
+        patch weekly_memo_path, params: { date: date.to_s, body: 'あ' * 1001 }, headers: turbo_headers
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(family.day_memos.find_by(date: date)).to be_nil
+      end
+    end
+
+    it 'shows the memo body on the weekly grid' do
+      create(:day_memo, family: family, date: date, body: '懇談会')
+      get weekly_dashboard_path
+      expect(response.body).to include('懇談会')
+    end
+  end
+
   context 'when not signed in' do
     before { sign_out user }
 

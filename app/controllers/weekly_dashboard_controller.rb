@@ -28,6 +28,42 @@ class WeeklyDashboardController < ApplicationController
     head :bad_request
   end
 
+  def edit_memo
+    @date = Date.parse(params[:date].to_s)
+    @memo = current_user.family.day_memos.find_or_initialize_by(date: @date)
+
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.update('side-panel',
+                                                 partial: 'weekly_dashboard/memo_form',
+                                                 locals: { memo: @memo })
+      end
+      format.html { redirect_to weekly_dashboard_path }
+    end
+  rescue Date::Error, TypeError
+    head :bad_request
+  end
+
+  def update_memo
+    @date = Date.parse(params[:date].to_s)
+    @memo = current_user.family.day_memos.find_or_initialize_by(date: @date)
+
+    if @memo.update(body: params[:body].to_s)
+      render turbo_stream: [
+        turbo_stream.replace("weekly-memo-#{@date}", partial: 'weekly_dashboard/memo_cell',
+                                                     locals: { date: @date, memo: @memo }),
+        turbo_stream.append('side-panel', "<div data-controller='side-panel-closer'></div>".html_safe)
+      ]
+    else
+      render turbo_stream: turbo_stream.update('side-panel',
+                                               partial: 'weekly_dashboard/memo_form',
+                                               locals: { memo: @memo }),
+             status: :unprocessable_content
+    end
+  rescue Date::Error, TypeError
+    head :bad_request
+  end
+
   private
 
   def week_start

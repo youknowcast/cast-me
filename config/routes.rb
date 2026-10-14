@@ -21,6 +21,8 @@ Rails.application.routes.draw do
   # 週間家族ダッシュボード
   get 'weekly', to: 'weekly_dashboard#show', as: :weekly_dashboard
   get 'weekly/cell', to: 'weekly_dashboard#cell', as: :weekly_cell
+  get 'weekly/memo', to: 'weekly_dashboard#edit_memo', as: :weekly_memo
+  patch 'weekly/memo', to: 'weekly_dashboard#update_memo'
 
   # 予定とタスクの管理
   resources :plans
