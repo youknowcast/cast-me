@@ -50,6 +50,8 @@ module MultiDatePlanCreation
   end
 
   def create_turbo_streams(created_plans, primary_date)
+    return weekly_create_turbo_streams(created_plans) if params[:return_to] == 'weekly'
+
     set_calendar_data(primary_date)
     streams = [
       turbo_stream.replace('flash', partial: 'shared/flash'),
@@ -67,5 +69,13 @@ module MultiDatePlanCreation
     end
 
     streams << turbo_stream.append('side-panel', "<div data-controller='side-panel-closer'></div>".html_safe)
+  end
+
+  def weekly_create_turbo_streams(created_plans)
+    [
+      turbo_stream.replace('flash', partial: 'shared/flash'),
+      *weekly_cell_streams(created_plans),
+      turbo_stream.append('side-panel', "<div data-controller='side-panel-closer'></div>".html_safe)
+    ]
   end
 end

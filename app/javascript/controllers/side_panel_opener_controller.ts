@@ -42,7 +42,7 @@ export default class extends Controller {
     const el = this.element as HTMLElement
     const date = el.dataset.date
     const userId = el.dataset.userId
-    this.openSidePanel(`/plans/new?date=${date}&scope=family&participant_ids[]=${userId}`)
+    this.openSidePanel(`/plans/new?date=${date}&scope=family&return_to=weekly&participant_ids[]=${userId}`)
   }
 
   openMemoForm(): void {
@@ -51,8 +51,11 @@ export default class extends Controller {
   }
 
   openPlanEdit(): void {
-    const planId = (this.element as HTMLElement).dataset.planId
-    this.openSidePanel(`/plans/${planId}/edit`)
+    const el = this.element as HTMLElement
+    const planId = el.dataset.planId
+    const returnTo = el.dataset.returnTo
+    const query = returnTo ? `?return_to=${returnTo}` : ''
+    this.openSidePanel(`/plans/${planId}/edit${query}`)
   }
 
   openTaskEdit(): void {

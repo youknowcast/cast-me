@@ -3,6 +3,7 @@
     data-controller="side-panel-opener"
     data-action="click->side-panel-opener#openPlanEdit"
     data-plan-id=plan.id
+    data-return-to="weekly"
   ]
     - if plan.start_time.present?
       span.text-xs.text-gray-500.mr-1 = plan.start_time.strftime('%H:%M')

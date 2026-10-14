@@ -143,6 +143,22 @@ RSpec.describe 'Plans', type: :request do
         expect(response.body).to include('data-controller="multi-datepicker-connector"')
         expect(response.body).to include('name="plan[dates][]"')
       end
+
+      context 'when returning to the weekly dashboard' do
+        it 'replaces the weekly cell with the created plan' do
+          expect do
+            post plans_path,
+                 params: { plan: { title: '週間の予定', date: Time.zone.today.to_s, participant_ids: [user.id] },
+                           scope: 'family', return_to: 'weekly' },
+                 as: :turbo_stream
+          end.to change(Plan, :count).by(1)
+
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to include("target=\"weekly-cell-#{user.id}-#{Time.zone.today}\"")
+          expect(response.body).to include('週間の予定')
+          expect(response.body).to include('side-panel-closer')
+        end
+      end
     end
 
     context 'with html' do
@@ -187,6 +203,33 @@ RSpec.describe 'Plans', type: :request do
         end.to raise_error(ActiveRecord::RecordNotFound)
 
         expect(other_plan.reload.title).to eq('Other family plan')
+      end
+
+      context 'when returning to the weekly dashboard' do
+        it 'replaces the weekly cell with the updated plan' do
+          patch plan_path(plan),
+                params: { plan: { title: '更新後の予定', participant_ids: [user.id] },
+                          scope: 'family', return_to: 'weekly' },
+                as: :turbo_stream
+
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to include("target=\"weekly-cell-#{user.id}-#{plan.reload.date}\"")
+          expect(response.body).to include('更新後の予定')
+        end
+
+        it 'refreshes the cell of a participant removed from the plan' do
+          shared_plan = create(:plan, family: family, created_by: user, date: Time.zone.today)
+          create(:plan_participant, plan: shared_plan, user: user, status: :joined)
+          create(:plan_participant, plan: shared_plan, user: other_user, status: :joined)
+
+          patch plan_path(shared_plan),
+                params: { plan: { title: '変更後の予定', participant_ids: [user.id] },
+                          scope: 'family', return_to: 'weekly' },
+                as: :turbo_stream
+
+          expect(response.body).to include("target=\"weekly-cell-#{user.id}-#{shared_plan.date}\"")
+          expect(response.body).to include("target=\"weekly-cell-#{other_user.id}-#{shared_plan.date}\"")
+        end
       end
     end
   end
@@ -235,6 +278,12 @@ RSpec.describe 'Plans', type: :request do
       get new_plan_path(date: Date.current.to_s, participant_ids: [other_user.id])
       expect(response).to have_http_status(:success)
       expect(response.body).to match(/value="#{other_user.id}"[^>]*checked/)
+    end
+
+    it 'preserves the weekly return_to marker in the form' do
+      get new_plan_path(date: Date.current.to_s, scope: 'family', return_to: 'weekly'), as: :turbo_stream
+      expect(response.body).to include('name="return_to"')
+      expect(response.body).to include('value="weekly"')
     end
   end
 end

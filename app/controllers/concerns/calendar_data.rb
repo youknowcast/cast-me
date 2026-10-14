@@ -47,4 +47,16 @@ module CalendarData
                       current_user.family.users
                     end
   end
+
+  def calendar_update_streams(plan)
+    set_calendar_data(plan.date)
+    [
+      turbo_stream.update('daily_details', partial: 'calendar/daily_view', locals: { date: @date }),
+      turbo_stream.replace("calendar-cell-#{plan.date}",
+                           partial: 'calendar/calendar_grid_cell',
+                           locals: { day: plan.date, date: @date, plans: @family_plans, tasks: @family_tasks,
+                                     scope: current_scope, holidays: @holidays }),
+      turbo_stream.append('side-panel', "<div data-controller='side-panel-closer'></div>".html_safe)
+    ]
+  end
 end

@@ -56,6 +56,9 @@ RSpec.describe 'WeeklyDashboard', type: :request do
     it 'falls back to the current week for an invalid week param' do
       get weekly_dashboard_path(week: 'not-a-date')
       expect(response).to have_http_status(:success)
+      current_start = Date.current.beginning_of_week
+      label = "#{current_start.strftime('%-m/%-d')}〜#{(current_start + 6).strftime('%-m/%-d')}"
+      expect(response.body).to include(label)
     end
   end
 
@@ -126,6 +129,7 @@ RSpec.describe 'WeeklyDashboard', type: :request do
       it 'replaces the memo cell in the response' do
         patch weekly_memo_path, params: { date: date.to_s, body: '牛乳買う' }, headers: turbo_headers
         expect(response.body).to include("weekly-memo-#{date}")
+        expect(response.body).to include('牛乳買う')
       end
 
       it 'rejects a body longer than 1000 characters' do

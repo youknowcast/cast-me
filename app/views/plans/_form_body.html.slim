@@ -1,5 +1,6 @@
 = form_with model: plan, id: 'plan-form' do |f|
   = hidden_field_tag :scope, current_scope
+  = hidden_field_tag :return_to, params[:return_to] if params[:return_to].present?
   .space-y-6
     - if plan.persisted?
       .bg-gray-50.p-4.rounded-lg.mb-6

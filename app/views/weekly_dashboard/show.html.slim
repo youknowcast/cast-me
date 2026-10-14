@@ -17,7 +17,7 @@
         .border-b.border-l.border-base-300.p-1.text-center.text-xs class=('bg-primary/10' if day == Date.current)
           .font-bold = %w[日 月 火 水 木 金 土][day.wday]
           .text-gray-500 = day.strftime('%-m/%-d')
-          - if @holidays&.key?(day.to_s)
+          - if @holidays.key?(day.to_s)
             .text-red-500.truncate = @holidays[day.to_s]
 
       - @members.each do |member|

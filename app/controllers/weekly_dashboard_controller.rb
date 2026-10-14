@@ -1,4 +1,6 @@
 class WeeklyDashboardController < ApplicationController
+  include WeeklyCellStreams
+
   before_action :authenticate_user!
 
   def show
@@ -29,8 +31,8 @@ class WeeklyDashboardController < ApplicationController
   end
 
   def edit_memo
-    @date = Date.parse(params[:date].to_s)
-    @memo = current_user.family.day_memos.find_or_initialize_by(date: @date)
+    @memo = memo_for(params[:date])
+    return head :bad_request if @memo.nil?
 
     respond_to do |format|
       format.turbo_stream do
@@ -40,18 +42,16 @@ class WeeklyDashboardController < ApplicationController
       end
       format.html { redirect_to weekly_dashboard_path }
     end
-  rescue Date::Error, TypeError
-    head :bad_request
   end
 
   def update_memo
-    @date = Date.parse(params[:date].to_s)
-    @memo = current_user.family.day_memos.find_or_initialize_by(date: @date)
+    @memo = memo_for(params[:date])
+    return head :bad_request if @memo.nil?
 
     if @memo.update(body: params[:body].to_s)
       render turbo_stream: [
-        turbo_stream.replace("weekly-memo-#{@date}", partial: 'weekly_dashboard/memo_cell',
-                                                     locals: { date: @date, memo: @memo }),
+        turbo_stream.replace("weekly-memo-#{@memo.date}", partial: 'weekly_dashboard/memo_cell',
+                                                          locals: { date: @memo.date, memo: @memo }),
         turbo_stream.append('side-panel', "<div data-controller='side-panel-closer'></div>".html_safe)
       ]
     else
@@ -60,11 +60,20 @@ class WeeklyDashboardController < ApplicationController
                                                locals: { memo: @memo }),
              status: :unprocessable_content
     end
-  rescue Date::Error, TypeError
-    head :bad_request
   end
 
   private
+
+  def memo_for(raw_date)
+    @date = parse_date!(raw_date)
+    current_user.family.day_memos.find_or_initialize_by(date: @date)
+  rescue Date::Error, TypeError
+    nil
+  end
+
+  def parse_date!(value)
+    Date.parse(value.to_s)
+  end
 
   def week_start
     return Date.current.beginning_of_week if params[:week].blank?
@@ -89,12 +98,6 @@ class WeeklyDashboardController < ApplicationController
   end
 
   def plans_for(member, date)
-    current_user.family.plans
-                .for_date(date)
-                .left_joins(:plan_participants)
-                .where(plan_participants: { user_id: member.id, status: %i[joined pending] })
-                .includes(:participants, :plan_participants)
-                .ordered_by_time
-                .distinct
+    weekly_plans_for(member.id, date)
   end
 end
