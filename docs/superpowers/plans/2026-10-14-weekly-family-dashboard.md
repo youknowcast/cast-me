@@ -12,10 +12,10 @@
 
 ## Global Constraints
 
-- コマンドはすべて開発コンテナ内で実行する。コンテナが未起動なら先に `docker compose up -d`。
-  - テスト: `docker compose exec app bundle exec rspec <path>`
-  - Lint: `docker compose exec app bundle exec rubocop -A <path>`
-  - スキーマ適用（Ridgepole, dev+test 両方）: `docker compose exec app bundle exec rake ridgepole:apply`
+- コマンドはすべて開発コンテナ内で実行する。ワンショット実行（サーバー起動不要）を基本とする。
+  - テスト: `docker compose run --rm --no-deps app bundle exec rspec <path>`
+  - Lint: `docker compose run --rm --no-deps app bundle exec rubocop -A <path>`
+  - スキーマ適用（Ridgepole, dev+test 両方）: `docker compose run --rm --no-deps app bundle exec rake ridgepole:apply`
 - ビューは必ず Slim（`.slim`）。ERB は作らない。
 - コードコメントは書かない。意図は命名と構造で示す。
 - 各タスクの最後に必ず対象ファイルへ `rubocop -A` を掛け、新しい offense が出ていないことを確認する。
@@ -59,7 +59,7 @@ end
 
 - [ ] **Step 2: スキーマを dev/test に適用する**
 
-Run: `docker compose exec app bundle exec rake ridgepole:apply`
+Run: `docker compose run --rm --no-deps app bundle exec rake ridgepole:apply`
 Expected: `Apply `...` ... Done` が出力され、`day_memos` が作成される（テストDBにも適用される）。
 
 - [ ] **Step 3: 失敗するモデルスペックを書く**
@@ -100,7 +100,7 @@ end
 
 - [ ] **Step 4: テストを実行して失敗を確認する**
 
-Run: `docker compose exec app bundle exec rspec spec/models/calendar/day_memo_spec.rb`
+Run: `docker compose run --rm --no-deps app bundle exec rspec spec/models/calendar/day_memo_spec.rb`
 Expected: FAIL（`uninitialized constant DayMemo`）。
 
 - [ ] **Step 5: モデルとファクトリを実装する**
@@ -151,13 +151,13 @@ end
 
 - [ ] **Step 6: テストを実行して成功を確認する**
 
-Run: `docker compose exec app bundle exec rspec spec/models/calendar/day_memo_spec.rb`
+Run: `docker compose run --rm --no-deps app bundle exec rspec spec/models/calendar/day_memo_spec.rb`
 Expected: PASS（4 examples）。
 
 - [ ] **Step 7: Lint とコミット**
 
 ```bash
-docker compose exec app bundle exec rubocop -A app/models/day_memo.rb app/models/family.rb spec/factories/day_memos.rb spec/models/calendar/day_memo_spec.rb
+docker compose run --rm --no-deps app bundle exec rubocop -A app/models/day_memo.rb app/models/family.rb spec/factories/day_memos.rb spec/models/calendar/day_memo_spec.rb
 git add db/Schemafile app/models/day_memo.rb app/models/family.rb spec/factories/day_memos.rb spec/models/calendar/day_memo_spec.rb
 git commit -m "feat: add DayMemo model for weekly dashboard"
 ```
@@ -262,7 +262,7 @@ end
 
 - [ ] **Step 2: テストを実行して失敗を確認する**
 
-Run: `docker compose exec app bundle exec rspec spec/requests/weekly_dashboard_spec.rb`
+Run: `docker compose run --rm --no-deps app bundle exec rspec spec/requests/weekly_dashboard_spec.rb`
 Expected: FAIL（`undefined method 'weekly_dashboard_path'`）。
 
 - [ ] **Step 3: ルートとコントローラを実装する**
@@ -422,13 +422,13 @@ button.w-full.text-left.min-h-12.border-b.border-l.border-base-300.p-1.text-xs.h
 
 - [ ] **Step 6: テストを実行して成功を確認する**
 
-Run: `docker compose exec app bundle exec rspec spec/requests/weekly_dashboard_spec.rb`
+Run: `docker compose run --rm --no-deps app bundle exec rspec spec/requests/weekly_dashboard_spec.rb`
 Expected: PASS（7 examples）。
 
 - [ ] **Step 7: Lint とコミット**
 
 ```bash
-docker compose exec app bundle exec rubocop -A app/controllers/weekly_dashboard_controller.rb app/controllers/application_controller.rb spec/requests/weekly_dashboard_spec.rb config/routes.rb
+docker compose run --rm --no-deps app bundle exec rubocop -A app/controllers/weekly_dashboard_controller.rb app/controllers/application_controller.rb spec/requests/weekly_dashboard_spec.rb config/routes.rb
 git add config/routes.rb app/controllers/weekly_dashboard_controller.rb app/views/weekly_dashboard app/controllers/application_controller.rb app/views/shared/_bottom_nav.html.slim app/views/shared/_sidebar.html.slim spec/requests/weekly_dashboard_spec.rb
 git commit -m "feat: add weekly family dashboard grid and navigation"
 ```
@@ -510,7 +510,7 @@ git commit -m "feat: add weekly family dashboard grid and navigation"
 
 - [ ] **Step 2: テストを実行して失敗を確認する**
 
-Run: `docker compose exec app bundle exec rspec spec/requests/weekly_dashboard_spec.rb spec/requests/calendar/plans_spec.rb`
+Run: `docker compose run --rm --no-deps app bundle exec rspec spec/requests/weekly_dashboard_spec.rb spec/requests/calendar/plans_spec.rb`
 Expected: FAIL（`weekly_cell_path` 未定義、`participant_ids` の prefill が未実装）。
 
 - [ ] **Step 3: ルートとコントローラを実装する**
@@ -643,13 +643,13 @@ Expected: FAIL（`weekly_cell_path` 未定義、`participant_ids` の prefill �
 
 - [ ] **Step 7: テストを実行して成功を確認する**
 
-Run: `docker compose exec app bundle exec rspec spec/requests/weekly_dashboard_spec.rb spec/requests/calendar/plans_spec.rb`
+Run: `docker compose run --rm --no-deps app bundle exec rspec spec/requests/weekly_dashboard_spec.rb spec/requests/calendar/plans_spec.rb`
 Expected: PASS。
 
 - [ ] **Step 8: Lint とコミット**
 
 ```bash
-docker compose exec app bundle exec rubocop -A app/controllers/weekly_dashboard_controller.rb app/controllers/plans_controller.rb spec/requests/weekly_dashboard_spec.rb spec/requests/calendar/plans_spec.rb config/routes.rb
+docker compose run --rm --no-deps app bundle exec rubocop -A app/controllers/weekly_dashboard_controller.rb app/controllers/plans_controller.rb spec/requests/weekly_dashboard_spec.rb spec/requests/calendar/plans_spec.rb config/routes.rb
 git add config/routes.rb app/controllers/weekly_dashboard_controller.rb app/views/weekly_dashboard/_cell_panel.html.slim app/views/weekly_dashboard/_cell_plan.html.slim app/javascript/controllers/side_panel_opener_controller.ts app/controllers/plans_controller.rb spec/requests/weekly_dashboard_spec.rb spec/requests/calendar/plans_spec.rb
 git commit -m "feat: add weekly dashboard cell detail panel"
 ```
@@ -729,7 +729,7 @@ git commit -m "feat: add weekly dashboard cell detail panel"
 
 - [ ] **Step 2: テストを実行して失敗を確認する**
 
-Run: `docker compose exec app bundle exec rspec spec/requests/weekly_dashboard_spec.rb`
+Run: `docker compose run --rm --no-deps app bundle exec rspec spec/requests/weekly_dashboard_spec.rb`
 Expected: FAIL（`weekly_memo_path` 未定義）。
 
 - [ ] **Step 3: ルートとコントローラを実装する**
@@ -827,13 +827,13 @@ Expected: FAIL（`weekly_memo_path` 未定義）。
 
 - [ ] **Step 6: テストを実行して成功を確認する**
 
-Run: `docker compose exec app bundle exec rspec spec/requests/weekly_dashboard_spec.rb`
+Run: `docker compose run --rm --no-deps app bundle exec rspec spec/requests/weekly_dashboard_spec.rb`
 Expected: PASS（全 examples）。
 
 - [ ] **Step 7: Lint とコミット**
 
 ```bash
-docker compose exec app bundle exec rubocop -A app/controllers/weekly_dashboard_controller.rb app/javascript/controllers/side_panel_opener_controller.ts spec/requests/weekly_dashboard_spec.rb config/routes.rb
+docker compose run --rm --no-deps app bundle exec rubocop -A app/controllers/weekly_dashboard_controller.rb spec/requests/weekly_dashboard_spec.rb config/routes.rb
 git add config/routes.rb app/controllers/weekly_dashboard_controller.rb app/views/weekly_dashboard/_memo_form.html.slim app/javascript/controllers/side_panel_opener_controller.ts spec/requests/weekly_dashboard_spec.rb
 git commit -m "feat: add editable daily family memo to weekly dashboard"
 ```
@@ -846,10 +846,10 @@ git commit -m "feat: add editable daily family memo to weekly dashboard"
 
 - [ ] **Step 1: 全テストとLintを実行する**
 
-Run: `docker compose exec app bundle exec rspec`
+Run: `docker compose run --rm --no-deps app bundle exec rspec`
 Expected: すべて PASS。
 
-Run: `docker compose exec app bundle exec rubocop`
+Run: `docker compose run --rm --no-deps app bundle exec rubocop`
 Expected: 新規 offense なし。
 
 - [ ] **Step 2: ブラウザで手動確認する**
