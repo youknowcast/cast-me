@@ -31,6 +31,20 @@ export default class extends Controller {
     this.openSidePanel(`/calendar/monthly_list?date=${date}`)
   }
 
+  openWeeklyCell(): void {
+    const el = this.element as HTMLElement
+    const userId = el.dataset.userId
+    const date = el.dataset.date
+    this.openSidePanel(`/weekly/cell?user_id=${userId}&date=${date}`)
+  }
+
+  openWeeklyPlanForm(): void {
+    const el = this.element as HTMLElement
+    const date = el.dataset.date
+    const userId = el.dataset.userId
+    this.openSidePanel(`/plans/new?date=${date}&scope=family&participant_ids[]=${userId}`)
+  }
+
   openPlanEdit(): void {
     const planId = (this.element as HTMLElement).dataset.planId
     this.openSidePanel(`/plans/${planId}/edit`)

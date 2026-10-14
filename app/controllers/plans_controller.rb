@@ -23,28 +23,18 @@ class PlansController < ApplicationController
       created_by: current_user
     )
     @selected_dates = [date]
-    @plan.participant_ids = [current_user.id] if my_scope?
+    @plan.participant_ids = preset_participant_ids
 
-    respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: turbo_stream.update('side-panel', partial: 'form', locals: { plan: @plan })
-      end
-      format.html { render :new }
-    end
+    render_new_form
   rescue Date::Error
     @plan = current_user.family.plans.build(
       date: Time.zone.today,
       created_by: current_user
     )
     @selected_dates = [Time.zone.today]
-    @plan.participant_ids = [current_user.id] if my_scope?
+    @plan.participant_ids = preset_participant_ids
 
-    respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: turbo_stream.update('side-panel', partial: 'form', locals: { plan: @plan })
-      end
-      format.html { render :new }
-    end
+    render_new_form
   end
 
   def edit
@@ -163,6 +153,21 @@ class PlansController < ApplicationController
 
   def participant_ids_from_params
     params.dig(:plan, :participant_ids)&.reject(&:blank?) || []
+  end
+
+  def preset_participant_ids
+    return Array(params[:participant_ids]).compact_blank if params[:participant_ids].present?
+
+    my_scope? ? [current_user.id] : []
+  end
+
+  def render_new_form
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.update('side-panel', partial: 'form', locals: { plan: @plan })
+      end
+      format.html { render :new }
+    end
   end
 
   def render_form_with_errors

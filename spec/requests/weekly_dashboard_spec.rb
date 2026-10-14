@@ -59,6 +59,39 @@ RSpec.describe 'WeeklyDashboard', type: :request do
     end
   end
 
+  describe 'GET /weekly/cell' do
+    let(:date) { week_start }
+    let(:turbo_headers) { { 'Accept' => 'text/vnd.turbo-stream.html' } }
+
+    it 'renders a turbo stream updating the side panel with the member plans' do
+      plan = create(:plan, family: family, date: date, title: 'テニス')
+      create(:plan_participant, plan: plan, user: member, status: :joined)
+      get weekly_cell_path(user_id: member.id, date: date.to_s), headers: turbo_headers
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('side-panel')
+      expect(response.body).to include('テニス')
+    end
+
+    it 'does not include plans the member declined' do
+      plan = create(:plan, family: family, date: date, title: '辞退した予定')
+      create(:plan_participant, plan: plan, user: member, status: :declined)
+      get weekly_cell_path(user_id: member.id, date: date.to_s), headers: turbo_headers
+      expect(response.body).not_to include('辞退した予定')
+    end
+
+    it 'raises RecordNotFound for a member of another family' do
+      other = create(:user, family: create(:family))
+      expect do
+        get weekly_cell_path(user_id: other.id, date: date.to_s), headers: turbo_headers
+      end.to raise_error(ActiveRecord::RecordNotFound)
+    end
+
+    it 'returns 400 for an invalid date' do
+      get weekly_cell_path(user_id: member.id, date: 'not-a-date'), headers: turbo_headers
+      expect(response).to have_http_status(:bad_request)
+    end
+  end
+
   context 'when not signed in' do
     before { sign_out user }
 

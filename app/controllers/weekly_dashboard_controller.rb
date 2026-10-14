@@ -11,6 +11,23 @@ class WeeklyDashboardController < ApplicationController
     @holidays = HolidayService.holidays
   end
 
+  def cell
+    @member = current_user.family.users.find(params.expect(:user_id))
+    @date = Date.parse(params[:date].to_s)
+    @plans = plans_for(@member, @date)
+
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.update('side-panel',
+                                                 partial: 'weekly_dashboard/cell_panel',
+                                                 locals: { member: @member, date: @date, plans: @plans })
+      end
+      format.html { redirect_to weekly_dashboard_path }
+    end
+  rescue Date::Error, TypeError
+    head :bad_request
+  end
+
   private
 
   def week_start
@@ -33,5 +50,15 @@ class WeeklyDashboardController < ApplicationController
       end
     end
     index
+  end
+
+  def plans_for(member, date)
+    current_user.family.plans
+                .for_date(date)
+                .left_joins(:plan_participants)
+                .where(plan_participants: { user_id: member.id, status: %i[joined pending] })
+                .includes(:participants, :plan_participants)
+                .ordered_by_time
+                .distinct
   end
 end

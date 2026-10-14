@@ -229,4 +229,12 @@ RSpec.describe 'Plans', type: :request do
       expect(Plan.exists?(other_plan.id)).to be true
     end
   end
+
+  describe 'GET /plans/new' do
+    it 'prefills the given participants' do
+      get new_plan_path(date: Date.current.to_s, participant_ids: [other_user.id])
+      expect(response).to have_http_status(:success)
+      expect(response.body).to match(/value="#{other_user.id}"[^>]*checked/)
+    end
+  end
 end
