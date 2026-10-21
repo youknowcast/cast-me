@@ -1,0 +1,31 @@
+.container.mx-auto.px-2.py-4
+  .flex.items-center.justify-between.mb-3
+    = link_to weekly_dashboard_path(week: (@week_start - 7).to_s), class: 'btn btn-ghost btn-sm', aria: { label: '前週' } do
+      i.fas.fa-chevron-left
+    .flex.flex-col.items-center
+      h1.text-xl.font-bold 家族ウィークリー
+      span.text-xs.text-gray-500 = "#{@week_start.strftime('%-m/%-d')}〜#{@week_end.strftime('%-m/%-d')}"
+    .flex.items-center.gap-1
+      = link_to '今週', weekly_dashboard_path, class: 'btn btn-ghost btn-xs'
+      = link_to weekly_dashboard_path(week: (@week_start + 7).to_s), class: 'btn btn-ghost btn-sm', aria: { label: '次週' } do
+        i.fas.fa-chevron-right
+
+  .overflow-x-auto.border.border-base-300.rounded-lg
+    .grid style="grid-template-columns: 64px repeat(7, minmax(88px, 1fr));"
+      .sticky.left-0.z-10.bg-base-200.border-b.border-r.border-base-300.p-1
+      - @days.each do |day|
+        .border-b.border-l.border-base-300.p-1.text-center.text-xs class=('bg-primary/10' if day == Date.current)
+          .font-bold = %w[日 月 火 水 木 金 土][day.wday]
+          .text-gray-500 = day.strftime('%-m/%-d')
+          - if @holidays.key?(day.to_s)
+            .text-red-500.truncate = @holidays[day.to_s]
+
+      - @members.each do |member|
+        .sticky.left-0.z-10.bg-base-100.border-b.border-r.border-base-300.p-1.text-xs.font-medium.flex.items-center
+          = member.display_name
+        - @days.each do |day|
+          = render 'grid_cell', member: member, day: day, plans: @plans_by_user[member.id][day]
+
+      .sticky.left-0.z-10.bg-amber-50.border-t.border-r.border-base-300.p-1.text-xs.font-medium メモ
+      - @days.each do |day|
+        = render 'memo_cell', date: day, memo: @memos_by_date[day]
