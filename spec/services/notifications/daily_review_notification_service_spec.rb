@@ -3,28 +3,23 @@
 require 'rails_helper'
 
 RSpec.describe DailyReviewNotificationService, type: :service do
-  describe '.notify_all' do
-    let!(:family) { create(:family) }
-    let!(:user1) { create(:user, family: family) }
-    let!(:user2) { create(:user, family: family) }
+  let(:family) { create(:family) }
+  let(:user) { create(:user, family: family) }
 
+  describe '.notify' do
     before do
-      allow(PushNotificationService).to receive(:send_to_users)
+      allow(PushNotificationService).to receive(:send_to_user)
     end
 
-    it 'sends a notification to all users with the daily review url' do
-      described_class.notify_all
+    it 'sends the daily review push to the given user' do
+      described_class.notify(user)
 
-      expect(PushNotificationService).to have_received(:send_to_users).with(
-        user_ids: contain_exactly(user1.id, user2.id),
+      expect(PushNotificationService).to have_received(:send_to_user).with(
+        user_id: user.id,
         title: '🌙 一日のふりかえり',
         message: kind_of(String),
         url: a_string_including('/daily_review')
       )
-    end
-
-    it 'returns the notified user count' do
-      expect(described_class.notify_all).to eq({ count: 2 })
     end
   end
 end
