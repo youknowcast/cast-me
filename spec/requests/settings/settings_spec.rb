@@ -98,12 +98,23 @@ RSpec.describe 'Settings', type: :request do
       expect(response).to have_http_status(:unprocessable_content)
     end
 
-    it 'saves the 30 minute step and the daily review settings' do
+    it 'saves the 30 minute step for the calendar reminder' do
       params = {
         user_notification_setting: {
           family_calendar_reminder_enabled: true,
           family_calendar_reminder_hour: 8,
-          family_calendar_reminder_minute: 30,
+          family_calendar_reminder_minute: 30
+        }
+      }
+
+      patch update_notifications_settings_path, params: params
+
+      expect(user.reload.notification_setting.family_calendar_reminder_minute).to eq(30)
+    end
+
+    it 'saves the daily review reminder time' do
+      params = {
+        user_notification_setting: {
           daily_review_reminder_enabled: true,
           daily_review_reminder_hour: 21,
           daily_review_reminder_minute: 30
@@ -113,10 +124,11 @@ RSpec.describe 'Settings', type: :request do
       patch update_notifications_settings_path, params: params
 
       setting = user.reload.notification_setting
-      expect(setting.family_calendar_reminder_minute).to eq(30)
-      expect(setting.daily_review_reminder_enabled).to be(true)
-      expect(setting.daily_review_reminder_hour).to eq(21)
-      expect(setting.daily_review_reminder_minute).to eq(30)
+      expect(setting).to have_attributes(
+        daily_review_reminder_enabled: true,
+        daily_review_reminder_hour: 21,
+        daily_review_reminder_minute: 30
+      )
     end
 
     it 'rejects a minute that is not on the 30 minute grid' do

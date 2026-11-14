@@ -62,7 +62,10 @@ RSpec.describe ReminderDispatcher, type: :service do
       create(:user_notification_setting, :with_daily_review_reminder, user: user)
       create(:user_notification_setting, :with_daily_review_reminder, user: other_user)
       allow(DailyReviewNotificationService).to receive(:notify).with(user)
-                                                               .and_raise(PushNotificationService::DeliveryError, 'boom')
+                                                               .and_raise(
+                                                                 PushNotificationService::DeliveryError,
+                                                                 'boom'
+                                                               )
 
       result = described_class.tick(now: slot)
 

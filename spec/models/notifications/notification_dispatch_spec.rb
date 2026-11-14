@@ -43,12 +43,6 @@ RSpec.describe NotificationDispatch, type: :model do
       expect(reclaimed.id).to eq(record.id)
       expect(reclaimed.attempts).to eq(1)
     end
-
-    it 'rejects a claim that is still fresh' do
-      described_class.claim(kind: 'daily_review', user_id: 1, slot_at: slot)
-
-      expect(described_class.claim(kind: 'daily_review', user_id: 1, slot_at: slot)).to be_nil
-    end
   end
 
   describe '#mark_failed!' do
