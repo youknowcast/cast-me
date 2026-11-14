@@ -102,15 +102,38 @@ create_table 'user_notification_settings', force: :cascade do |t|
   t.bigint 'user_id', null: false
   t.boolean 'family_calendar_reminder_enabled', null: false, default: false
   t.integer 'family_calendar_reminder_hour'
+  t.integer 'family_calendar_reminder_minute', null: false, default: 0
   t.boolean 'family_task_progress_reminder_enabled', null: false, default: false
   t.integer 'family_task_progress_reminder_hour'
+  t.integer 'family_task_progress_reminder_minute', null: false, default: 0
+  t.boolean 'daily_review_reminder_enabled', null: false, default: true
+  t.integer 'daily_review_reminder_hour', default: 19
+  t.integer 'daily_review_reminder_minute', null: false, default: 0
   t.timestamps
 
   t.index ['user_id'], unique: true
-  t.index %w[family_calendar_reminder_enabled family_calendar_reminder_hour],
+  t.index %w[family_calendar_reminder_enabled family_calendar_reminder_hour family_calendar_reminder_minute],
           name: 'index_user_notif_settings_on_calendar_reminder'
-  t.index %w[family_task_progress_reminder_enabled family_task_progress_reminder_hour],
+  t.index %w[family_task_progress_reminder_enabled family_task_progress_reminder_hour family_task_progress_reminder_minute],
           name: 'index_user_notif_settings_on_task_progress_reminder'
+  t.index %w[daily_review_reminder_enabled daily_review_reminder_hour daily_review_reminder_minute],
+          name: 'index_user_notif_settings_on_daily_review_reminder'
+end
+
+create_table 'notification_dispatches', force: :cascade do |t|
+  t.string 'slot_key', null: false
+  t.string 'kind', null: false
+  t.bigint 'user_id', null: false
+  t.datetime 'slot_at', null: false
+  t.datetime 'claimed_at', null: false
+  t.integer 'attempts', null: false, default: 0
+  t.datetime 'sent_at'
+  t.string 'error'
+  t.timestamps
+
+  t.index ['slot_key'], name: 'index_notification_dispatches_on_slot_key', unique: true
+  t.index ['user_id'], name: 'index_notification_dispatches_on_user_id'
+  t.index ['created_at'], name: 'index_notification_dispatches_on_created_at'
 end
 
 create_table 'foods', force: :cascade do |t|

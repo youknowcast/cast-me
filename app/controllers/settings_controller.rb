@@ -5,12 +5,16 @@ class SettingsController < ApplicationController
   private_constant :AVATAR_SIZE
 
   HourOption = Struct.new(:value, :label)
-  private_constant :HourOption
+  MinuteOption = Struct.new(:value, :label)
+  private_constant :HourOption, :MinuteOption
+
+  HOURS = (0..23).to_a.freeze
+  MINUTES = [0, 30].freeze
 
   def show
     @family = current_user.family
     @notification_setting = current_user.notification_setting || current_user.build_notification_setting
-    @hour_options = (0..23).map { |h| HourOption.new(h, "#{h}:00") }
+    set_time_options
   end
 
   def update
@@ -19,7 +23,7 @@ class SettingsController < ApplicationController
     else
       @family = current_user.family
       @notification_setting = current_user.notification_setting || current_user.build_notification_setting
-      @hour_options = (0..23).map { |h| HourOption.new(h, "#{h}:00") }
+      set_time_options
       render :show, status: :unprocessable_content
     end
   end
@@ -43,7 +47,7 @@ class SettingsController < ApplicationController
       redirect_to settings_path, notice: '通知設定を更新しました'
     else
       @family = current_user.family
-      @hour_options = (0..23).map { |h| HourOption.new(h, "#{h}:00") }
+      set_time_options
       render :show, status: :unprocessable_content
     end
   end
@@ -90,10 +94,19 @@ class SettingsController < ApplicationController
     params.expect(user: [:birth])
   end
 
+  def set_time_options
+    @hour_options = HOURS.map { |h| HourOption.new(h, format('%02d', h)) }
+    @minute_options = MINUTES.map { |m| MinuteOption.new(m, format('%02d', m)) }
+  end
+
   def notification_setting_params
     params.expect(
       user_notification_setting: %i[family_calendar_reminder_enabled family_calendar_reminder_hour
-                                    family_task_progress_reminder_enabled family_task_progress_reminder_hour]
+                                    family_calendar_reminder_minute
+                                    family_task_progress_reminder_enabled family_task_progress_reminder_hour
+                                    family_task_progress_reminder_minute
+                                    daily_review_reminder_enabled daily_review_reminder_hour
+                                    daily_review_reminder_minute]
     )
   end
 end
