@@ -58,7 +58,7 @@ jobs:
         run: |
           mkdir -p data
           bundle exec rails db:create
-          bundle exec ridgepole -c config/database.yml -E test --apply -f db/Schemafile
+          bundle exec ridgepole -c config/database.yml -E test -r ./config/ridgepole.rb --apply -f db/Schemafile
 
       - name: Run RSpec
         env:

@@ -2,17 +2,13 @@
 
 class DailyReviewNotificationService
   class << self
-    def notify_all
-      user_ids = User.pluck(:id)
-      return { count: 0 } if user_ids.empty?
-
-      PushNotificationService.send_to_users(
-        user_ids: user_ids,
+    def notify(user)
+      PushNotificationService.send_to_user(
+        user_id: user.id,
         title: '🌙 一日のふりかえり',
         message: '今日のタスクと食事を記録しましょう',
         url: daily_review_url
       )
-      { count: user_ids.count }
     end
 
     private

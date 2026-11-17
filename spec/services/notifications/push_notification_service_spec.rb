@@ -77,6 +77,67 @@ RSpec.describe PushNotificationService, type: :service do
     end
   end
 
+  describe '.configured?' do
+    it 'returns true when both OneSignal credentials are present' do
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with('ONESIGNAL_APP_ID').and_return('app-id')
+      allow(ENV).to receive(:[]).with('ONESIGNAL_API_KEY').and_return('api-key')
+
+      expect(described_class.configured?).to be(true)
+    end
+
+    it 'returns false when a credential is missing' do
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with('ONESIGNAL_APP_ID').and_return('app-id')
+      allow(ENV).to receive(:[]).with('ONESIGNAL_API_KEY').and_return(nil)
+
+      expect(described_class.configured?).to be(false)
+    end
+  end
+
+  describe '.deliver' do
+    before do
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with('ONESIGNAL_APP_ID').and_return('test-app-id')
+      allow(ENV).to receive(:[]).with('ONESIGNAL_API_KEY').and_return('test-api-key')
+      allow(ENV).to receive(:fetch).with('ONESIGNAL_APP_ID', nil).and_return('test-app-id')
+    end
+
+    context 'when the API succeeds' do
+      it 'returns :sent' do
+        api_instance = instance_double(OneSignal::DefaultApi)
+        result = instance_double(OneSignal::CreateNotificationSuccessResponse, id: 'notif-123')
+        allow(OneSignal::DefaultApi).to receive(:new).and_return(api_instance)
+        allow(api_instance).to receive(:create_notification).and_return(result)
+
+        expect(described_class.deliver(user_ids: [user.id], title: 'T', message: 'M')).to eq(:sent)
+      end
+    end
+
+    context 'when the API raises' do
+      it 'raises DeliveryError' do
+        api_instance = instance_double(OneSignal::DefaultApi)
+        allow(OneSignal::DefaultApi).to receive(:new).and_return(api_instance)
+        allow(api_instance).to receive(:create_notification).and_raise(OneSignal::ApiError.new('boom'))
+        allow(Rails.logger).to receive(:error)
+
+        expect do
+          described_class.deliver(user_ids: [user.id], title: 'T', message: 'M')
+        end.to raise_error(described_class::DeliveryError)
+      end
+    end
+
+    context 'when credentials are missing' do
+      it 'returns :skipped without calling the API' do
+        allow(ENV).to receive(:[]).with('ONESIGNAL_APP_ID').and_return(nil)
+        allow(OneSignal::DefaultApi).to receive(:new)
+
+        expect(described_class.deliver(user_ids: [user.id], title: 'T', message: 'M')).to eq(:skipped)
+        expect(OneSignal::DefaultApi).not_to have_received(:new)
+      end
+    end
+  end
+
   describe '.send_to_users' do
     it 'delegates to send_to_users with array of user_ids' do
       allow(ENV).to receive(:[]).and_call_original

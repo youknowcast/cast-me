@@ -87,6 +87,7 @@
       .form-control
         label.label
           span.label-text 通知設定
+        p.text-xs.text-gray-500.mb-2 設定した時刻に毎日プッシュ通知が届きます（時刻は30分刻み）。
         = form_with model: @notification_setting, url: update_notifications_settings_path, method: :patch do |f|
           .form-control.mb-4
             label.label.cursor-pointer.justify-start.gap-4
@@ -94,8 +95,13 @@
               span.label-text
                 i.fas.fa-calendar.mr-2
                 | 家族のカレンダを確認
-            .ml-14
-              = mobile_collection_select f, :family_calendar_reminder_hour, @hour_options, :value, :label, { label: '通知時間', prompt: '時間を選択' }
+            .ml-14.flex.items-center.gap-2
+              .w-24
+                = mobile_collection_select f, :family_calendar_reminder_hour, @hour_options, :value, :label, { label: '時' }
+              span.text-sm 時
+              .w-24
+                = mobile_collection_select f, :family_calendar_reminder_minute, @minute_options, :value, :label, { label: '分' }
+              span.text-sm 分
 
           .form-control.mb-4
             label.label.cursor-pointer.justify-start.gap-4
@@ -103,8 +109,27 @@
               span.label-text
                 i.fas.fa-tasks.mr-2
                 | タスク完了状況を通知
-            .ml-14
-              = mobile_collection_select f, :family_task_progress_reminder_hour, @hour_options, :value, :label, { label: '通知時間', prompt: '時間を選択' }
+            .ml-14.flex.items-center.gap-2
+              .w-24
+                = mobile_collection_select f, :family_task_progress_reminder_hour, @hour_options, :value, :label, { label: '時' }
+              span.text-sm 時
+              .w-24
+                = mobile_collection_select f, :family_task_progress_reminder_minute, @minute_options, :value, :label, { label: '分' }
+              span.text-sm 分
+
+          .form-control.mb-4
+            label.label.cursor-pointer.justify-start.gap-4
+              = f.check_box :daily_review_reminder_enabled, class: 'toggle toggle-primary'
+              span.label-text
+                i.fas.fa-moon.mr-2
+                | 一日のふりかえりを促す
+            .ml-14.flex.items-center.gap-2
+              .w-24
+                = mobile_collection_select f, :daily_review_reminder_hour, @hour_options, :value, :label, { label: '時' }
+              span.text-sm 時
+              .w-24
+                = mobile_collection_select f, :daily_review_reminder_minute, @minute_options, :value, :label, { label: '分' }
+              span.text-sm 分
 
           .flex.justify-end.mt-4
             = f.submit '通知設定を保存', class: 'btn btn-primary btn-sm'
