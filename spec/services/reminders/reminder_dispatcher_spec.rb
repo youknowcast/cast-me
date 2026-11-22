@@ -61,17 +61,19 @@ RSpec.describe ReminderDispatcher, type: :service do
       other_user = create(:user, family: family)
       create(:user_notification_setting, :with_daily_review_reminder, user: user)
       create(:user_notification_setting, :with_daily_review_reminder, user: other_user)
-      allow(DailyReviewNotificationService).to receive(:notify).with(user)
-                                                               .and_raise(
-                                                                 PushNotificationService::DeliveryError,
-                                                                 'boom'
-                                                               )
+      allow(DailyReviewNotificationService).to receive(:notify).and_call_original
+      allow(PushNotificationService).to receive(:deliver) do |user_ids:, **|
+        raise PushNotificationService::DeliveryError, 'boom' if user_ids == [user.id]
+
+        :sent
+      end
 
       result = described_class.tick(now: slot)
 
-      expect(DailyReviewNotificationService).to have_received(:notify).with(other_user)
+      failed = NotificationDispatch.find_by(user_id: user.id)
       expect(result[:failed]).to eq(1)
-      expect(NotificationDispatch.find_by(user_id: user.id).error).to eq('boom')
+      expect(failed.error).to eq('boom')
+      expect(failed.sent_at).to be_nil
       expect(NotificationDispatch.find_by(user_id: other_user.id).sent_at).to be_present
     end
 
