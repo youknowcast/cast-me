@@ -13,6 +13,7 @@ Specs remain grouped by RSpec type first so Rails type inference continues to wo
 | Family communication | `requests/communication/` | - | `services/notifications/family_call_notification_service_spec.rb` | Family call authorization, defaults and notification payloads |
 | Weekly summary | `requests/weekly_summary/` | - | `services/notifications/weekly_task_summary_notification_service_spec.rb` | Family task aggregation, date boundaries and signed-out access |
 | Daily review | `requests/daily_review/` | - | `services/notifications/daily_review_notification_service_spec.rb` | Today's own tasks and meals, meal form return flow, recipe app link, notification payload |
+| Release notes | `requests/release_notes/` | `models/release_notes/` | - | Signed-out access, page rendering, newest-first order, settings entry point, markdown parsing |
 | Scheduled notifications | - | `models/accounts/user_notification_setting_spec.rb`, `models/notifications/notification_dispatch_spec.rb` | `services/reminders/`, `services/notifications/` | Slot matching, duplicate prevention, grace window, message generation and OneSignal requests |
 | Shared presentation | - | `helpers/shared/` | - | URL linkification and escaping |
 

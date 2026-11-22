@@ -54,6 +54,9 @@ Rails.application.routes.draw do
   # 週次サマリ
   resource :weekly_summary, only: [:show]
 
+  # リリースノート
+  resources :release_notes, only: [:index]
+
   # 一日のふりかえり
   resource :daily_review, only: [:show]
 

@@ -95,6 +95,18 @@
 
       .divider.my-2
 
+      / リリースノート
+      .form-control
+        label.label
+          span.label-text リリースノート
+        = link_to release_notes_path, class: 'btn btn-outline btn-sm w-full justify-between' do
+          span
+            i.fas.fa-bullhorn.mr-2
+            | 新着情報を見る
+          i.fas.fa-chevron-right
+
+      .divider.my-2
+
       / 通知設定
       .form-control
         label.label

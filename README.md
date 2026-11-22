@@ -42,6 +42,10 @@ bundle exec rspec
 bundle exec rubocop -A
 ```
 
+### リリースノート
+
+利用者向けの変更は [`RELEASE_NOTES.md`](./RELEASE_NOTES.md) に追記します。見出しは `## YYYY-MM-DD 見出し`、内容は `- ` の箇条書きで、新しい日付を上に書きます。書式の詳細はファイル冒頭のコメントを参照してください。依存更新などの開発者向け変更は載せません。
+
 詳細な開発ガイドラインは [AGENTS.md](./AGENTS.md) を参照してください。
 
 ## ライセンス
