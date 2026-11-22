@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe 'Meals', type: :request do
+  include ActiveSupport::Testing::TimeHelpers
+
   let(:family) { create(:family) }
   let(:user) { create(:user, family: family) }
 
@@ -33,6 +35,15 @@ RSpec.describe 'Meals', type: :request do
                        scope: 'family' }, as: :turbo_stream
       end.to change(Meal, :count).by(1)
       expect(Food.count).to eq(1)
+    end
+
+    it 'records the meal under the selected meal type' do
+      post meals_path,
+           params: { meal: { date: Time.zone.today.to_s, meal_type: 2, food_names: ['カレー'] }, scope: 'family' },
+           as: :turbo_stream
+
+      expect(Meal.last.meal_type).to eq(2)
+      expect(response.body).to include('カレー')
     end
 
     it 'does not create a meal attributed to a user from another family' do
@@ -135,6 +146,40 @@ RSpec.describe 'Meals', type: :request do
     it 'carries return_to into the form' do
       get new_meal_path(date: Time.zone.today.to_s, scope: 'my', return_to: 'daily_review'), as: :turbo_stream
       expect(response.body).to include('name="return_to" id="return_to" value="daily_review"')
+    end
+
+    {
+      [0, 0] => '夕',
+      [3, 59] => '夕',
+      [4, 0] => '朝',
+      [10, 59] => '朝',
+      [11, 0] => '昼',
+      [14, 59] => '昼',
+      [15, 0] => '夕',
+      [23, 59] => '夕'
+    }.each do |(hour, minute), label|
+      it "preselects #{label} at #{Time.zone.local(2026, 11, 23, hour, minute).strftime('%H:%M')}" do
+        travel_to Time.zone.local(2026, 11, 23, hour, minute) do
+          get new_meal_path(date: Time.zone.today.to_s, scope: 'family'), as: :turbo_stream
+        end
+
+        expect(selected_meal_type).to eq(label)
+      end
+    end
+
+    it 'keeps the meal type the user chose when the form is re-rendered with errors' do
+      travel_to Time.zone.local(2026, 11, 23, 20, 0) do
+        post meals_path,
+             params: { meal: { date: Time.zone.today.to_s, meal_type: 0, food_names: [] }, scope: 'family' },
+             as: :turbo_stream
+      end
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(selected_meal_type).to eq('朝')
+    end
+
+    def selected_meal_type
+      Nokogiri::HTML.fragment(response.body).at_css('select[name="meal[meal_type]"] option[selected]')&.text
     end
   end
 

@@ -11,7 +11,22 @@
 #  user_id    :bigint
 #
 class Meal < ApplicationRecord
-  MEAL_TYPE_LABELS = { 0 => '朝', 1 => '昼', 2 => '夕', 3 => '間食' }.freeze
+  MEAL_TYPE_MORNING = 0
+  MEAL_TYPE_LUNCH = 1
+  MEAL_TYPE_EVENING = 2
+  MEAL_TYPE_SNACK = 3
+
+  MEAL_TYPE_LABELS = {
+    MEAL_TYPE_MORNING => '朝',
+    MEAL_TYPE_LUNCH => '昼',
+    MEAL_TYPE_EVENING => '夕',
+    MEAL_TYPE_SNACK => '間食'
+  }.freeze
+
+  DEFAULT_MEAL_TYPE_HOUR_RANGES = {
+    4...11 => MEAL_TYPE_MORNING,
+    11...15 => MEAL_TYPE_LUNCH
+  }.freeze
 
   belongs_to :family
   belongs_to :user, optional: true
@@ -30,6 +45,10 @@ class Meal < ApplicationRecord
 
   def self.meal_type_options
     MEAL_TYPE_LABELS.map { |value, label| [label, value] }
+  end
+
+  def self.default_meal_type_at(time)
+    DEFAULT_MEAL_TYPE_HOUR_RANGES.find { |hours, _| hours.cover?(time.hour) }&.last || MEAL_TYPE_EVENING
   end
 
   def meal_type_text
