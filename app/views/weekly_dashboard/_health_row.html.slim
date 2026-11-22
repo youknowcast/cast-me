@@ -1,0 +1,11 @@
+.sticky.left-0.z-10.bg-amber-50.border-b.border-r.border-base-300.p-1.text-xs.font-medium.leading-tight
+  .text-gray-700 = member.display_name
+  .text-amber-700 class="text-[10px]" 体調
+
+- days.each do |day|
+  .border-b.border-l.border-base-300.min-h-7.flex.flex-col.justify-center.overflow-hidden
+    - episodes.each do |episode|
+      - next unless episode.covers?(day)
+      = link_to health_episode_path(episode), class: "block h-4 px-1 text-[10px] leading-4 truncate bg-amber-100 text-amber-900 border-y border-amber-200 #{episode.started_on == day ? 'rounded-l' : ''} #{episode.ended_on == day ? 'rounded-r' : ''}" do
+        - if episode.band_title_on?(day, week_start)
+          = episode.title

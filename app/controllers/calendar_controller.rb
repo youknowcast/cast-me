@@ -26,10 +26,16 @@ class CalendarController < ApplicationController
                                  .includes(:created_by, :active_participants, :active_plan_participants)
                                  .ordered_by_time
                                  .group_by(&:date)
+    @monthly_health_episodes = current_user.family.health_episodes.for_month(@date)
+                                           .includes(:user)
+                                           .ordered_by_started_on
+                                           .group_by(&:started_on)
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: turbo_stream.update('side-panel', partial: 'calendar/monthly_list',
-                                                               locals: { plans_by_date: @monthly_plans, date: @date })
+                                                               locals: { plans_by_date: @monthly_plans,
+                                                                         episodes_by_date: @monthly_health_episodes,
+                                                                         date: @date })
       end
       format.html { head :ok }
     end

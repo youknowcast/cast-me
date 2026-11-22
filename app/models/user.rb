@@ -31,6 +31,7 @@ class User < ApplicationRecord
   has_many :tasks, dependent: :destroy
   has_many :plan_participants, dependent: :destroy
   has_many :meals, dependent: :nullify
+  has_many :health_episodes, dependent: :destroy
   has_one :notification_setting, class_name: 'UserNotificationSetting', dependent: :destroy
 
   validates :login_id, presence: true, uniqueness: true

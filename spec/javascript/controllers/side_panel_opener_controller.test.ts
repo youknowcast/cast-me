@@ -15,6 +15,9 @@ const html = `
   <button id="meal-edit-with-return" data-controller="side-panel-opener"
     data-action="click->side-panel-opener#openMealEdit"
     data-meal-id="7" data-scope="my" data-return-to="daily_review"></button>
+  <button id="health-episode-form" data-controller="side-panel-opener"
+    data-action="click->side-panel-opener#openHealthEpisodeForm"
+    data-date="2026-09-02" data-scope="family"></button>
 `
 
 describe("side-panel-opener controller", () => {
@@ -59,5 +62,12 @@ describe("side-panel-opener controller", () => {
     await flush()
 
     expect(requestedUrl()).toBe("/meals/7/edit?scope=my&return_to=daily_review")
+  })
+
+  it("opens the health episode form for the selected date", async () => {
+    document.querySelector<HTMLButtonElement>("#health-episode-form")!.click()
+    await flush()
+
+    expect(requestedUrl()).toBe("/health_episodes/new?date=2026-09-02&scope=family")
   })
 })

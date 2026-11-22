@@ -28,6 +28,11 @@
         - @days.each do |day|
           = render 'grid_cell', member: member, day: day, plans: @plans_by_user[member.id][day]
 
+      - @members.each do |member|
+        - episodes = @health_episodes_by_user[member.id]
+        - next if episodes.blank?
+        = render 'health_row', member: member, days: @days, week_start: @week_start, episodes: episodes
+
       .sticky.left-0.z-10.bg-amber-50.border-t.border-r.border-base-300.p-1.text-xs.font-medium メモ
       - @days.each do |day|
         = render 'memo_cell', date: day, memo: @memos_by_date[day]

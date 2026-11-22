@@ -1,0 +1,37 @@
+= form_with model: episode, data: { turbo: false } do |f|
+  .space-y-6
+    - if episode.errors.any?
+      .alert.alert-error
+        ul
+          - episode.errors.full_messages.each do |message|
+            li = message
+
+    .form-control
+      = f.label :user_id, '対象者', class: 'label'
+      = mobile_collection_select f, :user_id, current_user.family.users.order(:id), :id, :display_name,
+                                 { label: '対象者', prompt: '選択してください' }
+
+    .form-control
+      = f.label :title, '病名・症状', class: 'label'
+      = f.text_field :title, class: 'input w-full', placeholder: 'インフルエンザ、発熱など'
+      - if episode.errors[:title].any?
+        .text-error.text-sm.mt-1 = episode.errors[:title].join('、')
+
+    .grid.grid-cols-1.sm:grid-cols-2.gap-4
+      .form-control
+        = f.label :started_on, '開始日', class: 'label'
+        = f.date_field :started_on, class: 'input w-full'
+      .form-control
+        = f.label :ended_on, '終了日（未入力なら継続中）', class: 'label'
+        = f.date_field :ended_on, class: 'input w-full'
+
+    .form-control
+      = f.label :symptom_note, '症状メモ', class: 'label'
+      = f.text_area :symptom_note, rows: 4, class: 'textarea w-full', placeholder: '熱の上がり方、咳、食欲など'
+
+  .side-panel-footer
+    - if local_assigns[:panel]
+      = link_to 'キャンセル', '#', class: 'btn btn-ghost', data: { action: 'click->side-panel#close' }
+    - else
+      = link_to 'キャンセル', episode.persisted? ? health_episode_path(episode) : calendar_path, class: 'btn btn-ghost'
+    = f.submit episode.persisted? ? '更新する' : '記録する', class: 'btn btn-primary'

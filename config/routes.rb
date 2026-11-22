@@ -33,6 +33,15 @@ Rails.application.routes.draw do
 
   resources :regular_tasks, only: %i[index create]
   resources :foods, only: %i[index create update]
+  resources :medications, only: %i[index create update]
+  resources :health_episodes, only: %i[show new create edit update] do
+    member do
+      patch :recover
+      patch :reopen
+    end
+    resources :temperatures, only: %i[create update destroy], controller: 'health_episode_temperatures'
+    resources :reminder_times, only: %i[create destroy], controller: 'health_episode_reminder_times'
+  end
   resources :meals, only: %i[new create edit update destroy]
   resources :everyday_task_templates do
     member do

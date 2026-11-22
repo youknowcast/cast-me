@@ -7,31 +7,53 @@
       span.ml-2.text-sm.bg-blue-100.text-blue-800.px-2.py-1.rounded-full 今日
 
   .flex.space-x-1
-    .tooltip.tooltip-bottom[data-tip="予定追加"]
-      button.btn.btn-sm.btn-primary.btn-square[
-        data-controller="side-panel-opener"
-        data-action="click->side-panel-opener#openPlanForm"
-        data-date=date.strftime("%Y-%m-%d")
-        data-scope=current_scope
-      ]
-        i.fas.fa-calendar-plus.text-base
+    .dropdown.dropdown-end
+      button.btn.btn-sm.btn-outline.btn-square[type="button" tabindex="0" aria-label="その他"]
+        i.fas.fa-ellipsis.text-base
+        span.sr-only その他
 
-    .tooltip.tooltip-bottom[data-tip="タスク追加"]
-      button.btn.btn-sm.btn-outline.btn-square[
-        data-controller="side-panel-opener"
-        data-action="click->side-panel-opener#openTaskForm"
-        data-date=date.strftime("%Y-%m-%d")
-        data-scope=current_scope
-      ]
-        i.fas.fa-tasks.text-base
+      ul.dropdown-content.menu.menu-sm.mt-1.w-44.p-2.shadow.bg-base-100.rounded-box.z-50[tabindex="0"]
+        li
+          button.flex.items-center.gap-2.text-left[
+            type="button"
+            data-controller="side-panel-opener"
+            data-action="click->side-panel-opener#openPlanForm"
+            data-date=date.strftime("%Y-%m-%d")
+            data-scope=current_scope
+          ]
+            i.fas.fa-calendar-plus.w-4.text-base
+            span 予定追加
 
-    - templates = current_user.family.everyday_task_templates.order(:name)
-    - if templates.any?
-      .tooltip.tooltip-bottom[data-tip="まとめて追加"]
-        = mobile_selector :everyday_task_template_id, nil, templates, :id, :name,
-                          { label: "毎日のタスクを一括追加",
-                            wrapper_data: { controller: 'bulk-add', 'bulk-add-date-value': date.to_s, 'bulk-add-url-value': '/everyday_task_templates/:id/bulk_add' } },
-                          { data: { action: 'change->bulk-add#submit' } } do
-          button.btn.btn-sm.btn-outline.btn-square[type="button" data-action="click->mobile-selector#open"]
-            i.fas.fa-layer-group.text-base
-            span.hidden[data-mobile-selector-target="triggerText"]
+        li
+          button.flex.items-center.gap-2.text-left[
+            type="button"
+            data-controller="side-panel-opener"
+            data-action="click->side-panel-opener#openTaskForm"
+            data-date=date.strftime("%Y-%m-%d")
+            data-scope=current_scope
+          ]
+            i.fas.fa-tasks.w-4.text-base
+            span タスク追加
+
+        - templates = current_user.family.everyday_task_templates.order(:name)
+        - if templates.any?
+          li
+            = mobile_selector :everyday_task_template_id, nil, templates, :id, :name,
+                              { label: "毎日のタスクを一括追加",
+                                wrapper_data: { controller: 'bulk-add', 'bulk-add-date-value': date.to_s, 'bulk-add-url-value': '/everyday_task_templates/:id/bulk_add' } },
+                              { data: { action: 'change->bulk-add#submit' } } do
+              button.flex.items-center.gap-2.w-full.text-left[type="button" data-action="click->mobile-selector#open"]
+                i.fas.fa-layer-group.w-4.text-base
+                span[data-mobile-selector-target="triggerText"] まとめて追加
+
+        li
+          button.flex.items-center.gap-2.text-left[
+            type="button"
+            data-controller="side-panel-opener"
+            data-action="click->side-panel-opener#openHealthEpisodeForm"
+            data-date=date.strftime("%Y-%m-%d")
+            data-scope=current_scope
+          ]
+            i.fas.fa-thermometer-half.w-4.text-base
+            span 体調記録
+

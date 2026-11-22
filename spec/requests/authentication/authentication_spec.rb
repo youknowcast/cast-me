@@ -7,6 +7,8 @@ RSpec.describe 'Authentication', type: :request do
     tasks: -> { tasks_path },
     regular_tasks: -> { regular_tasks_path },
     everyday_task_templates: -> { everyday_task_templates_path },
+    medications: -> { medications_path },
+    health_episodes: -> { new_health_episode_path },
     settings: -> { settings_path },
     weekly_summary: -> { weekly_summary_path }
   }
