@@ -10,15 +10,7 @@
       h1.text-3xl.font-bold.text-gray-800.whitespace-nowrap 家族カレンダー
 
     .flex.items-center
-      button.btn.btn-ghost.text-lg.font-semibold[
-        data-controller="monthpicker-connector"
-        data-monthpicker-connector-date-value=@date.to_s
-        data-monthpicker-connector-base-url-value=calendar_path
-        data-action="click->monthpicker-connector#open"
-      ]
-        span data-monthpicker-connector-target="triggerText"
-          = @date.strftime("%Y年%m月")
-        i.fas.fa-caret-down.ml-2.text-sm
+      = render "month_navigation", date: @date, prev_path: calendar_path(date: @date.prev_month.beginning_of_month), next_path: calendar_path(date: @date.next_month.beginning_of_month)
       button.btn.btn-ghost.btn-circle.ml-2[
         data-controller="side-panel-opener"
         data-action="click->side-panel-opener#openMonthlyList"

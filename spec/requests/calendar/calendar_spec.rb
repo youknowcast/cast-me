@@ -22,6 +22,63 @@ RSpec.describe 'Calendars', type: :request do
     end
   end
 
+  describe 'month navigation' do
+    let!(:december_plan) { create(:plan, family: family, date: Date.new(2026, 12, 1), title: 'December Plan') }
+    let!(:january_plan) { create(:plan, family: family, date: Date.new(2027, 1, 1), title: 'January Plan') }
+    let!(:january_task) { create(:task, family: family, user: user, date: Date.new(2027, 1, 1), title: 'January Task') }
+
+    before do
+      create(:plan_participant, plan: december_plan, user: user, status: :joined)
+      create(:plan_participant, plan: january_plan, user: user, status: :joined)
+    end
+
+    it 'renders previous and next month links instead of the month picker' do
+      get calendar_path, params: { date: '2026-12-15' }
+
+      expect(response.body).to include('2026年12月')
+      expect(response.body).to include('aria-label="前月へ"', 'aria-label="次月へ"')
+      expect(response.body).to include(calendar_path(date: '2026-11-01'))
+      expect(response.body).to include(calendar_path(date: '2027-01-01'))
+      expect(response.body).not_to include('monthpicker-connector')
+    end
+
+    it 'moves to the next month across the year boundary and reloads its plans and tasks', :aggregate_failures do
+      get calendar_path, params: { date: '2026-12-01' }
+      expect(response.body).to include('December Plan')
+      expect(response.body).not_to include('January Plan')
+
+      get calendar_path, params: { date: '2027-01-01' }
+
+      expect(response.body).to include('2027年01月')
+      expect(response.body).to include('January Plan')
+      expect(response.body).to include('January Task')
+      expect(response.body).not_to include('December Plan')
+      expect(response.body).to include(calendar_path(date: '2026-12-01'))
+    end
+
+    it 'moves to the previous month across the year boundary and reloads its plans and tasks', :aggregate_failures do
+      get calendar_path, params: { date: '2027-01-01' }
+      expect(response.body).to include(calendar_path(date: '2026-12-01'))
+
+      get calendar_path, params: { date: '2026-12-01' }
+
+      expect(response.body).to include('2026年12月')
+      expect(response.body).to include('December Plan')
+      expect(response.body).not_to include('January Plan')
+      expect(response.body).not_to include('January Task')
+      expect(response.body).to include(calendar_path(date: '2027-01-01'))
+    end
+
+    it 'navigates months on the my calendar' do
+      get my_calendar_path, params: { date: '2026-12-15' }
+
+      expect(response.body).to include('2026年12月')
+      expect(response.body).to include(my_calendar_path(date: '2026-11-01'))
+      expect(response.body).to include(my_calendar_path(date: '2027-01-01'))
+      expect(response.body).not_to include('monthpicker-connector')
+    end
+  end
+
   describe 'GET /my' do
     let!(:my_plan) { create(:plan, family: family, date: date, title: 'My Plan') }
     let!(:other_plan) { create(:plan, family: family, date: date, title: 'Other Plan') }

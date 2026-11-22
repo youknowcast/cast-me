@@ -1,0 +1,6 @@
+.flex.items-center.gap-1
+  = link_to prev_path, class: "btn btn-ghost btn-circle h-11 w-11", aria: { label: "前月へ" }, title: "前月へ" do
+    i.fas.fa-chevron-left
+  span.text-lg.font-semibold.text-gray-800.whitespace-nowrap = date.strftime("%Y年%m月")
+  = link_to next_path, class: "btn btn-ghost btn-circle h-11 w-11", aria: { label: "次月へ" }, title: "次月へ" do
+    i.fas.fa-chevron-right
