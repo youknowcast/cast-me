@@ -34,6 +34,7 @@ coverage/
 # Documentation
 *.md
 !README.md
+!RELEASE_NOTES.md
 
 # Other
 .DS_Store

@@ -14,6 +14,8 @@ class ReleaseNote
 
   def self.all(path = SOURCE_PATH)
     parse(File.read(path))
+  rescue Errno::ENOENT
+    []
   end
 
   def self.parse(markdown)

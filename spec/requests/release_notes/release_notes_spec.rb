@@ -42,6 +42,16 @@ RSpec.describe 'ReleaseNotes', type: :request do
 
         expect(response.body).to include(release_notes_path)
       end
+
+      it 'renders the empty state when the release notes file is missing' do
+        allow(File).to receive(:read).and_call_original
+        allow(File).to receive(:read).with(ReleaseNote::SOURCE_PATH).and_raise(Errno::ENOENT)
+
+        get release_notes_path
+
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include('リリースノートはまだありません')
+      end
     end
   end
 end

@@ -43,5 +43,9 @@ RSpec.describe ReleaseNote do
       expect(notes).not_to be_empty
       expect(notes.map(&:date)).to eq(notes.map(&:date).sort.reverse)
     end
+
+    it 'returns an empty list when the file is missing' do
+      expect(described_class.all(Rails.root.join('MISSING_RELEASE_NOTES.md'))).to eq([])
+    end
   end
 end
