@@ -67,6 +67,7 @@ class ReminderDispatcher
           dispatch(reminder, setting, slot, stats)
         end
       end
+      dispatch_health_episode_medications(slot, stats)
     end
     prune
     stats
@@ -92,27 +93,37 @@ class ReminderDispatcher
   attr_reader :now
 
   def dispatch(reminder, setting, slot, stats)
-    record = claim(reminder, setting, slot)
-    if record.nil?
-      stats[:skipped] += 1
-      return
-    end
+    record = claim(kind: reminder[:kind], user_id: setting.user_id, slot: slot)
+    return stats[:skipped] += 1 if record.nil?
 
-    begin
-      reminder[:notify].call(setting.user)
-      record.mark_sent!
-      stats[:sent] += 1
-    rescue StandardError => e
-      record.mark_failed!(e.message)
-      stats[:failed] += 1
-      Rails.logger.error(
-        "ReminderDispatcher: #{reminder[:kind]} failed for user #{setting.user_id}: #{e.class}: #{e.message}"
-      )
+    deliver(record, stats, label: reminder[:kind]) { reminder[:notify].call(setting.user) }
+  end
+
+  def dispatch_health_episode_medications(slot, stats)
+    HealthEpisodeMedicationNotificationService.targets_for(slot).each do |user, episodes|
+      record = claim(kind: HealthEpisodeMedicationNotificationService::KIND, user_id: user.id, slot: slot)
+      next stats[:skipped] += 1 if record.nil?
+
+      deliver(record, stats, label: HealthEpisodeMedicationNotificationService::KIND) do
+        HealthEpisodeMedicationNotificationService.notify(user, episodes)
+      end
     end
   end
 
-  def claim(reminder, setting, slot)
-    NotificationDispatch.claim(kind: reminder[:kind], user_id: setting.user_id, slot_at: slot)
+  def deliver(record, stats, label:)
+    yield
+    record.mark_sent!
+    stats[:sent] += 1
+  rescue StandardError => e
+    record.mark_failed!(e.message)
+    stats[:failed] += 1
+    Rails.logger.error(
+      "ReminderDispatcher: #{label} failed for user #{record.user_id}: #{e.class}: #{e.message}"
+    )
+  end
+
+  def claim(kind:, user_id:, slot:)
+    NotificationDispatch.claim(kind: kind, user_id: user_id, slot_at: slot)
   rescue ActiveRecord::StatementInvalid => e
     # SQLite のロック競合。次の tick が猶予内なら拾い直す
     Rails.logger.warn("ReminderDispatcher: claim failed: #{e.class}: #{e.message}")
