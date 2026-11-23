@@ -16,6 +16,7 @@ module CalendarData
   def set_my_calendar_data(date)
     @date = date
     @target_users = [current_user]
+    @health_episodes_by_user = health_episodes_index(date)
     @family_plans = current_user.family.plans.for_date(date)
                                 .left_joins(:plan_participants)
                                 .where(plan_participants: { user_id: current_user.id, status: %i[joined pending] })
@@ -32,6 +33,7 @@ module CalendarData
   def set_family_calendar_data(date)
     @date = date
     set_target_users
+    @health_episodes_by_user = health_episodes_index(date)
     @family_plans = current_user.family.plans.for_date(date).includes(:created_by, :participants,
                                                                       :plan_participants).ordered_by_time
     @family_tasks = current_user.family.tasks.for_date(date).includes(:user).ordered_by_priority
@@ -46,6 +48,14 @@ module CalendarData
                     else
                       current_user.family.users
                     end
+  end
+
+  def health_episodes_index(date)
+    current_user.family.health_episodes
+                .overlapping(date, date)
+                .includes(:user)
+                .ordered_by_started_on
+                .group_by(&:user_id)
   end
 
   def calendar_update_streams(plan)

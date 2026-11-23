@@ -54,6 +54,20 @@ RSpec.describe 'Health episodes', type: :system do
     expect(page).to have_button '体調記録'
   end
 
+  it 'records a temperature from the calendar and stays there' do
+    episode = create(:health_episode, family: family, user: user, title: '発熱')
+    visit calendar_path
+
+    within "#quick_temperature_form_#{episode.id}" do
+      fill_in '体温', with: '38.5'
+    end
+    click_button '記録'
+
+    expect(page).to have_content '体温を記録しました'
+    expect(page).to have_current_path(calendar_path(date: Time.zone.today.to_s))
+    expect(episode.health_episode_temperatures.reload.last.value).to eq(38.5)
+  end
+
   private
 
   def sign_in_through_ui

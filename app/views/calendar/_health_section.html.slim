@@ -1,0 +1,21 @@
+- episodes ||= []
+.mb-4
+  .flex.items-center.mb-2
+    h4.text-md.font-semibold.text-gray-600
+      i.fas.fa-thermometer-half.mr-2
+      | 体調
+    - if episodes.any?
+      span.ml-2.text-xs.bg-amber-100.text-amber-800.px-2.py-0.5.rounded-full= episodes.count
+
+  - if episodes.any?
+    .space-y-2
+      - episodes.each do |episode|
+        = render "calendar/health_episode_item", episode: episode
+      - active_episode = episodes.find(&:active?)
+      - if active_episode.present?
+        = render "calendar/quick_temperature_form", episode: active_episode, date: date, scope: scope
+  - else
+    = link_to new_health_episode_path(date: date, user_id: target_user.id),
+              class: "btn btn-sm btn-outline min-h-11", data: { turbo_frame: "_top" } do
+      i.fas.fa-plus.mr-1
+      | 体調記録を追加
