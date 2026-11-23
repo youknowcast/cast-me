@@ -147,15 +147,18 @@ recovered --「解除」--> active（ended_on = NULL に戻す）
 ## 通知
 
 既存の `ReminderDispatcher`（1分ごと・30分スロット・`NotificationDispatch` の UNIQUE で排他）に
-体調エピソード用の種別を追加する。
+体調エピソード用の経路を追加している。
 
-- 対象: `status = active` かつ `started_on <= 今日` のエピソードの通知時刻に一致する枠
-- 宛先: エピソードの対象者（OneSignal の external_id）
-- 文面: 「服薬の時間です」＋ 病名。薬名が分かる場合は列挙する
-- 重複防止: 既存と同じく `NotificationDispatch` で枠を排他する
+- 実装: `ReminderDispatcher#tick` が枠ごとに `HealthEpisodeMedicationNotificationService.targets_for(slot)` を呼ぶ
+- 対象: `status = active`（`ended_on` が NULL）かつ `started_on <= 枠の日付` で、
+  `health_episode_reminder_times` の hour/minute が枠に一致するエピソード
+- 宛先: エピソードの対象者（OneSignal の external_id）。代理入力ではなく本人のみ
+- 文面: 「服薬の時間です」＋ 病名。薬名が分かる場合は「病名: 薬名、薬名」の形で列挙する。
+  180文字を超える場合は切り詰める
+- 重複防止: `NotificationDispatch.claim(kind: 'health_episode_medication', user_id:, slot_at:)` で枠を排他する
+- 同じ対象者・同じ枠に複数のエピソードが重なる場合は1通にまとめ、病名を併記する
+- 送信失敗時は claim に `error` を残し、`STALE_AFTER` 経過後の tick が拾い直す。tick 全体は止めない
 - エピソードが終了（recovered）したら送らない
-- 同じ対象者・同じ時刻に複数のエピソードが重なる場合は1通にまとめ、病名を併記する
-  （排他キーは既存の `kind:user_id:slot` のまま）
 
 ### 割り切り
 

@@ -123,6 +123,124 @@ RSpec.describe ReminderDispatcher, type: :service do
     end
   end
 
+  describe 'health episode medication reminders' do
+    before { allow(PushNotificationService).to receive(:deliver).and_return(:sent) }
+
+    def add_reminder_time(episode, slot)
+      create(:health_episode_reminder_time, health_episode: episode, hour: slot.hour, minute: slot.min)
+    end
+
+    it 'sends one reminder to the episode subject at the matching slot' do
+      episode = create(:health_episode, family: family, user: user, title: 'インフルエンザ',
+                                        started_on: slot.to_date)
+      add_reminder_time(episode, slot)
+
+      described_class.tick(now: slot)
+
+      expect(PushNotificationService).to have_received(:deliver)
+        .with(hash_including(user_ids: [user.id])).once
+      expect(NotificationDispatch.find_by(kind: 'health_episode_medication', user_id: user.id).sent_at)
+        .to be_present
+    end
+
+    it 'does not send at a slot without a matching reminder time' do
+      episode = create(:health_episode, family: family, user: user, started_on: slot.to_date)
+      add_reminder_time(episode, slot + 30.minutes)
+
+      described_class.tick(now: slot)
+
+      expect(PushNotificationService).not_to have_received(:deliver)
+    end
+
+    it 'merges several episodes of the same subject into one notification' do
+      first = create(:health_episode, family: family, user: user, title: 'インフルエンザ',
+                                      started_on: slot.to_date)
+      second = create(:health_episode, family: family, user: user, title: '発熱',
+                                       started_on: slot.to_date)
+      add_reminder_time(first, slot)
+      add_reminder_time(second, slot)
+
+      described_class.tick(now: slot)
+
+      expect(PushNotificationService).to have_received(:deliver).once
+      expect(PushNotificationService).to have_received(:deliver)
+        .with(hash_including(user_ids: [user.id], message: include('インフルエンザ').and(include('発熱'))))
+    end
+
+    it 'skips recovered and not yet started episodes' do
+      recovered = create(:health_episode, family: family, user: user, started_on: slot.to_date - 3.days,
+                                          ended_on: slot.to_date - 1.day)
+      upcoming = create(:health_episode, family: family, user: user, started_on: slot.to_date + 1.day)
+      add_reminder_time(recovered, slot)
+      add_reminder_time(upcoming, slot)
+
+      described_class.tick(now: slot)
+
+      expect(PushNotificationService).not_to have_received(:deliver)
+      expect(NotificationDispatch.where(kind: 'health_episode_medication')).to be_empty
+    end
+
+    it 'sends only to the episode subject, never to another family member' do
+      other_family = create(:family)
+      other_user = create(:user, family: other_family)
+      episode = create(:health_episode, family: other_family, user: other_user, started_on: slot.to_date)
+      add_reminder_time(episode, slot)
+
+      described_class.tick(now: slot)
+
+      expect(PushNotificationService).not_to have_received(:deliver)
+        .with(hash_including(user_ids: [user.id]))
+      expect(PushNotificationService).to have_received(:deliver)
+        .with(hash_including(user_ids: [other_user.id])).once
+    end
+
+    it 'sends only once even if the same slot is ticked twice' do
+      episode = create(:health_episode, family: family, user: user, started_on: slot.to_date)
+      add_reminder_time(episode, slot)
+
+      2.times { described_class.tick(now: slot) }
+
+      expect(PushNotificationService).to have_received(:deliver).once
+      expect(NotificationDispatch.where(kind: 'health_episode_medication').count).to eq(1)
+    end
+
+    it 'records the error and keeps ticking when a delivery fails' do
+      other_user = create(:user, family: family)
+      failing = create(:health_episode, family: family, user: user, started_on: slot.to_date)
+      ok = create(:health_episode, family: family, user: other_user, started_on: slot.to_date)
+      [failing, ok].each { |episode| add_reminder_time(episode, slot) }
+      allow(PushNotificationService).to receive(:deliver) do |user_ids:, **|
+        raise PushNotificationService::DeliveryError, 'boom' if user_ids == [user.id]
+
+        :sent
+      end
+
+      result = described_class.tick(now: slot)
+
+      failed = NotificationDispatch.find_by(kind: 'health_episode_medication', user_id: user.id)
+      expect(result[:failed]).to eq(1)
+      expect(failed.error).to eq('boom')
+      expect(failed.sent_at).to be_nil
+      expect(NotificationDispatch.find_by(kind: 'health_episode_medication', user_id: other_user.id).sent_at)
+        .to be_present
+    end
+
+    it 'includes the disease and medication names in the message' do
+      episode = create(:health_episode, family: family, user: user, title: 'インフルエンザ',
+                                        started_on: slot.to_date)
+      create(:health_episode_medication, health_episode: episode,
+                                         medication: create(:medication, family: family, name: 'ロキソニン'))
+      create(:health_episode_medication, health_episode: episode,
+                                         medication: create(:medication, family: family, name: 'カロナール'))
+      add_reminder_time(episode, slot)
+
+      described_class.tick(now: slot)
+
+      expect(PushNotificationService).to have_received(:deliver)
+        .with(hash_including(message: include('インフルエンザ').and(include('ロキソニン')).and(include('カロナール'))))
+    end
+  end
+
   describe '.candidate_slots' do
     it 'returns the half hour boundary that just passed' do
       now = Time.zone.local(2026, 11, 14, 21, 33)
