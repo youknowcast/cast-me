@@ -7,7 +7,7 @@ ruby file: '.tool-versions'
 gem 'rails', '~> 8.1'
 
 # Use Puma as the app server
-gem 'puma', '~> 8.0'
+gem 'puma', '~> 8.1'
 # Asset pipeline - Propshaft is simpler and supports modern CSS
 gem 'propshaft'
 # Transpile app-like JavaScript. Read more: https://github.com/rails/webpacker
