@@ -16,6 +16,6 @@
                                               id: "#{field_id}_measured_at", class: "input w-full sm:w-44"
     .form-control
       = f.label :value, "体温", for: "#{field_id}_value", class: "label py-1 text-xs"
-      = f.number_field :value, step: 0.1, min: 30, max: 45, placeholder: "36.5",
-                               id: "#{field_id}_value", class: "input w-24"
+      = f.select :value, temperature_choices, { selected: temperature_input_value(nil) },
+                 id: "#{field_id}_value", class: "select w-28"
     = f.submit "記録", class: "btn btn-sm btn-primary min-h-11"

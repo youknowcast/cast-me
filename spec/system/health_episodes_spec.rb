@@ -22,7 +22,7 @@ RSpec.describe 'Health episodes', type: :system do
     visit health_episode_path(episode)
 
     within '#new_health_episode_temperature' do
-      fill_in '体温', with: '38.5'
+      select '38.5℃', from: '体温'
     end
     click_button '体温を記録'
     expect(page).to have_content '38.5'
@@ -59,7 +59,7 @@ RSpec.describe 'Health episodes', type: :system do
     visit calendar_path
 
     within "#quick_temperature_form_#{episode.id}" do
-      fill_in '体温', with: '38.5'
+      select '38.5℃', from: '体温'
     end
     click_button '記録'
 

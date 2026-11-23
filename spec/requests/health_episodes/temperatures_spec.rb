@@ -67,6 +67,33 @@ RSpec.describe 'HealthEpisodeTemperatures', type: :request do
     end
   end
 
+  describe 'temperature pickers' do
+    it 'offers select options for new and existing temperatures' do
+      temperature = create(:health_episode_temperature, health_episode: episode, value: 37.6)
+
+      get health_episode_path(episode)
+
+      page = response.parsed_body
+      new_select = page.at_css('#new_health_episode_temperature select[name="health_episode_temperature[value]"]')
+      edit_select = page.at_css(edit_value_select_selector(episode, temperature))
+
+      expect(new_select.at_css('option[selected]').text).to eq('36.5℃')
+      expect(edit_select.at_css('option[selected]').text).to eq('37.6℃')
+      expect(edit_select.css('option').size).to eq(70)
+    end
+
+    it 'keeps an existing value outside the picker range selectable' do
+      temperature = create(:health_episode_temperature, health_episode: episode, value: 42.3)
+
+      get health_episode_path(episode)
+
+      edit_select = response.parsed_body.at_css(edit_value_select_selector(episode, temperature))
+
+      expect(edit_select.css('option').size).to eq(71)
+      expect(edit_select.at_css('option[selected]').text).to eq('42.3℃')
+    end
+  end
+
   it 'rejects authenticated access for a temperature of another family' do
     other = create(:health_episode)
     temperature = create(:health_episode_temperature, health_episode: other)
@@ -74,5 +101,10 @@ RSpec.describe 'HealthEpisodeTemperatures', type: :request do
     expect do
       delete health_episode_temperature_path(other, temperature)
     end.to raise_error(ActiveRecord::RecordNotFound)
+  end
+
+  def edit_value_select_selector(episode, temperature)
+    "form[action='/health_episodes/#{episode.id}/temperatures/#{temperature.id}'] " \
+      'select[name="health_episode_temperature[value]"]'
   end
 end

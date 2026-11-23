@@ -15,7 +15,7 @@ Specs remain grouped by RSpec type first so Rails type inference continues to wo
 | Daily review | `requests/daily_review/` | - | `services/notifications/daily_review_notification_service_spec.rb` | Today's own tasks and meals, meal form return flow, recipe app link, notification payload |
 | Release notes | `requests/release_notes/` | `models/release_notes/` | - | Signed-out access, page rendering, newest-first order, settings entry point, markdown parsing |
 | Scheduled notifications | - | `models/accounts/user_notification_setting_spec.rb`, `models/notifications/notification_dispatch_spec.rb` | `services/reminders/`, `services/notifications/` | Slot matching, duplicate prevention, grace window, message generation and OneSignal requests |
-| Health episodes | `requests/health_episodes/` | `models/health/` | - | Episode lifecycle, temperature records, medication master, reminder slots, family scoping, weekly and monthly presentation, daily-view quick temperature |
+| Health episodes | `requests/health_episodes/` | `models/health/`, `helpers/health/` | - | Episode lifecycle, temperature records, medication master, reminder slots, family scoping, weekly and monthly presentation, daily-view quick temperature, temperature picker |
 | End-to-end flows (rack_test) | - | - | - | Episode creation, temperature entry and status toggles through the browser-facing forms |
 | Shared presentation | - | `helpers/shared/` | - | URL linkification and escaping |
 

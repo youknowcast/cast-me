@@ -33,6 +33,19 @@ RSpec.describe 'Health episodes on the daily calendar', type: :request do
       expect(response.body).not_to include('quick_temperature_form_')
     end
 
+    it 'offers a temperature picker from 35.0 to 41.9 with a 36.5 default' do
+      episode = create(:health_episode, family: family, user: member, title: '発熱', started_on: today - 1.day)
+
+      get calendar_path(date: today.to_s)
+
+      select = response.parsed_body.at_css("#quick_temperature_#{episode.id}_value")
+      options = select.css('option')
+      expect(options.size).to eq(70)
+      expect(options.first.text).to eq('35.0℃')
+      expect(options.last.text).to eq('41.9℃')
+      expect(select.at_css('option[selected]').text).to eq('36.5℃')
+    end
+
     it 'defaults the quick temperature time to the selected day' do
       episode = create(:health_episode, family: family, user: member, title: '発熱', started_on: today - 2.days)
       selected = today - 1.day
