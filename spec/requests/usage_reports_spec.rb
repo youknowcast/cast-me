@@ -59,10 +59,10 @@ RSpec.describe 'UsageReports', type: :request do
       expect(response.body).not_to include('ログイン回数')
     end
 
-    it 'shows a dash for a member who has never been seen' do
+    it 'shows まだ記録なし for a member who has never been seen' do
       get usage_path
 
-      expect(response.body).to include('—')
+      expect(response.body).to include('まだ記録なし')
     end
 
     it 'counts only the current family records' do

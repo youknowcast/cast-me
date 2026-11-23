@@ -29,7 +29,7 @@ class FamilyUsageReport
   end
 
   def last_seen_label(user)
-    return '—' if user.last_seen_at.blank?
+    return 'まだ記録なし' if user.last_seen_at.blank?
 
     days_ago = (Date.current - user.last_seen_at.in_time_zone.to_date).to_i
 

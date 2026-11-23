@@ -94,8 +94,8 @@ RSpec.describe FamilyUsageReport do
   end
 
   describe '#last_seen_label' do
-    it 'returns a dash when never seen' do
-      expect(report.last_seen_label(alice)).to eq('—')
+    it 'returns まだ記録なし when never seen' do
+      expect(report.last_seen_label(alice)).to eq('まだ記録なし')
     end
 
     it 'returns 今日 for today' do
