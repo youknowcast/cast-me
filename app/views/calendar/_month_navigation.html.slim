@@ -1,15 +1,18 @@
+- month_label = date.strftime("%Y年%m月")
+
 .flex.items-center.gap-1
   = link_to prev_path, class: "btn btn-ghost btn-circle h-11 w-11", aria: { label: "前月へ" }, title: "前月へ" do
     i.fas.fa-chevron-left
-  span.text-lg.font-semibold.text-gray-800.whitespace-nowrap = date.strftime("%Y年%m月")
-  = link_to next_path, class: "btn btn-ghost btn-circle h-11 w-11", aria: { label: "次月へ" }, title: "次月へ" do
-    i.fas.fa-chevron-right
-  button.btn.btn-ghost.btn-circle.h-11.w-11.ml-1[
+  button.btn.btn-ghost.h-11.px-2.text-lg.font-semibold.text-gray-800.whitespace-nowrap[
     data-controller="monthpicker-connector"
     data-monthpicker-connector-date-value=date.to_s
     data-monthpicker-connector-base-url-value=base_path
     data-action="click->monthpicker-connector#open"
-    aria-label="年月を選択"
+    aria-label="年月を選択（#{month_label}）"
+    aria-haspopup="dialog"
     title="年月を選択"
   ]
-    i.fas.fa-calendar-days
+    = month_label
+    i.fas.fa-caret-down.ml-2.text-sm.text-gray-500
+  = link_to next_path, class: "btn btn-ghost btn-circle h-11 w-11", aria: { label: "次月へ" }, title: "次月へ" do
+    i.fas.fa-chevron-right

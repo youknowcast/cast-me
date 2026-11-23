@@ -39,9 +39,13 @@ RSpec.describe 'Calendars', type: :request do
       expect(response.body).to include('aria-label="前月へ"', 'aria-label="次月へ"')
       expect(response.body).to include(calendar_path(date: '2026-11-01'))
       expect(response.body).to include(calendar_path(date: '2027-01-01'))
-      expect(response.body).to include('aria-label="年月を選択"')
-      expect(response.body).to include('data-monthpicker-connector-date-value="2026-12-15"')
-      expect(response.body).to include('data-monthpicker-connector-base-url-value="/calendar"')
+
+      picker = response.parsed_body.at_css('[data-controller="monthpicker-connector"]')
+      expect(picker.name).to eq('button')
+      expect(picker.text).to include('2026年12月')
+      expect(picker['aria-label']).to eq('年月を選択（2026年12月）')
+      expect(picker['aria-haspopup']).to eq('dialog')
+      expect(picker['data-monthpicker-connector-base-url-value']).to eq('/calendar')
     end
 
     it 'moves to the next month across the year boundary and reloads its plans and tasks', :aggregate_failures do
@@ -77,9 +81,13 @@ RSpec.describe 'Calendars', type: :request do
       expect(response.body).to include('2026年12月')
       expect(response.body).to include(my_calendar_path(date: '2026-11-01'))
       expect(response.body).to include(my_calendar_path(date: '2027-01-01'))
-      expect(response.body).to include('aria-label="年月を選択"')
-      expect(response.body).to include('data-monthpicker-connector-date-value="2026-12-15"')
-      expect(response.body).to include('data-monthpicker-connector-base-url-value="/calendar/my"')
+
+      picker = response.parsed_body.at_css('[data-controller="monthpicker-connector"]')
+      expect(picker.name).to eq('button')
+      expect(picker.text).to include('2026年12月')
+      expect(picker['aria-label']).to eq('年月を選択（2026年12月）')
+      expect(picker['data-monthpicker-connector-date-value']).to eq('2026-12-15')
+      expect(picker['data-monthpicker-connector-base-url-value']).to eq('/calendar/my')
     end
   end
 
