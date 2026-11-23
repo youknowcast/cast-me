@@ -81,7 +81,8 @@ class MealsController < ApplicationController
   end
 
   def default_meal_attributes
-    { date: parse_date(params[:date]), user_id: my_scope? ? current_user.id : nil }
+    { date: parse_date(params[:date]), meal_type: Meal.default_meal_type_at(Time.current),
+      user_id: my_scope? ? current_user.id : nil }
   end
 
   def render_form

@@ -69,4 +69,30 @@ RSpec.describe Meal, type: :model do
       expect(described_class.meal_type_options).to eq([['朝', 0], ['昼', 1], ['夕', 2], ['間食', 3]])
     end
   end
+
+  describe '.default_meal_type_at' do
+    def meal_type_at(hour, minute)
+      described_class.default_meal_type_at(Time.zone.local(2026, 11, 23, hour, minute))
+    end
+
+    it 'selects 朝 from 4:00 through 10:59' do
+      expect(meal_type_at(4, 0)).to eq(0)
+      expect(meal_type_at(10, 59)).to eq(0)
+    end
+
+    it 'selects 昼 from 11:00 through 14:59' do
+      expect(meal_type_at(11, 0)).to eq(1)
+      expect(meal_type_at(14, 59)).to eq(1)
+    end
+
+    it 'selects 夕 from 15:00 through 23:59' do
+      expect(meal_type_at(15, 0)).to eq(2)
+      expect(meal_type_at(23, 59)).to eq(2)
+    end
+
+    it 'selects 夕 from 0:00 through 3:59' do
+      expect(meal_type_at(0, 0)).to eq(2)
+      expect(meal_type_at(3, 59)).to eq(2)
+    end
+  end
 end
