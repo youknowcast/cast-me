@@ -65,6 +65,46 @@ RSpec.describe UserNotificationSetting, type: :model do
       end
     end
 
+    context 'with minute step validation' do
+      it 'allows 0 and 30' do
+        [0, 30].each do |minute|
+          setting = build(:user_notification_setting, user: user, family_calendar_reminder_minute: minute)
+          expect(setting).to be_valid
+        end
+      end
+
+      it 'rejects values that are not on the 30 minute grid' do
+        setting = build(:user_notification_setting, user: user, family_calendar_reminder_minute: 15)
+        expect(setting).not_to be_valid
+        expect(setting.errors[:family_calendar_reminder_minute]).to be_present
+      end
+    end
+
+    context 'with the daily review reminder' do
+      it 'is enabled at 19:00 by default' do
+        setting = create(:user_notification_setting, user: user)
+
+        expect(setting.daily_review_reminder_enabled).to be(true)
+        expect(setting.daily_review_reminder_hour).to eq(19)
+        expect(setting.daily_review_reminder_minute).to eq(0)
+      end
+
+      it 'requires an hour when enabled' do
+        setting = build(:user_notification_setting, user: user,
+                                                    daily_review_reminder_enabled: true,
+                                                    daily_review_reminder_hour: nil)
+        expect(setting).not_to be_valid
+        expect(setting.errors[:daily_review_reminder_hour]).to be_present
+      end
+
+      it 'allows a nil hour when disabled' do
+        setting = build(:user_notification_setting, user: user,
+                                                    daily_review_reminder_enabled: false,
+                                                    daily_review_reminder_hour: nil)
+        expect(setting).to be_valid
+      end
+    end
+
     context 'when notifications are disabled' do
       it 'allows nil hour values' do
         setting = build(:user_notification_setting, user: user,

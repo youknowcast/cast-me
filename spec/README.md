@@ -13,7 +13,7 @@ Specs remain grouped by RSpec type first so Rails type inference continues to wo
 | Family communication | `requests/communication/` | - | `services/notifications/family_call_notification_service_spec.rb` | Family call authorization, defaults and notification payloads |
 | Weekly summary | `requests/weekly_summary/` | - | `services/notifications/weekly_task_summary_notification_service_spec.rb` | Family task aggregation, date boundaries and signed-out access |
 | Daily review | `requests/daily_review/` | - | `services/notifications/daily_review_notification_service_spec.rb` | Today's own tasks and meals, meal form return flow, recipe app link, notification payload |
-| Scheduled notifications | `requests/notifications/api/` | `models/accounts/user_notification_setting_spec.rb` | `services/notifications/` | API token validation, schedule matching, message generation and OneSignal requests |
+| Scheduled notifications | - | `models/accounts/user_notification_setting_spec.rb`, `models/notifications/notification_dispatch_spec.rb` | `services/reminders/`, `services/notifications/` | Slot matching, duplicate prevention, grace window, message generation and OneSignal requests |
 | Shared presentation | - | `helpers/shared/` | - | URL linkification and escaping |
 
 Factories remain in `spec/factories/` because they are shared across features.

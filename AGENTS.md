@@ -106,46 +106,61 @@ kamal app logs
 kamal app exec -i 'bin/rails console'
 ```
 
-## Scheduled Notifications (Cron Jobs)
+## Scheduled Notifications (Reminders)
 
 ### Overview
-定時プッシュ通知は **GitHub Actions** の cron スケジューラで実現しています。`rufus-scheduler` などの gem を使わず、外部からAPIを呼び出す方式を採用。
+定時プッシュ通知は **web コンテナ内の常駐スレッド** が1分ごとに実行します。
+GitHub Actions の cron は数時間レベルでずれるため、時間に正確な仕組みとしては使いません。
+通知時刻はユーザーごとに **30分刻み**（`:00` / `:30`）で設定できます。
 
 ### Architecture
 ```
-GitHub Actions (cron: 毎時0分)
-    ↓ POST /api/scheduled_notifications/trigger
-Rails API
-    ↓ hour パラメータでフィルタ
-UserNotificationSetting (DB)
-    ↓ 該当ユーザーに通知
-FamilyCalendarNotificationService / FamilyTaskStatusNotificationService
-    ↓
+web コンテナ（Puma）
+  ReminderDispatcher::Runner（1分ごと、production のみ）
+      ↓ ReminderDispatcher.tick
+  候補枠（[now-5分, now] の30分境界）を列挙
+      ↓ NotificationDispatch.claim（slot_key の UNIQUE 制約で二重送信を防ぐ）
+  該当ユーザーの設定を DB から取得
+      ↓
+DailyReviewNotificationService / FamilyCalendarNotificationService /
+FamilyTaskStatusNotificationService
+      ↓
 PushNotificationService → OneSignal API
 ```
+
+送信の正しさ（重複防止・落ちた claim の回収）は DB 側で担保しているため、
+スレッドが多重に走っても、`bin/rails reminders:dispatch` をホスト cron から叩いても同じ挙動になる。
 
 ### Key Files
 | File | Description |
 |------|-------------|
-| `.github/workflows/scheduled_notifications.yml` | GitHub Actions workflow (毎時実行) |
-| `app/controllers/api/scheduled_notifications_controller.rb` | API endpoint |
-| `app/models/user_notification_setting.rb` | ユーザーごとの通知設定 |
-| `app/services/push_notification_service.rb` | OneSignal API呼び出し一元化 |
-| `app/services/family_calendar_notification_service.rb` | カレンダ通知メッセージ生成 |
-| `app/services/family_task_status_notification_service.rb` | タスク進捗通知メッセージ生成 |
+| `app/services/reminder_dispatcher.rb` | 枠の列挙・claim・送信・履歴の掃除 |
+| `app/services/reminder_dispatcher/runner.rb` | 1分ごとの常駐スレッド |
+| `config/initializers/reminder_dispatcher.rb` | production でのスレッド起動 |
+| `app/models/notification_dispatch.rb` | 送信済みの枠（`slot_key` UNIQUE） |
+| `app/models/user_notification_setting.rb` | ユーザーごとの通知設定（時・分） |
+| `app/services/push_notification_service.rb` | OneSignal API 呼び出し一元化 |
+| `lib/tasks/reminders.rake` | 手動実行 `reminders:dispatch` |
 
 ### Environment Variables
 | Variable | Description |
 |----------|-------------|
-| `SCHEDULED_NOTIFICATION_API_TOKEN` | GitHub Actions から API を呼び出す際の認証トークン |
+| `REMINDER_DISPATCHER_ENABLED` | `0` で常駐スレッドだけを止める（手動 tick は動く） |
+| `REMINDER_GRACE_MINUTES` | 遅れて送る猶予（既定 5 分。超えた枠は送らない） |
 | `ONESIGNAL_APP_ID` | OneSignal アプリID |
 | `ONESIGNAL_API_KEY` | OneSignal REST API キー |
 
 ### Manual Trigger
-GitHub Actions UI から手動実行可能（`workflow_dispatch`）：
-- Actions → Scheduled Notifications → Run workflow → hour を指定
+```bash
+kamal app exec -i 'bin/rails reminders:dispatch'
+```
 
 ### User Settings
 `/settings` ページで各ユーザーが設定可能：
 - 家族カレンダリマインダー（有効/時刻）
 - タスク進捗リマインダー（有効/時刻）
+- 一日のふりかえりリマインダー（有効/時刻、既定 19:00 有効）
+
+### Out of scope (still on GitHub Actions)
+- `weekly_notification.yml`（週次サマリー）
+- `backup.yml`（DB バックアップ）

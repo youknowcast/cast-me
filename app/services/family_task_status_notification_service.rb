@@ -9,8 +9,8 @@ class FamilyTaskStatusNotificationService
       completed = tasks.where(completed: true).count
       pending = tasks.where(completed: false).count
 
-      PushNotificationService.send_to_user(
-        user_id: user.id,
+      PushNotificationService.deliver(
+        user_ids: [user.id],
         title: '今日のタスク状況',
         message: "家族のタスク状況 済/未: #{completed} / #{pending} 件"
       )
