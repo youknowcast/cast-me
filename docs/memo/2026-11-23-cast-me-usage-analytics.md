@@ -63,8 +63,8 @@ devise :database_authenticatable, :rememberable, :timeoutable
 
 ### 2.4 インフラ・運用の制約
 
-- 本番は **Lightsail 1GB 1 台**、Kamal 2、SQLite（`data/production.sqlite3` を Docker ボリューム `castme_data` に置く）。`config/deploy.yml` に常駐ワーカー・cron は無い。
-- 定時処理は **GitHub Actions の cron → `POST /api/scheduled_notifications/trigger`（トークン認証）** という前例がある。常駐プロセスを足さずに定期処理をしたい場合はこの型を踏襲できる。
+- 本番は **Lightsail 1GB 1 台**、Kamal 2、SQLite（`data/production.sqlite3` を Docker ボリューム `castme_data` に置く）。`config/deploy.yml` に別プロセスの常駐ワーカーや cron は無い（定時リマインダーは #112 以降、Puma 内の常駐スレッド `ReminderDispatcher::Runner` が 1 分ごとに回す。プロセスは増えていない）。
+- 定期処理は「**web コンテナ内のスレッド**」で行うのが現在の型（`app/services/reminder_dispatcher/runner.rb`。送信の重複防止は DB の `slot_key` UNIQUE で担保）。GitHub Actions の cron に残っているのは週次サマリーと DB バックアップだけ。今回の集計はリクエスト時に読むだけなので、どちらの型も使っていない。
 - ログは `RAILS_LOG_TO_STDOUT=1` でコンテナ標準出力のみ。**ログ用ボリュームは無く、ログは揮発**。過去のログからログイン履歴を復元することはできない。
 - スキーマは Ridgepole（`db/Schemafile`）。`bin/docker-entrypoint` がコンテナ起動時に毎回 `ridgepole -a -r config/ridgepole.rb` を実行するため、**Schemafile に追記してデプロイすれば本番にも自動で列追加される**（`entrypoint.sh` の「DB ファイルが無い時だけ」という記述は使われていない）。CI（`.github/workflows/deploy.yml`）もテスト DB に同じ Schemafile を適用している。
 - 毎日 JST 0:00 に SQLite を S3 へバックアップする workflow がある（`.github/workflows/backup.yml`）。**オフラインで集計したいならこのコピーを使える。**
@@ -112,7 +112,7 @@ end
 ```
 
 - 追加テーブルなし・列 1 つだけ。Devise の `:trackable` は `current_sign_in_ip` / `last_sign_in_ip` が付いてくるので使っていない。
-- 列は users テーブルの**末尾**に置いた。Ridgepole は既存テーブルへの列追加時に `after:` を付けるが、CI（`test.yml` / `deploy.yml`）の ridgepole 実行に `-r ./config/ridgepole.rb` が無く、`:after` 非対応の ActiveRecord で失敗するため、**両 workflow に `-r ./config/ridgepole.rb` を追加**した（本番の `bin/docker-entrypoint` と同じ設定）。これで列追加が CI でも本番でも通る。
+- 列は users テーブルの**末尾**に置いた。Ridgepole は既存テーブルへの列追加時に `after:` を付けるが、`:after` 非対応の ActiveRecord で失敗するため、CI の ridgepole 実行にも `-r ./config/ridgepole.rb`（本番の `bin/docker-entrypoint` と同じ設定）が必要。`test.yml` は main（#112）で既に入っていたので、**このブランチで足したのは `deploy.yml` の 1 行だけ**。
 
 ### 4.3 計測（最終アクセス）
 
@@ -190,7 +190,7 @@ end
 | 画面 | `app/controllers/usage_reports_controller.rb`、`app/views/usage_reports/show.html.slim` |
 | ルート | `config/routes.rb`（`get 'usage'`） |
 | 導線 | `app/views/settings/show.html.slim`、`app/views/weekly_dashboard/show.html.slim` |
-| CI | `.github/workflows/test.yml`、`.github/workflows/deploy.yml`（ridgepole に `-r`） |
+| CI | `.github/workflows/deploy.yml`（ridgepole に `-r`。`test.yml` は main で追加済み） |
 | テスト | `spec/services/family_usage_report_spec.rb`、`spec/requests/usage_reports_spec.rb`、`spec/requests/last_seen_tracking_spec.rb`、`spec/rails_helper.rb`、既存 spec 2 本に追記 |
 
 ## 5. 補足: オフライン集計（今回は実装せず）
