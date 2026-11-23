@@ -32,14 +32,16 @@ RSpec.describe 'Calendars', type: :request do
       create(:plan_participant, plan: january_plan, user: user, status: :joined)
     end
 
-    it 'renders previous and next month links instead of the month picker' do
+    it 'renders previous and next month links and a direct month picker', :aggregate_failures do
       get calendar_path, params: { date: '2026-12-15' }
 
       expect(response.body).to include('2026年12月')
       expect(response.body).to include('aria-label="前月へ"', 'aria-label="次月へ"')
       expect(response.body).to include(calendar_path(date: '2026-11-01'))
       expect(response.body).to include(calendar_path(date: '2027-01-01'))
-      expect(response.body).not_to include('monthpicker-connector')
+      expect(response.body).to include('aria-label="年月を選択"')
+      expect(response.body).to include('data-monthpicker-connector-date-value="2026-12-15"')
+      expect(response.body).to include('data-monthpicker-connector-base-url-value="/calendar"')
     end
 
     it 'moves to the next month across the year boundary and reloads its plans and tasks', :aggregate_failures do
@@ -69,13 +71,15 @@ RSpec.describe 'Calendars', type: :request do
       expect(response.body).to include(calendar_path(date: '2027-01-01'))
     end
 
-    it 'navigates months on the my calendar' do
+    it 'navigates months on the my calendar', :aggregate_failures do
       get my_calendar_path, params: { date: '2026-12-15' }
 
       expect(response.body).to include('2026年12月')
       expect(response.body).to include(my_calendar_path(date: '2026-11-01'))
       expect(response.body).to include(my_calendar_path(date: '2027-01-01'))
-      expect(response.body).not_to include('monthpicker-connector')
+      expect(response.body).to include('aria-label="年月を選択"')
+      expect(response.body).to include('data-monthpicker-connector-date-value="2026-12-15"')
+      expect(response.body).to include('data-monthpicker-connector-base-url-value="/calendar/my"')
     end
   end
 

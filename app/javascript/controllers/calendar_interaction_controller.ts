@@ -88,6 +88,11 @@ export default class extends Controller {
 			linkUrl.searchParams.set("date", this.dateValue)
 			link.href = linkUrl.toString()
 		})
+
+		const monthpickerTrigger = document.querySelector('[data-controller="monthpicker-connector"]') as HTMLElement | null
+		if (monthpickerTrigger) {
+			monthpickerTrigger.dataset.monthpickerConnectorDateValue = this.dateValue
+		}
 	}
 
 	scrollToDetails() {

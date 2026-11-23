@@ -43,6 +43,9 @@ application.register("mobile-selector", MobileSelectorController)
 import ModalController from "./modal_controller"
 application.register("modal", ModalController)
 
+import MonthpickerConnectorController from "./monthpicker_connector_controller"
+application.register("monthpicker-connector", MonthpickerConnectorController)
+
 import MonthpickerController from "./monthpicker_controller"
 application.register("monthpicker", MonthpickerController)
 

@@ -9,7 +9,7 @@
       h1.text-3xl.font-bold.text-gray-800.whitespace-nowrap マイ・カレンダー
 
     .flex.items-center
-      = render "month_navigation", date: @date, prev_path: my_calendar_path(date: @date.prev_month.beginning_of_month), next_path: my_calendar_path(date: @date.next_month.beginning_of_month)
+      = render "month_navigation", date: @date, base_path: my_calendar_path, prev_path: my_calendar_path(date: @date.prev_month.beginning_of_month), next_path: my_calendar_path(date: @date.next_month.beginning_of_month)
       button.btn.btn-ghost.btn-circle.ml-2[
         data-controller="side-panel-opener"
         data-action="click->side-panel-opener#openMonthlyList"
