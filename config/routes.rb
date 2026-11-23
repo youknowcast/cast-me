@@ -13,6 +13,9 @@ Rails.application.routes.draw do
   get 'calendar/daily_view', to: 'calendar#daily_view'
   get 'calendar/monthly_list', to: 'calendar#monthly_list', as: :monthly_list_calendar
 
+  # 家族の利用状況
+  get 'usage', to: 'usage_reports#show', as: :usage
+
   # 週間家族ダッシュボード
   get 'weekly', to: 'weekly_dashboard#show', as: :weekly_dashboard
   get 'weekly/cell', to: 'weekly_dashboard#cell', as: :weekly_cell

@@ -21,6 +21,12 @@ RSpec.describe 'Settings', type: :request do
       expect(response.body).to include(foods_path)
       expect(response.body).to include('食べ物マスタ')
     end
+
+    it 'shows a link to the family usage report' do
+      get settings_path
+      expect(response.body).to include(usage_path)
+      expect(response.body).to include('家族の利用状況')
+    end
   end
 
   describe 'PATCH /settings' do

@@ -9,6 +9,7 @@
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
 #  family_id          :bigint           not null
+#  last_seen_at       :datetime
 #  login_id           :string           not null
 #  remember_created_at :datetime
 #

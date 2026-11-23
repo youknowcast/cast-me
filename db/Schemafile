@@ -9,6 +9,7 @@ create_table 'users', force: :cascade do |t|
   t.timestamps
   t.binary 'avatar'
   t.date 'birth'
+  t.datetime 'last_seen_at'
 
   t.index ['login_id'], name: :index_login_id_on_users
 end

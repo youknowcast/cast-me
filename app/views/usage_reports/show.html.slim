@@ -1,0 +1,46 @@
+.container.mx-auto.px-4.py-6.max-w-2xl
+  .flex.items-start.justify-between.gap-2
+    div
+      h1.text-2xl.font-bold 家族の利用状況
+      p.mt-1.text-xs.text-gray-500 = "#{@report.family.name}の記録のようす"
+    = link_to settings_path, class: 'btn btn-ghost btn-sm', aria: { label: '設定' } do
+      i.fas.fa-gear
+
+  .flex.gap-2.mt-4
+    - @periods.each do |period|
+      = link_to usage_path(period: period), class: "btn btn-sm #{@report.days == period ? 'btn-primary' : 'btn-ghost'}" do
+        = period == 7 ? '今週（7日）' : '今月（30日）'
+
+  .card.mt-4.bg-base-100.shadow-lg
+    .card-body.gap-2
+      .flex.items-baseline.justify-between.gap-2
+        h2.text-base.font-bold 家族全体
+        span.text-xs.text-gray-500 = "直近#{@report.days}日（#{@report.start_date.strftime('%-m/%-d')}〜#{@report.end_date.strftime('%-m/%-d')}）"
+      - if @report.record_days.zero?
+        p.text-sm.text-gray-500 まだ記録がありません
+      - else
+        p.text-sm = "直近#{@report.days}日で #{@report.record_days}日 記録しました"
+      p.text-xs.text-gray-500 = "予定 #{@report.plan_count}件・タスク #{@report.task_count}件・食事 #{@report.meal_count}件"
+
+  .card.mt-4.bg-base-100.shadow-lg
+    .card-body.p-0
+      .px-4.pt-4
+        h2.text-base.font-bold メンバー
+      .overflow-x-auto
+        table.table.table-sm
+          thead
+            tr
+              th メンバー
+              th 記録日数
+              th 最終アクセス
+          tbody
+            - @report.member_rows.each do |row|
+              tr
+                td
+                  .flex.items-center.gap-2
+                    .w-6.flex.justify-center.text-gray-400
+                      = user_avatar_tag(row.user, size_class: 'w-6 h-6', icon_class: 'text-base')
+                    span = row.user.display_name
+                td = "#{row.record_days}日"
+                td.text-gray-500 = @report.last_seen_label(row.user)
+      p.px-4.pb-4.text-xs.text-gray-400 最終アクセスは日付だけの目安です。時刻・回数は記録していません。

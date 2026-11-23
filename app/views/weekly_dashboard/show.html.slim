@@ -6,6 +6,8 @@
       h1.text-xl.font-bold 家族ウィークリー
       span.text-xs.text-gray-500 = "#{@week_start.strftime('%-m/%-d')}〜#{@week_end.strftime('%-m/%-d')}"
     .flex.items-center.gap-1
+      = link_to usage_path, class: 'btn btn-ghost btn-xs', aria: { label: '家族の利用状況' } do
+        i.fas.fa-chart-simple
       = link_to '今週', weekly_dashboard_path, class: 'btn btn-ghost btn-xs'
       = link_to weekly_dashboard_path(week: (@week_start + 7).to_s), class: 'btn btn-ghost btn-sm', aria: { label: '次週' } do
         i.fas.fa-chevron-right
