@@ -224,7 +224,7 @@ User.where.missing(:notification_setting).find_each(&:create_notification_settin
 | `config/routes.rb` | 該当ルート削除 |
 | `.github/workflows/scheduled_notifications.yml` | 削除 |
 | `.github/workflows/test.yml` | ridgepole に `-r ./config/ridgepole.rb` を渡す（このリポジトリの SQLite パッチ） |
-| `config/deploy.yml` | `RAILS_MAX_THREADS: 6`、`REMINDER_DISPATCHER_ENABLED` を追加（トークンは残す） |
+| `config/deploy.yml` | `RAILS_MAX_THREADS: 6`（Puma）、`DB_POOL: 7`（Puma 6 + ディスパッチャ 1）、`REMINDER_DISPATCHER_ENABLED` を追加（トークンは残す） |
 
 ## テスト（RSpec）
 
@@ -259,8 +259,10 @@ tick の例外を握りつぶしてログに落とすことを単体で確認す
 5. 問題があれば `REMINDER_DISPATCHER_ENABLED=0` で**スレッドだけ**止め、
    `bin/rails reminders:dispatch` を手動/ホスト cron から叩く運用に切り替えられる（tick 自体は止まらない）。
 
-`RAILS_MAX_THREADS` を 6 にする（Puma 5 スレッド + ディスパッチャ1）。
-プール枯渇による `ConnectionTimeoutError` で tick を落とさないため。RAM 増は 1 スレッド分で無視できる。
+`RAILS_MAX_THREADS` は Puma のスレッド数（6）にだけ使い、DB の `pool` は `DB_POOL: 7` で別に指定する。
+`config/database.yml` の `pool` は `DB_POOL` を優先し、未設定なら従来どおり `RAILS_MAX_THREADS` にフォールバックする
+（開発・テストの既定は変えない）。Puma 6 スレッド + ディスパッチャ 1 の7接続を確保し、
+プール枯渇による `ConnectionTimeoutError` で tick を落とさないため。RAM 増は 1 接続分で無視できる。
 
 SQLite のジャーナルモード（WAL）は**変更しない**。書き込みは毎分数行で既定モードでも十分であり、
 `backup.yml` は `docker cp` で DB ファイルを素朴にコピーしているため、WAL にすると

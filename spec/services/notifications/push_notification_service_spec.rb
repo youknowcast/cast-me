@@ -138,6 +138,12 @@ RSpec.describe PushNotificationService, type: :service do
     end
   end
 
+  describe 'OneSignal HTTP timeout' do
+    it 'is finite so a hung request cannot stall the dispatcher thread' do
+      expect(OneSignal::Configuration.default.timeout).to eq(10)
+    end
+  end
+
   describe '.send_to_users' do
     it 'delegates to send_to_users with array of user_ids' do
       allow(ENV).to receive(:[]).and_call_original
