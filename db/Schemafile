@@ -9,6 +9,7 @@ create_table 'users', force: :cascade do |t|
   t.timestamps
   t.binary 'avatar'
   t.date 'birth'
+  t.datetime 'last_seen_at'
 
   t.index ['login_id'], name: :index_login_id_on_users
 end
@@ -174,4 +175,56 @@ create_table 'day_memos', force: :cascade do |t|
   t.timestamps
 
   t.index %w[family_id date], name: 'index_day_memos_on_family_id_and_date', unique: true
+end
+
+create_table 'health_episodes', force: :cascade do |t|
+  t.bigint 'family_id', null: false
+  t.bigint 'user_id', null: false
+  t.string 'title', null: false, limit: 255
+  t.date 'started_on', null: false
+  t.date 'ended_on'
+  t.integer 'status', null: false, default: 0 # 0: active, 1: recovered
+  t.text 'symptom_note'
+  t.timestamps
+
+  t.index %w[family_id started_on], name: 'index_health_episodes_on_family_id_and_started_on'
+  t.index %w[user_id started_on], name: 'index_health_episodes_on_user_id_and_started_on'
+  t.index ['status'], name: 'index_health_episodes_on_status'
+end
+
+create_table 'health_episode_temperatures', force: :cascade do |t|
+  t.bigint 'health_episode_id', null: false
+  t.datetime 'measured_at', null: false
+  t.decimal 'value', precision: 3, scale: 1, null: false
+  t.timestamps
+
+  t.index %w[health_episode_id measured_at], name: 'index_health_episode_temperatures_on_episode_and_measured_at'
+end
+
+create_table 'medications', force: :cascade do |t|
+  t.bigint 'family_id', null: false
+  t.string 'name', null: false, limit: 255
+  t.timestamps
+
+  t.index %w[family_id name], name: 'index_medications_on_family_id_and_name', unique: true
+end
+
+create_table 'health_episode_medications', force: :cascade do |t|
+  t.bigint 'health_episode_id', null: false
+  t.bigint 'medication_id', null: false
+  t.timestamps
+
+  t.index %w[health_episode_id medication_id], name: 'index_health_episode_medications_on_episode_and_medication',
+                                              unique: true
+  t.index ['medication_id'], name: 'index_health_episode_medications_on_medication_id'
+end
+
+create_table 'health_episode_reminder_times', force: :cascade do |t|
+  t.bigint 'health_episode_id', null: false
+  t.integer 'hour', null: false
+  t.integer 'minute', null: false
+  t.timestamps
+
+  t.index %w[health_episode_id hour minute], name: 'index_health_episode_reminder_times_on_episode_and_time',
+                                            unique: true
 end

@@ -64,6 +64,12 @@ export default class extends Controller {
     this.openSidePanel(`/tasks/${taskId}/edit?scope=${scope}`)
   }
 
+  openHealthEpisodeForm(): void {
+    const date = (this.element as HTMLElement).dataset.date
+    const scope = this.getScope()
+    this.openSidePanel(`/health_episodes/new?date=${date}&scope=${scope}`)
+  }
+
   openMealForm(): void {
     const date = (this.element as HTMLElement).dataset.date
     const scope = this.getScope()

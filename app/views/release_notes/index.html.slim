@@ -1,0 +1,15 @@
+.container.mx-auto.px-4.py-8.max-w-2xl
+  h1.text-2xl.font-bold.text-gray-800.mb-6 リリースノート
+
+  .space-y-6
+    - @release_notes.each do |note|
+      article.bg-white.rounded-lg.shadow-lg.p-6
+        .flex.flex-col.items-start.gap-1.mb-3.sm:flex-row.sm:items-center.sm:gap-3
+          span.badge.badge-ghost.text-xs.font-normal= I18n.l(note.date)
+          h2.text-lg.font-bold.text-gray-800 = note.title
+        ul.list-disc.pl-5.space-y-2.text-sm.text-gray-700
+          - note.items.each do |item|
+            li = item
+
+    - if @release_notes.empty?
+      p.text-gray-400.text-sm リリースノートはまだありません

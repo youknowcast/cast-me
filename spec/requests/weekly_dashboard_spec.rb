@@ -14,6 +14,11 @@ RSpec.describe 'WeeklyDashboard', type: :request do
       expect(response).to have_http_status(:success)
     end
 
+    it 'links to the family usage report' do
+      get weekly_dashboard_path
+      expect(response.body).to include(usage_path)
+    end
+
     it 'shows a plan in the participating member row' do
       plan = create(:plan, family: family, date: week_start, title: 'バイオリン練習')
       create(:plan_participant, plan: plan, user: member, status: :joined)

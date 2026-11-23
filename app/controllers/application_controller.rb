@@ -1,4 +1,7 @@
 class ApplicationController < ActionController::Base
+  LAST_SEEN_UPDATE_INTERVAL = 30.minutes
+
+  before_action :touch_last_seen
   before_action :set_calendar_date
   helper_method :current_scope, :my_scope?, :family_scope?, :setting_scope?, :weekly_scope?
 
@@ -42,5 +45,18 @@ class ApplicationController < ActionController::Base
 
   def after_sign_in_path_for(_resource)
     calendar_path
+  end
+
+  private
+
+  def touch_last_seen
+    return unless user_signed_in?
+
+    now = Time.current
+    recorded_at = session[:last_seen_recorded_at].to_i
+    return if recorded_at.positive? && now.to_i - recorded_at < LAST_SEEN_UPDATE_INTERVAL.to_i
+
+    current_user.update_column(:last_seen_at, now)
+    session[:last_seen_recorded_at] = now.to_i
   end
 end

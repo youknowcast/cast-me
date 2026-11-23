@@ -9,6 +9,7 @@ class WeeklyDashboardController < ApplicationController
     @days = (@week_start..@week_end).to_a
     @members = current_user.family.users.order(:id)
     @plans_by_user = weekly_plans_index
+    @health_episodes_by_user = health_episodes_by_user
     @memos_by_date = current_user.family.day_memos.where(date: @week_start..@week_end).index_by(&:date)
     @holidays = HolidayService.holidays
   end
@@ -99,5 +100,13 @@ class WeeklyDashboardController < ApplicationController
 
   def plans_for(member, date)
     weekly_plans_for(member.id, date)
+  end
+
+  def health_episodes_by_user
+    current_user.family.health_episodes
+                .overlapping(@week_start, @week_end)
+                .includes(:user)
+                .ordered_by_started_on
+                .group_by(&:user_id)
   end
 end

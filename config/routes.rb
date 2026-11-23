@@ -13,6 +13,9 @@ Rails.application.routes.draw do
   get 'calendar/daily_view', to: 'calendar#daily_view'
   get 'calendar/monthly_list', to: 'calendar#monthly_list', as: :monthly_list_calendar
 
+  # 家族の利用状況
+  get 'usage', to: 'usage_reports#show', as: :usage
+
   # 週間家族ダッシュボード
   get 'weekly', to: 'weekly_dashboard#show', as: :weekly_dashboard
   get 'weekly/cell', to: 'weekly_dashboard#cell', as: :weekly_cell
@@ -30,6 +33,15 @@ Rails.application.routes.draw do
 
   resources :regular_tasks, only: %i[index create]
   resources :foods, only: %i[index create update]
+  resources :medications, only: %i[index create update]
+  resources :health_episodes, only: %i[show new create edit update] do
+    member do
+      patch :recover
+      patch :reopen
+    end
+    resources :temperatures, only: %i[create update destroy], controller: 'health_episode_temperatures'
+    resources :reminder_times, only: %i[create destroy], controller: 'health_episode_reminder_times'
+  end
   resources :meals, only: %i[new create edit update destroy]
   resources :everyday_task_templates do
     member do
@@ -50,6 +62,9 @@ Rails.application.routes.draw do
 
   # 週次サマリ
   resource :weekly_summary, only: [:show]
+
+  # リリースノート
+  resources :release_notes, only: [:index]
 
   # 一日のふりかえり
   resource :daily_review, only: [:show]

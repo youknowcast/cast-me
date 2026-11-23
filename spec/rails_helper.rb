@@ -67,6 +67,7 @@ RSpec.configure do |config|
 
   config.include FactoryBot::Syntax::Methods
   config.include Devise::Test::IntegrationHelpers, type: :request
+  config.include ActiveSupport::Testing::TimeHelpers
 
   # Rails 8.1 loads routes lazily when eager_load is off, so Devise mappings are
   # empty until the first request. Request specs call `sign_in` in a `before`
