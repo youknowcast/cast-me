@@ -160,10 +160,31 @@ RSpec.describe 'HealthEpisodes', type: :request do
   end
 
   describe 'calendar entry' do
-    it 'lists the health episode action in the date header menu' do
+    it 'keeps plan and bulk add in the date header and the rest in the overflow menu' do
+      create(:everyday_task_template, family: family)
+
       get calendar_path
 
-      expect(response.body).to include('その他', '体調記録')
+      page = response.parsed_body
+      overflow = page.at_css('ul.dropdown-content')
+
+      expect(page.at_css('button[aria-label="予定追加"]')).to be_present
+      expect(page.at_css('button[aria-label="まとめて追加"]')).to be_present
+      expect(overflow.to_html).to include('タスク追加', '体調記録')
+      expect(overflow.to_html).not_to include('予定追加', 'まとめて追加')
+    end
+
+    it 'uses the same header layout on the my calendar' do
+      create(:everyday_task_template, family: family)
+
+      get my_calendar_path
+
+      page = response.parsed_body
+      overflow = page.at_css('ul.dropdown-content')
+
+      expect(page.at_css('button[aria-label="予定追加"]')).to be_present
+      expect(page.at_css('button[aria-label="まとめて追加"]')).to be_present
+      expect(overflow.to_html).to include('タスク追加', '体調記録')
     end
   end
 

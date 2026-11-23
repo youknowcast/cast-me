@@ -34,11 +34,24 @@ RSpec.describe 'Health episodes', type: :system do
     expect(page).to have_content '経過観察中'
   end
 
-  it 'offers the health record action from the calendar date header' do
+  it 'keeps plan and bulk add in the family calendar header' do
+    create(:everyday_task_template, family: family)
     visit calendar_path
 
-    expect(page).to have_button 'その他'
-    expect(page).to have_content '体調記録'
+    expect(page).to have_button '予定追加'
+    expect(page).to have_button 'まとめて追加'
+    expect(page).to have_button 'タスク追加'
+    expect(page).to have_button '体調記録'
+  end
+
+  it 'keeps plan and bulk add in the my calendar header' do
+    create(:everyday_task_template, family: family)
+    visit my_calendar_path
+
+    expect(page).to have_button '予定追加'
+    expect(page).to have_button 'まとめて追加'
+    expect(page).to have_button 'タスク追加'
+    expect(page).to have_button '体調記録'
   end
 
   private
