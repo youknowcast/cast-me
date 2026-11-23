@@ -1,13 +1,11 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-	static targets = ["triggerText"]
 	static values = {
 		date: String,
 		baseUrl: String
 	}
 
-	declare readonly triggerTextTarget: HTMLElement
 	declare dateValue: string
 	declare baseUrlValue: string
 

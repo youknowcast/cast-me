@@ -89,17 +89,8 @@ export default class extends Controller {
 			link.href = linkUrl.toString()
 		})
 
-		// Sync monthpicker connector if it exists
-		const monthpickerTrigger = document.querySelector('[data-controller="monthpicker-connector"]') as HTMLElement
+		const monthpickerTrigger = document.querySelector('[data-controller="monthpicker-connector"]') as HTMLElement | null
 		if (monthpickerTrigger) {
-			const triggerDateArr = this.dateValue.split('-')
-			if (triggerDateArr.length >= 2) {
-				const yearMonth = `${triggerDateArr[0]}年${triggerDateArr[1]}月`
-				const textEl = monthpickerTrigger.querySelector('[data-monthpicker-connector-target="triggerText"]')
-				if (textEl) {
-					textEl.textContent = yearMonth
-				}
-			}
 			monthpickerTrigger.dataset.monthpickerConnectorDateValue = this.dateValue
 		}
 	}
