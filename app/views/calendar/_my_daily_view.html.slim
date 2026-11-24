@@ -18,6 +18,12 @@
       - else
         .text-gray-400.text-sm.ml-4 予定はありません
 
+    = render "calendar/health_section",
+             target_user: current_user,
+             episodes: health_episodes_by_user[current_user.id],
+             date: date,
+             scope: scope
+
     / タスクセクション
     .mb-4
       .flex.items-center.mb-2

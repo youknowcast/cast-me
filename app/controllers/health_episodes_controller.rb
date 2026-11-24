@@ -8,7 +8,7 @@ class HealthEpisodesController < ApplicationController
 
   def new
     @episode = current_user.family.health_episodes.build(
-      user: current_user,
+      user: new_episode_user,
       started_on: parse_date(params[:date])
     )
     render_form
@@ -54,6 +54,12 @@ class HealthEpisodesController < ApplicationController
 
   def set_episode
     @episode = current_user.family.health_episodes.find(params.expect(:id))
+  end
+
+  def new_episode_user
+    return current_user if params[:user_id].blank?
+
+    current_user.family.users.find(params.expect(:user_id))
   end
 
   def prepare_show

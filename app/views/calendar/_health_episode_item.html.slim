@@ -1,0 +1,10 @@
+.bg-amber-50.border-l-4.border-amber-400.p-3.rounded-r-lg
+  .flex.items-start.justify-between.gap-2
+    div.min-w-0
+      = link_to episode.title, health_episode_path(episode),
+                class: "block font-medium text-gray-800 hover:underline break-words"
+      p.text-xs.text-gray-500.mt-1
+        i.far.fa-clock.mr-1
+        = episode.period_label
+    span.badge.badge-sm.shrink-0 class=(episode.recovered? ? "badge-success" : "badge-warning")
+      = episode.recovered? ? "回復済み" : "経過観察中"

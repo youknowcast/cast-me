@@ -49,7 +49,8 @@
         = f.datetime_local_field :measured_at, class: 'input input-sm w-full'
       .form-control
         = f.label :value, '体温', class: 'label'
-        = f.number_field :value, step: 0.1, min: 30, max: 45, class: 'input input-sm w-28', placeholder: '36.5'
+        = f.select :value, temperature_choices(@temperature.value),
+                   { selected: temperature_input_value(@temperature.value) }, class: 'select select-sm w-28'
       = f.submit '体温を記録', class: 'btn btn-sm btn-primary'
 
     - if @temperatures_by_date.any?
@@ -70,7 +71,9 @@
                       = f.datetime_local_field :measured_at, class: 'input input-xs w-full'
                     .form-control
                       = f.label :value, '体温', class: 'label'
-                      = f.number_field :value, step: 0.1, min: 30, max: 45, class: 'input input-xs w-24'
+                      = f.select :value, temperature_choices(temperature.value),
+                                 { selected: temperature_input_value(temperature.value) },
+                                 class: 'select select-xs w-24'
                     = f.submit '更新', class: 'btn btn-xs btn-outline'
                   = button_to health_episode_temperature_path(@episode, temperature), method: :delete,
                               class: 'btn btn-xs btn-ghost text-error',
