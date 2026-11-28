@@ -19,6 +19,7 @@ class Family < ApplicationRecord
   has_many :health_episodes, dependent: :destroy
   has_many :medications, dependent: :destroy
   has_many :api_tokens, dependent: :destroy
+  has_many :api_idempotency_keys, dependent: :destroy
 
   validates :name, presence: true, length: { maximum: 100 }
 end

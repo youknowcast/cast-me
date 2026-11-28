@@ -79,11 +79,14 @@ Rails.application.routes.draw do
     namespace :v1 do
       get 'today', to: 'today#index'
       get 'tasks', to: 'tasks#index'
+      patch 'tasks/:id/toggle', to: 'tasks#toggle'
       get 'input_status', to: 'input_status#index'
+      post 'plans', to: 'plans#create'
 
       namespace :family do
         get 'members', to: 'members#index'
       end
     end
   end
+  post '/mcp', to: 'mcp#create'
 end

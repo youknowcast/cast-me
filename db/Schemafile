@@ -231,6 +231,7 @@ end
 
 create_table 'api_tokens', force: :cascade do |t|
   t.bigint 'family_id', null: false
+  t.bigint 'user_id'
   t.string 'name', null: false
   t.string 'token_digest', null: false
   t.datetime 'last_used_at'
@@ -239,4 +240,16 @@ create_table 'api_tokens', force: :cascade do |t|
 
   t.index ['family_id'], name: 'index_api_tokens_on_family_id'
   t.index ['token_digest'], name: 'index_api_tokens_on_token_digest', unique: true
+  t.index ['user_id'], name: 'index_api_tokens_on_user_id'
+end
+
+create_table 'api_idempotency_keys', force: :cascade do |t|
+  t.bigint 'family_id', null: false
+  t.string 'key', null: false
+  t.string 'request_hash', null: false
+  t.integer 'response_status', null: false
+  t.text 'response_body', null: false
+  t.datetime 'created_at', null: false
+
+  t.index ['family_id', 'key'], name: 'index_api_idempotency_keys_on_family_id_and_key'
 end

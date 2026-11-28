@@ -77,4 +77,43 @@ RSpec.describe ApiToken, type: :model do
       expect(family.api_tokens).to include(token)
     end
   end
+
+  describe 'user_id (token user)' do
+    let(:user) { create(:user, family: family) }
+
+    it 'allows a null user_id' do
+      token = create(:api_token, family: family, user_id: nil)
+      expect(token.user).to be_nil
+    end
+
+    it 'exposes the token user' do
+      token = create(:api_token, family: family, user: user)
+      expect(token.user).to eq(user)
+      expect(token.reload.user_id).to eq(user.id)
+    end
+
+    it 'rejects a user from another family' do
+      other_user = create(:user, family: create(:family))
+      token = build(:api_token, family: family, user: other_user)
+      expect(token).not_to be_valid
+      expect(token.errors[:user]).to be_present
+    end
+
+    it 'can be issued with a user' do
+      record, = described_class.issue!(family: family, name: 't', user: user)
+      expect(record.user).to eq(user)
+    end
+
+    it 'defaults user to nil when issued' do
+      record, = described_class.issue!(family: family, name: 't')
+      expect(record.user).to be_nil
+    end
+
+    it 'rejects issuing with a user from another family' do
+      other_user = create(:user, family: create(:family))
+      expect do
+        described_class.issue!(family: family, name: 't', user: other_user)
+      end.to raise_error(ActiveRecord::RecordInvalid)
+    end
+  end
 end
