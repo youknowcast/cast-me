@@ -11,6 +11,10 @@ module Api
       skip_before_action :set_calendar_date, raise: false
       before_action :authenticate_api_token!
 
+      rescue_from ActionDispatch::Http::Parameters::ParseError do
+        render json: { error: 'invalid_body' }, status: :bad_request
+      end
+
       private
 
       attr_reader :current_api_token

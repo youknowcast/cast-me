@@ -1,7 +1,7 @@
 # CastMe × Alexa 設計 doc
 
 - 作成日: 2026-11-28
-- ステータス: 設計確定 / Phase 1 実装中
+- ステータス: 設計確定 / Phase 1 完了 / Phase 2 実装済み（書き込み API + MCP）
 - スキル名: **キャストミー**（Alexa カスタムスキル）
 - 本番: https://castme.daycrift.net（AWS Lightsail / SQLite / Kamal 2）
 
@@ -159,14 +159,14 @@ CastMe（家族カレンダー・タスク・体調・食事の Rails 8.1 アプ
 - トークン無し・不正・失効は **401 `{"error":"unauthorized"}`**。他家族のデータは返さない。
 - digest 比較は digest での検索（`find_by(token_digest: ...)`）。失効チェックは `revoked_at IS NULL`。
 
-## 5. MCP tools 案（Phase 2。本変更では実装しない）
+## 5. MCP tools 案（Phase 2。**12 で実装済み**）
 
 | tool | 役割 | v1 API との関係 |
 |---|---|---|
 | `get_day` | 指定日の予定+タスク+入力状況をまとめて返す | `GET /api/v1/today` |
-| `create_plan` | 予定を作成 | **v1 読み取りのみ。Phase 2 で書き込み API を追加** |
+| `create_plan` | 予定を作成 | `POST /api/v1/plans`（Phase 2）。MCP はこれを呼ぶ |
 | `list_tasks` | タスク一覧（フィルタ） | `GET /api/v1/tasks` |
-| `complete_task` | タスクを完了にする | **v1 読み取りのみ。Phase 2** |
+| `complete_task` | タスクを完了にする | `PATCH /api/v1/tasks/:id/toggle` / MCP `complete_task`（Phase 2、`completed=true`） |
 | `get_input_status` | 入力状況 none/partial/complete | `GET /api/v1/input_status` |
 | `list_family` | 家族メンバー一覧 | `GET /api/v1/family/members` |
 
@@ -258,3 +258,85 @@ Alexa+ の **MCP Add-on** の詳細仕様は現時点で完全には公開され
 - request specs（認証なし 401 / 不正トークン 401 / 他家族非混入 / today / user フィルタ / input_status none/partial/complete / 不正日付 400）。
 - 本 doc + `docs/superpowers/plans/2026-11-28-cast-me-alexa.md`。
 - **書き込み API / MCP / Lambda / dummy / OneSignal / Google / health / meals は実装しない。**
+
+## 12. Phase 2: 書き込み API + MCP サーバー（実装済み）
+
+Phase 1 の読み取り API に、家族スコープの書き込みと MCP サーバーを追加する。**本番 DB は本 PR では触らない**。OAuth 2.1 + PKCE は未実装（後述）。
+
+### 12.1 書き込み API（家族トークン）
+
+認証は Phase 1 と同じ `Authorization: Bearer <api_token>`。CSRF は API のみ skip、CORS 不要、`force_ssl` 不変。エラーは JSON のみ。
+
+#### `POST /api/v1/plans`
+
+- 入力: `date`（**strict `YYYY-MM-DD`**、必須。不正/実在しない日付は **400 `invalid_date`**）、`title`（必須）、`start_time?` / `end_time?`（**`HH:MM` 24h**、任意。不正は **400 `invalid_time`**、end < start は **422**）、`participant_ids?`（任意）。
+- **参加者は同じ family の user のみ**。不明 id / 他家族 user / 非整数は **422**。
+- `participant_ids` **省略時は api_token の user を既定**にする（トークンに user が紐づいていない場合は参加者なし）。`participant_ids: []` を明示した場合も参加者なし。
+- **参加者が 1 人も決まらない場合は 422**。
+- `Plan` + `PlanParticipant`（status `pending`、`created_by`/`last_edited_by` は token user）を作成し、既存 **`Api::V1::PlanSerializer`** で返す。**201 Created**。
+- エラー: **400 invalid_date / invalid_time、401、422**。JSON のみ。
+
+#### `PATCH /api/v1/tasks/:id/toggle`
+
+- **family scope**（`current_family.tasks`）。`completed` をトグルして **`Api::V1::TaskSerializer`** で返す。**200**。
+- 他家族 / 不明 / 非整数 id は **404 `{"error":"not_found"}`**。401。JSON のみ。
+
+#### 冪等性（`POST /api/v1/plans`）
+
+- 任意の **`Idempotency-Key`** ヘッダー。新テーブル **`api_idempotency_keys`**（Ridgepole）: `family_id`, `key`, `request_hash`, `response_status`, `response_body`, `created_at`（index `(family_id, key)`、`NOT NULL`、no `updated_at`）。
+- `request_hash` は **canonical JSON body の SHA256**（deep-sort）。
+- **同じ key の再送は保存済みレスポンス（status + body）を返す**（二重作成しない）。
+- **同じ key で body が違えば 409**（`idempotency_key_conflict`）。
+- key は **家族ごと**。**24 時間**で再利用可能（`created_at` が 24h 以上前のものは無視。期限切れ掃除は任意）。
+- 失敗したリクエスト（4xx）は記録せず、同じ key で再試行可能。成功（2xx）のみ保存。Plan 作成 + 冪等性記録はトランザクション。
+
+### 12.2 token user（`api_tokens.user_id`）
+
+- `api_tokens` に **`user_id`（nullable、家族内）** を追加。ユーザーは **token の family に所属**していることをバリデーション。
+- 発行: `bin/rails api_tokens:create FAMILY_ID=1 NAME=alexa-lambda [USER_ID=1]`（`USER_ID` は任意。家族外は拒否。生トークンは一度だけ表示、digest のみ保存、seed に入れない）。
+- `ApiToken.issue!(family:, name:, user: nil)`。
+
+### 12.3 MCP サーバー（`POST /mcp`、cast-me 内）
+
+- **JSON-RPC 2.0**、**Streamable HTTP（JSON レスポンス、SSE 不要）**。`POST /mcp`。CSRF skip、CORS 不要。
+- 認証は既存 `api_tokens`（`Authorization: Bearer`）。**認証失敗は 401 JSON `{"error":"unauthorized"}`**。
+- メソッド: **`initialize`**（**`protocolVersion: "2025-11-25"`**、`capabilities.tools`、`serverInfo` `{name:"cast-me", version}`）、**`ping`**（`{}`）、**`tools/list`**、**`tools/call`**、**`notifications/initialized`**（no-response、202）。未知 method は `-32601`、parse error `-32700`、invalid request `-32600`、invalid params `-32602`。
+- `tools/call` 結果: `{"content":[{"type":"text","text":"<JSON>"}], ...}`。**エラーは `isError: true` + 内容**。未知 tool は `isError: true`。引数不正は `isError: true`。
+- **MCP ホストはまず cast-me 内（Rails）**。Read API と同じ家族スコープ・同じ認証。入力状況定義は v1 と統一。**health / meals / medications は返さない**。
+- tools（`description` / `inputSchema` は LLM が選びやすい具体形。**plan = カレンダー予定 / task = やること、日付は `YYYY-MM-DD`** を明記）:
+  - **`get_day`**（`date?`）→ `plans` / `tasks` / `input_status`（= `GET /api/v1/today`）。
+  - **`create_plan`**（`date`, `title`, `start_time?`, `end_time?`, `participant_ids?`）→ **書き込み API（`POST /api/v1/plans`）を呼ぶ**。`date` 形式 `YYYY-MM-DD`。`participant_ids` は同一家族。省略時は token user。
+  - **`list_tasks`**（`date?`, `user_id?`）→ tasks + counts（= `GET /api/v1/tasks`）。
+  - **`complete_task`**（`task_id`）→ `completed=true`（PATCH toggle と違い常に完了にする。冪等）。
+  - **`get_input_status`**（`date?`, `user_id?`）→ `none/partial/complete` + counts。
+  - **`list_family`** → 家族メンバー `[{id, display_name}]`。
+- **`create_plan` の冪等性**: 同じ JSON-RPC `id` + 同じ引数の再送は冪等（`api_idempotency_keys`、key `mcp:...`）。`complete_task` は `completed=true` 固定で自然に冪等。
+- `create_plan` の participant 省略時は token user。`complete_task` 等の `task_id` / `user_id` は整数。`get_day` 等の `date` 省略時は **Asia/Tokyo 今日**。
+
+### 12.4 500ms 実測（ローカル）
+
+**`POST /mcp` `tools/call` の応答時間をローカル実測**（Rails `test` 環境、SQLite、warmed、`127.0.0.1`、`n=10〜25`、HTTP round-trip、ms）。**Alexa+ からのネットワークは範囲外**。
+
+| tool | n | min | median | mean | max |
+|---|---|---|---|---|---|
+| `get_day` `{}` | 25 | 3.8 | 4.2 | 5.1 | 20.2 |
+| `get_day` `{date}` | 25 | 4.0 | 4.5 | 4.7 | 7.0 |
+| `list_tasks` `{}` | 25 | 2.7 | 3.0 | 3.2 | 6.0 |
+| `list_tasks` `{date,user_id}` | 25 | 2.7 | 3.3 | 3.4 | 4.4 |
+| `get_input_status` `{}` | 25 | 2.1 | 2.8 | 3.1 | 10.0 |
+| `list_family` `{}` | 25 | 1.7 | 1.9 | 2.0 | 3.1 |
+| `create_plan` | 10 | 4.7 | 5.0 | 6.4 | 17.2 |
+| `complete_task` | 10 | 2.2 | 2.5 | 3.2 | 9.5 |
+
+**結論**: ローカルでは全 `tools/call` が **中央値 ~2〜5ms、最大 ~20ms、いずれも 500ms を大きく下回る**。**MCP サーバーはまず cast-me 内（Rails）に置く**判断。AWS 別サービスは不要。本番（Kamal/Lightsail）での再実測はデプロイ後（ria）。
+
+### 12.5 テスト用家族（`lib/tasks/test_family.rake`、未シード・未実行）
+
+- `bin/rails test_family`（本番では `kamal app exec -i 'bin/rails test_family'`）。**冪等**。
+- `test_family` 家族 + test users（`test_family_user_1`, `test_family_user_2`）+ **`user_id` 付き api_token**（name `test-family`、token user = 1人目）を作成。**生トークンは一度だけ表示**。real family とは `family_id` で分離。
+- **seed には入れない。本 PR では本番 DB を触らない。デプロイ後に ria が実行する。** 再実行では token を再表示しない（既存 token は失効させて再発行するか、初回表示を保存して使う）。token を失った場合は `bin/rails runner 'ApiToken.where(family: Family.find_by(name:"test_family"), name:"test-family").destroy_all'` で失効させて再実行。
+- **本番テスト家族投入の手順（ria）**: 1) デプロイ 2) `kamal app exec -i 'bin/rails test_family'` 3) 表示された token を安全に保存 4) `POST /mcp` `initialize` → `tools/list` → `tools/call`（`get_day`, `list_family` 等）を Bearer で実行して疎通確認 5) `POST /api/v1/plans` の dummy 検証（`Idempotency-Key` 再送・409 等）。**この PR では本番を実行しない。**
+
+### 12.6 OAuth 2.1 + PKCE
+
+**未実装**。現状は Phase 1 と同じ **Bearer `api_tokens`**。**Alexa+ の MCP Add-on 接続時に OAuth 2.1 + PKCE（MCP 仕様準拠）を対応する**（Amazon 仕様確定待ち。Bearer とは別レイヤ）。MCP 置き場（cast-me 内 / AWS 別サービス）は **まず cast-me 内**（12.4 実測）、必要なら後で分離。

@@ -9,6 +9,13 @@
 - HTML コメント内はアプリでは表示されない
 -->
 
+## 2026-11-28 家族スコープ API v1 に書き込み + MCP サーバーを追加
+
+- `POST /api/v1/plans` で予定（+参加者）を作成できます（`date`, `title`, `start_time`, `end_time`, `participant_ids`、同一家族、`Idempotency-Key` 冪等対応、Bearer 認証）
+- `PATCH /api/v1/tasks/:id/toggle` でタスクの完了を切り替えられます
+- `POST /mcp` に MCP サーバー（JSON-RPC 2.0）を追加しました（`get_day`, `create_plan`, `list_tasks`, `complete_task`, `get_input_status`, `list_family`）
+- 家族スコープトークンに発行者ユーザーを紐づけ可能にしました（`api_tokens.user_id`, `api_tokens:create USER_ID=`, `bin/rails test_family` テスト家族作成）
+
 ## 2026-10-21 週間の家族ダッシュボード
 
 - 1 週間の予定を家族全員分まとめて見られる「週間ダッシュボード」を追加しました

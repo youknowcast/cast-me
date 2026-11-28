@@ -21,6 +21,14 @@ module Api
           }
         }
       end
+
+      def toggle
+        task = current_family.tasks.find_by(id: params[:id])
+        return render json: { error: 'not_found' }, status: :not_found if task.nil?
+
+        task.update!(completed: !task.completed)
+        render json: TaskSerializer.call(task)
+      end
     end
   end
 end

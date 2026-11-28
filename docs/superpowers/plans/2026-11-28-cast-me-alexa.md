@@ -229,7 +229,7 @@
 
 ---
 
-## Phase 2: MCP サーバー（本変更では実装しない）
+## Phase 2: 書き込み API + MCP サーバー（**実装済み**）
 
 - MCP tools: **get_day, create_plan, list_tasks, complete_task, get_input_status, list_family**。
 - 置き場**未決**（cast-me 内 / AWS 別サービス）。Phase 3 の dummy **500ms 実測**で決定。
@@ -262,3 +262,27 @@
 - API サンプル（request spec 出力 or curl）。
 - RSpec 全緑出力、RuboCop 0 offenses 出力。
 - 認証・家族分離・input_status のテスト結果。
+
+### Phase 2 実装メモ（書き込み API + MCP。設計は design doc §12）
+
+**追加 endpoint:**
+- `POST /api/v1/plans`（`Api::V1::PlansController#create`）: `date` strict `YYYY-MM-DD` + `title` + `start_time?`/`end_time?` `HH:MM` + `participant_ids?`（同一家族、省略時 token user、参加者0人→422）。Plan + PlanParticipant(`pending`) をトランザクション作成、`Api::V1::PlanSerializer` 返却、**201**。400 invalid_date / invalid_time、401、422。**`Idempotency-Key`**（`Api::V1::Idempotency`、`api_idempotency_keys`）。
+- `PATCH /api/v1/tasks/:id/toggle`（`Api::V1::TasksController#toggle`）: family scope、`completed` トグル、`Api::V1::TaskSerializer`、404。401。
+- **MCP `POST /mcp`**（`McpController < Api::V1::ApplicationController` + `Mcp::Server` + `Mcp::Tools` + `Mcp::ToolDefinitions`）。
+
+**追加 MCP tools（`tools/call` → `{"content":[{"type":"text","text":JSON}]}`、エラー `isError:true`）:**
+`get_day`, `create_plan`, `list_tasks`, `complete_task`, `get_input_status`, `list_family`。`POST /mcp` JSON-RPC 2.0 Streamable HTTP、`initialize`（`protocolVersion 2025-11-25`, `capabilities.tools`, `serverInfo`), `ping`, `tools/list`, `tools/call`, `notifications/initialized`, Bearer `api_tokens`、CSRF skip、401 JSON。health/meals/medications 非返却。`create_plan` は書き込み API ロジック（`Api::V1::PlanCreator` + `Api::V1::Idempotency`、key `mcp:`）を呼ぶ。`complete_task` は `completed=true`。**MCP ホストはまず cast-me 内**。
+
+**冪等性:** `api_idempotency_keys`（family_id,key,request_hash,response_status,response_body,created_at、index(family_id,key)）。request_hash=canonical JSON SHA256。same key+same body→保存済みレスポンス、same key+diff body→409、24h 再利用、家族ごと、2xx のみ保存、トランザクション。MCP `create_plan` は JSON-RPC `id`+args から key 導出。
+
+**token user:** `api_tokens.user_id` nullable 家族内 + バリデーション。`api_tokens:create ... [USER_ID=]`。`ApiToken.issue!(family:,name:,user:)`。
+
+**再利用:** `Api::V1::StrictDate`, `Api::V1::TimeOfDay`, `Api::V1::PlanCreator`, `Api::V1::Idempotency`, `Api::V1::DayPayload`, 既存 `Api::V1::{PlanSerializer,TaskSerializer,InputStatus}`。
+
+**test_family:** `lib/tasks/test_family.rake`（`test_family`, test users, `user_id` token `test-family`, 冪等、token 一度表示、seed 不使用、未シード/未実行、ria がデプロイ後実行、本 PR は本番不変）。手順は README + design §12.5。
+
+**500ms 実測:** ローカル `POST /mcp tools/call`（Rails test + SQLite、warmed、n=10-25、ms）: `get_day` median ~4.2-4.5/max ~20、`list_tasks` ~3.0-3.3/max ~6、`get_input_status` ~2.8/max ~10、`list_family` ~1.9/max ~3、`create_plan` ~5.0/max ~17、`complete_task` ~2.5/max ~9.5。**全て <500ms**。Alexa+ ネットワーク範囲外。**MCP 置き場 = cast-me 内**。
+
+**OAuth:** OAuth 2.1 + PKCE は未実装、**Alexa+ MCP Add-on 接続時**に対応（Bearer とは別レイヤ）。
+
+**Phase 2 constraints:** マージしない、本番 DB / 秘密情報不変、dummy クライアント実装なし、変更は cast-me の API / MCP / tests / docs、CI 緑、`rubocop -A` + `rubocop` 0 offenses、TDD。
