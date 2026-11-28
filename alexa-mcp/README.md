@@ -47,7 +47,12 @@ sam build              # needs dist/ from `npm run build`
 
 ## Deploy
 
-Deployed by `.github/workflows/deploy-alexa-mcp.yml` on push to `alexa-mcp/**` or `workflow_dispatch`, using GitHub Actions **OIDC**:
+`.github/workflows/deploy-alexa-mcp.yml` has two jobs:
+
+- `test` — on pull requests and pushes touching `alexa-mcp/**` (or the workflow): `npm ci` / `npm test` / `npm run lint` / `npm run build`. No AWS credentials.
+- `deploy` — only on push to `main` (same paths) or `workflow_dispatch` on `main`, after `test`. The `castme-deployer` OIDC trust allows `main` only, so PRs / feature branches never assume the role.
+
+Deploy uses GitHub Actions **OIDC**:
 
 ```sh
 aws-actions/configure-aws-credentials
@@ -59,12 +64,14 @@ aws-actions/configure-aws-credentials
 
 ```sh
 sam deploy --stack-name castme-alexa-mcp --region us-west-2 \
-  --capabilities CAPABILITY_IAM --no-confirm-changeset --no-fail-on-empty-changeset
+  --capabilities CAPABILITY_IAM --no-confirm-changeset --no-fail-on-empty-changeset --resolve-s3
 ```
 
-API URL is printed to the workflow summary (`McpApiUrl` output). No real AWS deploy is done in this PR (no local AWS credentials).
+`--resolve-s3` uses the SAM-managed artifact bucket (stack `aws-sam-cli-managed-default`, created on first deploy).
 
-**`castme-deployer` role needs**: `cloudformation:*` (or at least Create/Update/DeleteStack, CreateChangeSet/ExecuteChangeSet, Describe*), `lambda:CreateFunction/UpdateFunctionCode/UpdateFunctionConfiguration/DeleteFunction/PublishVersion/AddPermission/GetFunction/InvokeFunction`, `lambda:CreateAlias/UpdateAlias/DeleteAlias`, `lambda:PutProvisionedConcurrencyConfig/DeleteProvisionedConcurrencyConfig`, `apigatewayv2:*` (CreateApi/UpdateApi/DeleteApi/CreateIntegration/CreateRoute/CreateStage/UpdateStage + tagging), `iam:CreateRole/DeleteRole/AttachRolePolicy/DetachRolePolicy/PutRolePolicy/DeleteRolePolicy/GetRole/PassRole` (Lambda execution role `AWS::IAM::Role`), `s3:*` (SAM artifact bucket), `sts:GetCallerIdentity`. **No attempt is made to bypass permissions; if deploy fails on `AccessDenied`, add these to `castme-deployer`.**
+API URL is printed to the workflow summary (`McpApiUrl` output). No real AWS deploy is done from this PR; the first deploy runs after merge to `main`.
+
+**`castme-deployer` role needs**: `cloudformation:*` (or at least Create/Update/DeleteStack, CreateChangeSet/ExecuteChangeSet, Describe*), `lambda:CreateFunction/UpdateFunctionCode/UpdateFunctionConfiguration/DeleteFunction/PublishVersion/AddPermission/GetFunction/InvokeFunction`, `lambda:CreateAlias/UpdateAlias/DeleteAlias`, `lambda:PutProvisionedConcurrencyConfig/DeleteProvisionedConcurrencyConfig`, `apigatewayv2:*` (CreateApi/UpdateApi/DeleteApi/CreateIntegration/CreateRoute/CreateStage/UpdateStage + tagging), `iam:CreateRole/DeleteRole/AttachRolePolicy/DetachRolePolicy/PutRolePolicy/DeleteRolePolicy/GetRole/PassRole` (Lambda execution role `AWS::IAM::Role`), `s3:*` (SAM artifact bucket; `--resolve-s3` also creates/describes the `aws-sam-cli-managed-default` CloudFormation stack), `sts:GetCallerIdentity`. **No attempt is made to bypass permissions; if deploy fails on `AccessDenied`, add these to `castme-deployer`.**
 
 ## Dummy calls
 
