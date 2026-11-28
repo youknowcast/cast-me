@@ -1,7 +1,7 @@
 # CastMe × Alexa 設計 doc
 
 - 作成日: 2026-11-28
-- ステータス: 設計確定 / Phase 1 完了 / Phase 2 実装済み（書き込み API + MCP）
+- ステータス: 設計確定 / Phase 1 完了 / Phase 2 実装済み（書き込み API + MCP）/ MCP は AWS Lambda + API Gateway（`alexa-mcp/`）
 - スキル名: **キャストミー**（Alexa カスタムスキル）
 - 本番: https://castme.daycrift.net（AWS Lightsail / SQLite / Kamal 2）
 
@@ -47,7 +47,7 @@ CastMe（家族カレンダー・タスク・体調・食事の Rails 8.1 アプ
 | コンポーネント | 役割 | 置き場 |
 |---|---|---|
 | **cast-me Read API** | 家族スコープの読み取り専用 JSON API `/api/v1/*`、Bearer トークン認証 | 本 repo `app/controllers/api/v1/*`（**本変更で実装**） |
-| **MCP サーバー** | Alexa+ / 任意 MCP クライアント向け tools 層。内部で Read API（将来は同等の権限で DB 直）を叩く | **未決**（cast-me 内 / AWS 別サービス。dummy の 500ms 実測で決める） |
+| **MCP サーバー** | Alexa+ / 任意 MCP クライアント向け tools 層。cast-me API を内部で叩く。ステートレス。`Authorization: Bearer` を cast-me にそのまま転送（トークン保存しない） | **AWS Lambda + API Gateway HTTP API（us-west-2、provisioned concurrency=1、alias `live`）**。本 repo `alexa-mcp/`（TypeScript + AWS SAM）。`POST /mcp`。`CASTME_API_BASE=https://castme.daycrift.net` |
 | **Lambda スキル「キャストミー」** | Alexa カスタムスキル。朝/夕方ルーティン、intent 処理、APL、cast-me API pull | **別 repo `cast-me-alexa`**（本変更では実装しない） |
 | **Alexa+ MCP Add-on** | Alexa+ が MCP サーバーをツールとして呼ぶ統合 | Amazon 側仕様。OAuth 2.1 + PKCE は接続時に対応 |
 | **Echo Show APL** | Echo Show 10（第3世代）向け画面テンプレート（今日の予定カード、入力状況など） | Lambda スキル側 |
@@ -166,11 +166,11 @@ CastMe（家族カレンダー・タスク・体調・食事の Rails 8.1 アプ
 | `get_day` | 指定日の予定+タスク+入力状況をまとめて返す | `GET /api/v1/today` |
 | `create_plan` | 予定を作成 | `POST /api/v1/plans`（Phase 2）。MCP はこれを呼ぶ |
 | `list_tasks` | タスク一覧（フィルタ） | `GET /api/v1/tasks` |
-| `complete_task` | タスクを完了にする | `PATCH /api/v1/tasks/:id/toggle` / MCP `complete_task`（Phase 2、`completed=true`） |
+| `complete_task` | タスクを完了にする | `PATCH /api/v1/tasks/:id/complete`（冪等。既に completed なら no-op。`completed=true`）。Rails MCP は従来通り |
 | `get_input_status` | 入力状況 none/partial/complete | `GET /api/v1/input_status` |
 | `list_family` | 家族メンバー一覧 | `GET /api/v1/family/members` |
 
-MCP サーバーは cast-me の Read API を内部で利用する（または同一 DB を家族スコープで参照）。**入力状況の定義（registered+completed / none/partial/complete / 家族全員既定）は v1 と統一する。**
+MCP サーバーは cast-me の API を内部で利用する（**cast-me 本体はデータ API に徹する**）。**入力状況の定義（registered+completed / none/partial/complete / 家族全員既定）は v1 と統一する。** Alexa+ 向け MCP は `alexa-mcp/` の AWS Lambda 版（**12.7**）。Rails MCP（`POST /mcp`）は残す（比較・フォールバック。削除しない）。
 
 ## 6. dummy cast-me-alexa 検証フェーズ（Phase 3。本変更では実装しない）
 
@@ -246,8 +246,8 @@ Alexa+ の **MCP Add-on** の詳細仕様は現時点で完全には公開され
 
 ## 10. 未決
 
-- **MCP サーバーの置き場**: cast-me 内 / AWS 別サービス。**dummy `cast-me-alexa` の `get_day` 500ms 実測で決める**（Phase 3）。
-- **OAuth 2.1 + PKCE**: Alexa+ MCP Add-on 接続時に対応要否を判断（Amazon 仕様確定待ち）。
+- **MCP サーバーの置き場**: **決定**。Alexa+ 向け MCP は **AWS Lambda + API Gateway（us-west-2、provisioned concurrency=1）**、本 repo `alexa-mcp/`。cast-me 本体はデータ API のみ。Rails MCP（`POST /mcp`）は残す。詳細 **12.7**。本番 dummy の 500ms 最終実測はデプロイ後（ria）。Rails MCP 内 vs AWS 別サービスの比較実測は当初の検討記録（12.4）。**別 repo にはしない**: デプロイは GitHub Actions OIDC の既存 `castme-deployer` ロールを流用するため（新 repo だと OIDC trust を増やす必要がある）、**本 repo 内 `alexa-mcp/`** に置く。将来分離可能な自己完結構成。
+- **OAuth 2.1 + PKCE**: **Alexa+ MCP Add-on 接続時**に対応（Amazon 仕様確定待ち）。Bearer `api_tokens` とは別レイヤ。
 - （v1 スコープ外）書き込み API の冪等性・二重登録抑止の詳細は Phase 2。
 - Alexa+ の MCP Add-on の tool 命名・スキーマ確定は Amazon 仕様待ち。
 
@@ -280,6 +280,11 @@ Phase 1 の読み取り API に、家族スコープの書き込みと MCP サ�
 
 - **family scope**（`current_family.tasks`）。`completed` をトグルして **`Api::V1::TaskSerializer`** で返す。**200**。
 - 他家族 / 不明 / 非整数 id は **404 `{"error":"not_found"}`**。401。JSON のみ。
+
+#### `PATCH /api/v1/tasks/:id/complete`
+
+- **family scope**（`current_family.tasks`）。`completed=true` にする（**冪等**。**既に completed なら no-op**）。**`Api::V1::TaskSerializer`** で返す。**200**。
+- 他家族 / 不明 / 非整数 id は **404 `{"error":"not_found"}`**。401。JSON のみ。**Alexa MCP `complete_task`（`alexa-mcp/`）はこれを呼ぶ。** request spec `spec/requests/api/v1/task_complete_spec.rb`。
 
 #### 冪等性（`POST /api/v1/plans`）
 
@@ -339,4 +344,19 @@ Phase 1 の読み取り API に、家族スコープの書き込みと MCP サ�
 
 ### 12.6 OAuth 2.1 + PKCE
 
-**未実装**。現状は Phase 1 と同じ **Bearer `api_tokens`**。**Alexa+ の MCP Add-on 接続時に OAuth 2.1 + PKCE（MCP 仕様準拠）を対応する**（Amazon 仕様確定待ち。Bearer とは別レイヤ）。MCP 置き場（cast-me 内 / AWS 別サービス）は **まず cast-me 内**（12.4 実測）、必要なら後で分離。
+**未実装**。現状は Phase 1 と同じ **Bearer `api_tokens`**。**Alexa+ の MCP Add-on 接続時に OAuth 2.1 + PKCE（MCP 仕様準拠）を対応する**（Amazon 仕様確定待ち。Bearer とは別レイヤ）。MCP 置き場は **AWS Lambda + API Gateway（`alexa-mcp/`）**（12.7）。Rails MCP は残す。
+
+### 12.7 MCP サーバー: AWS Lambda + API Gateway（`alexa-mcp/`）
+
+Phase 2 の Rails MCP（`POST /mcp`、cast-me 内、**残す・削除しない**）の**機能をそのまま、cast-me とは別の AWS サービス**に移した版。**本番 dummy 実測で Rails MCP が 500ms に届かない（median ~746ms / max ~1623ms）**ため、**Alexa+ 向け MCP を AWS Lambda + API Gateway** に置く。
+
+- **場所**: 本 repo `alexa-mcp/`（**別 repo にしない**）。**置き場は cast-me 内 MCP から AWS 別サービスへ変更**（10 参照）。
+- **別 repo にしない理由**: デプロイは GitHub Actions **OIDC** の既存 **`castme-deployer`** ロールを使う。新 repo だと **OIDC trust policy に repo を追加する必要**がある。本 repo 内 `alexa-mcp/` にすれば OIDC 変更不要。**将来分離可能**: `alexa-mcp/` は自己完結（独自 `package.json` / `template.yaml` / workflow `deploy-alexa-mcp.yml`）。**本番 DB・秘密情報は触らない**。
+- **cast-me 本体はデータ API のみ**: MCP サーバーは cast-me `/api/v1/*` を呼ぶ。**Rails アプリに MCP/音声ロジックを足さない**。
+- **構成**: `AWS::Serverless::HttpApi` + `AWS::Serverless::Function`（**Node 22**、`POST /mcp`、`CASTME_API_BASE=https://castme.daycrift.net`、`AWS::Serverless` **alias `live`** + **`ProvisionedConcurrentExecutions: 1`**）。**us-west-2**。**Lambda ステートレス**。**provisioned concurrency で cold start 回避**。カスタムドメイン不要。API URL `https://<api-id>.execute-api.us-west-2.amazonaws.com/mcp`。
+- **認証**: クライアントの **`Authorization: Bearer <cast-me api token>`** をそのまま cast-me API に転送。**トークン保存しない**。**認証なし・不正トークンは 401 JSON**。**cast-me の 401 をそのまま返す**。
+- **MCP**: **2025-11-25 / JSON-RPC 2.0 / Streamable HTTP（JSON、SSE 不要）**。`initialize` / `ping` / `tools/list` / `tools/call` / `notifications/initialized`。serverInfo `{name:"cast-me", version}`。`complete_task` は `PATCH /api/v1/tasks/:id/complete`。**tools（description/inputSchema）は Rails MCP と同じ具体性**。**health / meals は返さない**。**500ms を意識し、cast-me API 呼び出しは並列化しない（各 tool 1 リクエスト）**。`create_plan` の **`Idempotency-Key` は JSON-RPC `id` から生成**。
+- **構成ファイル**: `alexa-mcp/template.yaml`, `package.json`, `tsconfig.json`, `src/index.ts`, `src/tools.ts`, `test/`, `README.md`, `.github/workflows/deploy-alexa-mcp.yml`。
+- **デプロイ**: `.github/workflows/deploy-alexa-mcp.yml`（`push` `alexa-mcp/**` + `workflow_dispatch`、`permissions: id-token: write, contents: read`、`aws-actions/configure-aws-credentials` role `arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/castme-deployer` region `us-west-2`、`pip install aws-sam-cli`、`sam build`、`sam deploy --stack-name castme-alexa-mcp --region us-west-2 --capabilities CAPABILITY_IAM --no-confirm-changeset --no-fail-on-empty-changeset`、Output `McpApiUrl` を summary）。**本 PR では実 AWS デプロイしない**（マージ後の workflow。ローカル AWS creds なし）。
+- **IAM 注意**: `castme-deployer` に **Lambda / API Gateway / CloudFormation / IAM（Lambda 実行ロール作成）** の権限が必要（`lambda:*`, `apigatewayv2:*`, `cloudformation:*`, `iam:CreateRole/DeleteRole/AttachRolePolicy/DetachRolePolicy/PutRolePolicy/DeleteRolePolicy/PassRole`, `s3:*` 等）。**権限がないと deploy で失敗する。無理に回避しない。**
+- **OAuth 2.1 + PKCE** は **Alexa+ 接続時**（12.6）。

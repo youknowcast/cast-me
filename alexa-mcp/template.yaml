@@ -1,0 +1,55 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: CastMe Alexa+ MCP server - stateless MCP 2025-11-25 on AWS Lambda + HTTP API (us-west-2)
+
+Parameters:
+  CastmeApiBase:
+    Type: String
+    Default: https://castme.daycrift.net
+    Description: Base URL of the cast-me data API
+
+Globals:
+  Function:
+    Runtime: nodejs22.x
+    Architectures:
+      - x86_64
+    Timeout: 10
+    MemorySize: 256
+    Environment:
+      Variables:
+        CASTME_API_BASE: !Ref CastmeApiBase
+
+Resources:
+  McpHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: $default
+      CorsConfiguration: false
+
+  McpFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: castme-alexa-mcp
+      CodeUri: .
+      Handler: dist/index.handler
+      AutoPublishAlias: live
+      ProvisionedConcurrencyConfig:
+        ProvisionedConcurrentExecutions: 1
+      Events:
+        McpPost:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref McpHttpApi
+            Path: /mcp
+            Method: post
+
+Outputs:
+  McpApiUrl:
+    Description: MCP endpoint URL (POST /mcp)
+    Value: !Sub 'https://${McpHttpApi.ApiId}.execute-api.${AWS::Region}.${AWS::URLSuffix}/mcp'
+  McpFunctionArn:
+    Description: Lambda function ARN
+    Value: !GetAtt McpFunction.Arn
+  McpFunctionAliasArn:
+    Description: Live alias ARN (provisioned concurrency = 1)
+    Value: !Ref McpFunction.AliasArn
