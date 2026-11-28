@@ -163,6 +163,62 @@ RSpec.describe 'GET /api/v1/today', type: :request do
     end
   end
 
+  context 'with strict YYYY-MM-DD date format' do
+    it 'accepts a strict YYYY-MM-DD date' do
+      get_today(date: '2026-11-28')
+      expect(response).to have_http_status(:ok)
+      expect(response.parsed_body['date']).to eq('2026-11-28')
+    end
+
+    it 'rejects 2026-11-28extra' do
+      get_today(date: '2026-11-28extra')
+      expect(response).to have_http_status(:bad_request)
+      expect(response.parsed_body).to eq('error' => 'invalid_date')
+    end
+
+    it 'rejects 2026.11.28' do
+      get_today(date: '2026.11.28')
+      expect(response).to have_http_status(:bad_request)
+      expect(response.parsed_body).to eq('error' => 'invalid_date')
+    end
+
+    it 'rejects 28-11-2026' do
+      get_today(date: '28-11-2026')
+      expect(response).to have_http_status(:bad_request)
+      expect(response.parsed_body).to eq('error' => 'invalid_date')
+    end
+
+    it 'rejects 20261128' do
+      get_today(date: '20261128')
+      expect(response).to have_http_status(:bad_request)
+      expect(response.parsed_body).to eq('error' => 'invalid_date')
+    end
+
+    it 'rejects non-padded 2026-1-2' do
+      get_today(date: '2026-1-2')
+      expect(response).to have_http_status(:bad_request)
+      expect(response.parsed_body).to eq('error' => 'invalid_date')
+    end
+
+    it 'rejects nested array date[] param' do
+      get_today(date: %w[2026-11-28 x])
+      expect(response).to have_http_status(:bad_request)
+      expect(response.parsed_body).to eq('error' => 'invalid_date')
+    end
+
+    it 'rejects nested date[x] param' do
+      get_today(date: { x: '2026-11-28' })
+      expect(response).to have_http_status(:bad_request)
+      expect(response.parsed_body).to eq('error' => 'invalid_date')
+    end
+
+    it 'rejects impossible calendar date 2026-02-30' do
+      get_today(date: '2026-02-30')
+      expect(response).to have_http_status(:bad_request)
+      expect(response.parsed_body).to eq('error' => 'invalid_date')
+    end
+  end
+
   context 'when returning v1 fields' do
     it 'does not return meals, health, or medications' do
       create(:meal, family: family, user: user, date: date)

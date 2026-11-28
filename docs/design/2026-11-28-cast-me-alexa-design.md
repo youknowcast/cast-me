@@ -71,7 +71,7 @@ CastMe（家族カレンダー・タスク・体調・食事の Rails 8.1 アプ
 - **CSRF**: API のみ `skip_forgery_protection`。Web 側は変更しない。
 - **CORS**: 不要（サーバー間通信）。
 - **`force_ssl`**: 本番設定は変更しない（Kamal proxy が HTTPS を終端）。
-- **日付**: `date=YYYY-MM-DD`。`Date.parse` で解釈し、**不正なら 400 `{"error":"invalid_date"}`**。`date` 省略時は **Asia/Tokyo の今日**。（アプリ `config.time_zone = 'Tokyo'`）
+- **日付**: `date=YYYY-MM-DD`。`date` が文字列で `\A\d{4}-\d{2}-\d{2}\z` に一致する場合のみ `Date.strptime(raw, '%Y-%m-%d')`、**strict `YYYY-MM-DD`**。`date` 省略（`nil`）時のみ **Asia/Tokyo の今日**。文字列以外（Array / `ActionController::Parameters` 等）・形式不一致・実在しない日付は **400 `{"error":"invalid_date"}`**。`Date::Error` / `ArgumentError` / `TypeError` を rescue。（アプリ `config.time_zone = 'Tokyo'`）
 - **v1 では meals / health / medications を返さない**。
 - `display_name` は既存の `User#display_name`（= `login_id`）。
 - `priority` は `tasks.priority`（整数 0..3）。`completed` は真偽値。
@@ -238,7 +238,7 @@ Alexa+ の **MCP Add-on** の詳細仕様は現時点で完全には公開され
 | D5 | 読み取り API は **`/api/v1`**、**読み取り専用**。 |
 | D6 | **v1 では meals / health / medications を返さない**。health/meals に触れない。 |
 | D7 | 認証は **`Authorization: Bearer <token>`**、**家族スコープ `api_tokens`**（SHA256 digest、`last_used_at`、`revoked_at`）。**生トークンは発行時のみ表示、rake/console 発行、seed に入れない、401 `unauthorized`、他家族非混入**。 |
-| D8 | **`date=YYYY-MM-DD`、`Date.parse`、不正は 400 `invalid_date`、省略時は Asia/Tokyo の今日**。 |
+| D8 | **`date=YYYY-MM-DD`、`Date.strptime(raw, '%Y-%m-%d')`、strict `\A\d{4}-\d{2}-\d{2}\z`、String 以外/形式不一致/実在しない日付は 400 `invalid_date`、`Date::Error`/`ArgumentError`/`TypeError` rescue、省略時（`nil`）は Asia/Tokyo の今日**。 |
 | D9 | **CSRF は API のみ skip、CORS 不要、`force_ssl` は変更しない**。 |
 | D10 | `display_name` は既存 `User#display_name`。participants status は `pending/joined/declined`。`priority` は tasks.priority。 |
 | D11 | テスト用データは FactoryBot。**本番の real family データは変更しない**。テスト家族は本番投入可で `family_id` 分離。 |

@@ -40,8 +40,9 @@ module Api
       def requested_date
         raw = params[:date]
         return Time.current.in_time_zone(TIME_ZONE).to_date if raw.nil?
+        return nil unless raw.is_a?(String) && raw.match?(/\A\d{4}-\d{2}-\d{2}\z/)
 
-        Date.parse(raw.to_s)
+        Date.strptime(raw, '%Y-%m-%d')
       rescue ArgumentError, TypeError
         nil
       end
