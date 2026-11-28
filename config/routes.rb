@@ -75,5 +75,15 @@ Rails.application.routes.draw do
   # API エンドポイント
   namespace :api do
     resource :weekly_notifications, only: [:create]
+
+    namespace :v1 do
+      get 'today', to: 'today#index'
+      get 'tasks', to: 'tasks#index'
+      get 'input_status', to: 'input_status#index'
+
+      namespace :family do
+        get 'members', to: 'members#index'
+      end
+    end
   end
 end
