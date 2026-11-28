@@ -228,3 +228,15 @@ create_table 'health_episode_reminder_times', force: :cascade do |t|
   t.index %w[health_episode_id hour minute], name: 'index_health_episode_reminder_times_on_episode_and_time',
                                             unique: true
 end
+
+create_table 'api_tokens', force: :cascade do |t|
+  t.bigint 'family_id', null: false
+  t.string 'name', null: false
+  t.string 'token_digest', null: false
+  t.datetime 'last_used_at'
+  t.datetime 'revoked_at'
+  t.timestamps
+
+  t.index ['family_id'], name: 'index_api_tokens_on_family_id'
+  t.index ['token_digest'], name: 'index_api_tokens_on_token_digest', unique: true
+end
