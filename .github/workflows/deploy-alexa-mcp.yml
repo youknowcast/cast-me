@@ -1,0 +1,99 @@
+name: Deploy Alexa MCP
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'alexa-mcp/**'
+      - '.github/workflows/deploy-alexa-mcp.yml'
+  pull_request:
+    paths:
+      - 'alexa-mcp/**'
+      - '.github/workflows/deploy-alexa-mcp.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test Alexa MCP
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: alexa-mcp
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: alexa-mcp/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build TypeScript
+        run: npm run build
+
+  deploy:
+    name: Deploy to AWS Lambda + API Gateway (us-west-2)
+    needs: test
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    concurrency:
+      group: alexa-mcp-deploy
+      cancel-in-progress: false
+    defaults:
+      run:
+        working-directory: alexa-mcp
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: alexa-mcp/package-lock.json
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/castme-deployer
+          aws-region: us-west-2
+
+      - name: Install AWS SAM CLI
+        run: pip install aws-sam-cli
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build TypeScript
+        run: npm run build
+
+      - name: SAM build
+        run: sam build
+
+      - name: SAM deploy
+        run: sam deploy --stack-name castme-alexa-mcp --region us-west-2 --capabilities CAPABILITY_IAM --no-confirm-changeset --no-fail-on-empty-changeset --resolve-s3
+
+      - name: Output API URL
+        run: |
+          API_URL=$(aws cloudformation describe-stacks --stack-name castme-alexa-mcp --region us-west-2 --query "Stacks[0].Outputs[?OutputKey=='McpApiUrl'].OutputValue" --output text)
+          echo "### MCP API URL" >> "$GITHUB_STEP_SUMMARY"
+          echo "$API_URL" >> "$GITHUB_STEP_SUMMARY"

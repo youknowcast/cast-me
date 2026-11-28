@@ -80,6 +80,7 @@ Rails.application.routes.draw do
       get 'today', to: 'today#index'
       get 'tasks', to: 'tasks#index'
       patch 'tasks/:id/toggle', to: 'tasks#toggle'
+      patch 'tasks/:id/complete', to: 'tasks#complete'
       get 'input_status', to: 'input_status#index'
       post 'plans', to: 'plans#create'
 

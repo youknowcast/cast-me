@@ -29,6 +29,14 @@ module Api
         task.update!(completed: !task.completed)
         render json: TaskSerializer.call(task)
       end
+
+      def complete
+        task = current_family.tasks.find_by(id: params[:id])
+        return render json: { error: 'not_found' }, status: :not_found if task.nil?
+
+        task.update!(completed: true) unless task.completed
+        render json: TaskSerializer.call(task)
+      end
     end
   end
 end
